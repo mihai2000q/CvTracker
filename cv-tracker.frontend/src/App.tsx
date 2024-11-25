@@ -9,31 +9,34 @@ import Countries from './views/Countries'
 import NotFound from './views/NotFound'
 import RedirectAuthentication from './router/RedirectAuthentication'
 import RedirectHome from './router/RedirectHome'
+import { Provider } from '@/components/ui/provider'
+import Home from './views/Home'
 
 function App() {
   return (
     <div className='app'>
-      <BrowserRouter>
-        <Routes>
-          <Route element={<Main />}>
-            <Route path={'/'} element={<Navigate to={'jobs'} replace />} />
+      <Provider>
+        <BrowserRouter>
+          <Routes>
+            <Route element={<Main />}>
+              <Route element={<RedirectHome />}>
+                <Route path={'login'} element={<Login />} />
+                <Route path={'register'} element={<Register />} />
+              </Route>
 
-            <Route element={<RedirectHome />}>
-              <Route path={'login'} element={<Login />} />
-              <Route path={'register'} element={<Register />} />
+              <Route element={<RedirectAuthentication />}>
+                <Route path={''} element={<Home />} />
+                <Route path={'jobs'} element={<Jobs />} />
+                <Route path={'companies'} element={<Companies />} />
+                <Route path={'countries'} element={<Countries />} />
+
+                <Route path={'404'} element={<NotFound />} />
+                <Route path={'*'} element={<Navigate to={'404'} replace />} />
+              </Route>
             </Route>
-
-            <Route element={<RedirectAuthentication />}>
-              <Route path={'jobs'} element={<Jobs />} />
-              <Route path={'companies'} element={<Companies />} />
-              <Route path={'countries'} element={<Countries />} />
-
-              <Route path={'404'} element={<NotFound />} />
-              <Route path={'*'} element={<Navigate to={'404'} replace />} />
-            </Route>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
     </div>
   )
 }
