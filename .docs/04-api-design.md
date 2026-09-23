@@ -40,6 +40,19 @@ direct DB update or a future seed re-run, not through the API.
 | PATCH  | `/api/cvs/:id`           | Update label/notes (not the file itself)         |
 | DELETE | `/api/cvs/:id`           | Delete (only if not referenced by any application) |
 
+## Cover Letters
+
+Mirrors the CV endpoints exactly — same shape, separate library.
+
+| Method | Path                              | Purpose                                        |
+|--------|------------------------------------|---------------------------------------------------|
+| GET    | `/api/cover-letters`               | List cover letters in the library                |
+| POST   | `/api/cover-letters`               | Upload a new cover letter (`multipart/form-data`) |
+| GET    | `/api/cover-letters/:id`           | Get metadata                                     |
+| GET    | `/api/cover-letters/:id/file`      | Download/stream the file                         |
+| PATCH  | `/api/cover-letters/:id`           | Update label/notes                               |
+| DELETE | `/api/cover-letters/:id`           | Delete (only if not referenced by any application) |
+
 ## Skills
 
 | Method | Path              | Purpose                        |
@@ -51,11 +64,16 @@ direct DB update or a future seed re-run, not through the API.
 
 | Method | Path                                   | Purpose                                              |
 |--------|-----------------------------------------|---------------------------------------------------------|
-| GET    | `/api/job-applications`                 | List, with filters: `organizationId`, `countryId`, `status`, date range |
+| GET    | `/api/job-applications`                 | List, with filters: `organizationId`, `countryId`, `status`, date range, `needsFollowUp`, `isGhosted` |
 | POST   | `/api/job-applications`                 | Create an application (also creates its first status-history row, "applied") |
-| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv, country, contacts, skills, status history |
-| PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv/country (not status — see below) |
-| DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, contacts, skill tags) |
+| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv, cover letter, country, contacts, skills, interview rounds, status history |
+| PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv/cover letter/country (not status — see below) |
+| DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, contacts, interview rounds, skill tags) |
+
+List responses for `/api/job-applications` include the computed fields
+`daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` per row (see
+[01-domain-model.md](./01-domain-model.md#derived--computed-fields-not-stored))
+so the UI can surface a "needs follow-up" view without a dedicated endpoint.
 
 ### Status history (sub-resource)
 
@@ -75,6 +93,15 @@ overwriting a field.
 | GET    | `/api/job-applications/:id/contacts`                 | List contacts for an application |
 | POST   | `/api/job-applications/:id/contacts`                 | Add a contact               |
 | DELETE | `/api/job-applications/:id/contacts/:contactId`      | Remove a contact            |
+
+### Interview rounds (sub-resource)
+
+| Method | Path                                                    | Purpose                        |
+|--------|--------------------------------------------------------|------------------------------------|
+| GET    | `/api/job-applications/:id/interview-rounds`             | List rounds for an application     |
+| POST   | `/api/job-applications/:id/interview-rounds`             | Add a round (type + scheduled date)|
+| PATCH  | `/api/job-applications/:id/interview-rounds/:roundId`    | Update outcome/notes/date          |
+| DELETE | `/api/job-applications/:id/interview-rounds/:roundId`    | Remove a round                     |
 
 ### Skill tags (sub-resource)
 

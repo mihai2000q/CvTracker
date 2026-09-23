@@ -9,5 +9,5 @@ Built with React, Next.js, and PostgreSQL, run locally via Docker.
 ## Documentation
 
 This project is currently in the documentation/design phase. See
-[`docs/`](./docs/00-overview.md) for the domain model, database schema,
+[`docs/`](./.docs/00-overview.md) for the domain model, database schema,
 architecture, API design, and local deployment plan.

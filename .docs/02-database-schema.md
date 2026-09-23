@@ -53,6 +53,21 @@ Index: `(name)` for lookup/autocomplete when logging a new application.
 | id     | bigserial     | PK                      |
 | name   | varchar(100)  | UNIQUE, NOT NULL        |
 
+### `cover_letters`
+
+Identical shape to `cvs` — a separate table (not a shared "documents" table
+with a type column) because CVs and cover letters have distinct lifecycles
+and, later, may need different metadata.
+
+| Column             | Type          | Constraints                    |
+|--------------------|---------------|----------------------------------|
+| id                 | bigserial     | PK                                |
+| label              | varchar(150)  | NOT NULL                          |
+| file_path          | text          | NOT NULL                          |
+| original_filename  | varchar(255)  | NOT NULL                          |
+| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()            |
+| notes              | text          | NULL                              |
+
 ### `job_applications`
 
 | Column            | Type          | Constraints                                  |
@@ -60,6 +75,7 @@ Index: `(name)` for lookup/autocomplete when logging a new application.
 | id                | bigserial     | PK                                               |
 | organization_id   | bigint        | FK → organizations(id), NOT NULL                 |
 | cv_id             | bigint        | FK → cvs(id), NOT NULL                           |
+| cover_letter_id   | bigint        | FK → cover_letters(id), NULL (optional)          |
 | country_id        | bigint        | FK → countries(id), NOT NULL                     |
 | job_title         | varchar(200)  | NOT NULL                                         |
 | job_posting_url   | text          | NULL                                             |
@@ -70,8 +86,14 @@ Index: `(name)` for lookup/autocomplete when logging a new application.
 | created_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 | updated_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 
-Indexes: `(organization_id)`, `(cv_id)`, `(country_id)`, `(applied_at)`,
-`(current_status)` — these are the expected filter/sort dimensions in the UI.
+Indexes: `(organization_id)`, `(cv_id)`, `(cover_letter_id)`, `(country_id)`,
+`(applied_at)`, `(current_status)` — these are the expected filter/sort
+dimensions in the UI.
+
+`daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` (see
+[01-domain-model.md](./01-domain-model.md#derived--computed-fields-not-stored))
+are **not columns** — they're computed by the application layer from
+`applied_at` and `application_status_history.changed_at` at read time.
 
 `current_status` is denormalized from `application_status_history` for
 cheap listing/filtering; it must be kept in sync whenever a history row is
@@ -103,6 +125,19 @@ Index: `(job_application_id, changed_at)`.
 | email              | varchar(200)  | NULL                                        |
 | phone              | varchar(50)   | NULL                                        |
 | role               | varchar(100)  | NULL                                        |
+
+### `interview_rounds`
+
+| Column             | Type          | Constraints                                                          |
+|--------------------|---------------|-------------------------------------------------------------------------|
+| id                 | bigserial     | PK                                                                       |
+| job_application_id | bigint        | FK → job_applications(id), NOT NULL                                     |
+| round_type         | varchar(100)  | NOT NULL                                                                 |
+| scheduled_at       | timestamptz   | NOT NULL                                                                 |
+| outcome            | varchar(20)   | NOT NULL DEFAULT 'scheduled' (`scheduled`, `passed`, `failed`, `cancelled`) |
+| notes              | text          | NULL                                                                     |
+
+Index: `(job_application_id, scheduled_at)`.
 
 ### `job_application_skills` (join table)
 
@@ -139,9 +174,12 @@ INSERT INTO countries (iso_code, name, flag_emoji) VALUES
   reference data; see domain rule 5).
 - `job_applications.cv_id`: `ON DELETE RESTRICT` — protects against
   orphaning an application by deleting the CV it was sent with.
+- `job_applications.cover_letter_id`: `ON DELETE RESTRICT` when set — same
+  reasoning as `cv_id`, just nullable.
 - `job_applications.organization_id`: `ON DELETE RESTRICT` — an
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
-  `contacts.job_application_id`, `job_application_skills.*`:
-  `ON DELETE CASCADE` — these are owned by the job application; deleting an
-  application should clean up its timeline, contacts, and tags.
+  `contacts.job_application_id`, `interview_rounds.job_application_id`,
+  `job_application_skills.*`: `ON DELETE CASCADE` — these are owned by the
+  job application; deleting an application should clean up its timeline,
+  contacts, interview rounds, and tags.
