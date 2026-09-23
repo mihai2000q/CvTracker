@@ -69,13 +69,13 @@ This layering exists so that business rules (layer 2) aren't duplicated
 across every route handler, and so persistence details (layer 3) can change
 later (e.g. swapping raw SQL for an ORM) without touching the other two.
 
-## File storage for CVs
+## File storage for documents
 
-Uploaded CV files are **not** stored in PostgreSQL as blobs. They're written
-to a local directory (mounted as a Docker volume — see
-[05-deployment.md](./05-deployment.md)), and the `cvs` table stores only the
-`file_path` pointing at them. This keeps the database small and lets CV
-files be inspected/backed up directly on disk.
+Uploaded CV and cover letter files are **not** stored in PostgreSQL as
+blobs. They're written to a local directory (mounted as a Docker volume —
+see [05-deployment.md](./05-deployment.md)), and the `documents` table
+stores only the `file_path` pointing at them. This keeps the database small
+and lets files be inspected/backed up directly on disk.
 
 ## Open questions for the implementation phase
 

@@ -29,29 +29,23 @@ direct DB update or a future seed re-run, not through the API.
 | PATCH  | `/api/organizations/:id`          | Update name/country/website/notes            |
 | DELETE | `/api/organizations/:id`          | Delete (only if it has no job applications)   |
 
-## CVs
+## Documents
 
-| Method | Path                    | Purpose                                        |
-|--------|-------------------------|---------------------------------------------------|
-| GET    | `/api/cvs`               | List CVs in the library                          |
-| POST   | `/api/cvs`               | Upload a new CV (`multipart/form-data`: file + label + notes) |
-| GET    | `/api/cvs/:id`           | Get CV metadata                                  |
-| GET    | `/api/cvs/:id/file`      | Download/stream the actual CV file               |
-| PATCH  | `/api/cvs/:id`           | Update label/notes (not the file itself)         |
-| DELETE | `/api/cvs/:id`           | Delete (only if not referenced by any application) |
+CVs and cover letters share one library and one grid in the UI, so they
+share one resource here too — `documentType` filters/selects between them
+rather than splitting into separate endpoints.
 
-## Cover Letters
+| Method | Path                       | Purpose                                                     |
+|--------|----------------------------|------------------------------------------------------------------|
+| GET    | `/api/documents`            | List documents (optional `?documentType=cv\|cover_letter` filter) |
+| POST   | `/api/documents`            | Upload a new document (`multipart/form-data`: file + `documentType` + label + notes) |
+| GET    | `/api/documents/:id`        | Get document metadata                                        |
+| GET    | `/api/documents/:id/file`   | Download/stream the actual file                               |
+| PATCH  | `/api/documents/:id`        | Update label/notes (not the file or its type)                 |
+| DELETE | `/api/documents/:id`        | Delete (only if not referenced by any application)             |
 
-Mirrors the CV endpoints exactly — same shape, separate library.
-
-| Method | Path                              | Purpose                                        |
-|--------|------------------------------------|---------------------------------------------------|
-| GET    | `/api/cover-letters`               | List cover letters in the library                |
-| POST   | `/api/cover-letters`               | Upload a new cover letter (`multipart/form-data`) |
-| GET    | `/api/cover-letters/:id`           | Get metadata                                     |
-| GET    | `/api/cover-letters/:id/file`      | Download/stream the file                         |
-| PATCH  | `/api/cover-letters/:id`           | Update label/notes                               |
-| DELETE | `/api/cover-letters/:id`           | Delete (only if not referenced by any application) |
+`documentType` is immutable after upload — swapping a document from `cv` to
+`cover_letter` isn't an update, it's a new upload.
 
 ## Skills
 
@@ -66,8 +60,8 @@ Mirrors the CV endpoints exactly — same shape, separate library.
 |--------|-----------------------------------------|---------------------------------------------------------|
 | GET    | `/api/job-applications`                 | List, with filters: `organizationId`, `countryId`, `status`, date range, `needsFollowUp`, `isGhosted` |
 | POST   | `/api/job-applications`                 | Create an application (also creates its first status-history row, "applied") |
-| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv, cover letter, country, contacts, skills, interview rounds, status history |
-| PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv/cover letter/country (not status — see below) |
+| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv document, cover letter document, country, contacts, skills, interview rounds, status history |
+| PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv document/cover letter document/country (not status — see below) |
 | DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, contacts, interview rounds, skill tags) |
 
 List responses for `/api/job-applications` include the computed fields

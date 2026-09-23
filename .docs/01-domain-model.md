@@ -23,19 +23,30 @@ applications over time (e.g. three different roles at Siemens).
 - `notes` (free text, optional)
 - timestamps
 
-### CV
-A single uploaded CV file, versioned/labeled by you. CVs are a **reusable
-library**: the same CV can be attached to many job applications, and a
-single application always points at exactly one CV — whichever version was
-actually sent.
+### Document
+A single uploaded file — either a CV or a cover letter — versioned/labeled
+by you. Documents are a **reusable library** displayed together in one grid
+in the UI, distinguished by `document_type`: the same document can be
+attached to many job applications, and a single application points at
+exactly one CV-type document (required) and optionally one cover-letter-type
+document — whichever versions were actually sent.
 
 - `id`
+- `document_type` (`cv` | `cover_letter`)
 - `label` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
   not derived
 - `file_path` (location on the local filesystem/volume)
 - `original_filename`
 - `uploaded_at`
 - `notes` (optional)
+
+CV and cover letter started as identical, separately-modeled entities; they
+were merged into one `Document` entity specifically because the UI shows
+both in a single grid — one library, one upload flow, one endpoint, filtered
+by type rather than assembled client-side from two lists. The tradeoff: the
+database can no longer guarantee by itself that a `JobApplication`'s CV slot
+holds a `cv`-type document rather than a `cover_letter`-type one — that
+check moves to the application layer (see business rule 1a).
 
 ### Skill
 A tag describing a technology/competency, reusable across applications
@@ -45,30 +56,16 @@ use for React roles?".
 - `id`
 - `name` (unique)
 
-### CoverLetter
-Mirrors `CV` exactly — a reusable, uploaded-once library entry. Cover
-letters get tailored per application just as often as CVs do, so the same
-"which version did I send them" problem applies. Unlike `CV`, attaching one
-to a `JobApplication` is **optional** — not every application gets a cover
-letter.
-
-- `id`
-- `label`
-- `file_path`
-- `original_filename`
-- `uploaded_at`
-- `notes` (optional)
-
 ### JobApplication
 The central entity — one row per application you sent. Links an
-Organization, the CV you actually sent, and the country where **that
-specific role** is based (which may differ from the organization's own
-country, e.g. a remote role or a foreign subsidiary).
+Organization, the CV document you actually sent, and the country where
+**that specific role** is based (which may differ from the organization's
+own country, e.g. a remote role or a foreign subsidiary).
 
 - `id`
 - `organization_id` → Organization
-- `cv_id` → CV
-- `cover_letter_id` → CoverLetter (optional)
+- `cv_document_id` → Document (must be a `cv`-type document)
+- `cover_letter_document_id` → Document, optional (must be a `cover_letter`-type document)
 - `country_id` → Country (role location, independent of the organization's country)
 - `job_title`
 - `job_posting_url` (optional)
@@ -126,8 +123,8 @@ erDiagram
     COUNTRY ||--o{ ORGANIZATION : "located in"
     COUNTRY ||--o{ JOB_APPLICATION : "role located in"
     ORGANIZATION ||--o{ JOB_APPLICATION : "receives"
-    CV ||--o{ JOB_APPLICATION : "sent as"
-    COVER_LETTER ||--o{ JOB_APPLICATION : "sent as (optional)"
+    DOCUMENT ||--o{ JOB_APPLICATION : "sent as cv"
+    DOCUMENT ||--o{ JOB_APPLICATION : "sent as cover letter (optional)"
     JOB_APPLICATION ||--o{ APPLICATION_STATUS_HISTORY : "has timeline"
     JOB_APPLICATION ||--o{ CONTACT : "has"
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
@@ -157,13 +154,21 @@ and become user-adjustable later without any migration.
 
 ## Business rules
 
-1. A `JobApplication` always has exactly one `CV`, one `Organization`, and
-   one `Country` (the role's location). All three are required. A
-   `CoverLetter` is optional — not every application gets one.
-2. A `CV` (and, likewise, a `CoverLetter`) can be reused by any number of
-   `JobApplication` rows. Deleting a CV or cover letter that is still
-   referenced by an application should be prevented (or the application
-   should be required to point elsewhere first) — no orphaned references.
+1. A `JobApplication` always has exactly one CV `Document`, one
+   `Organization`, and one `Country` (the role's location). All three are
+   required. A cover-letter `Document` is optional — not every application
+   gets one.
+   1a. The application layer must enforce that `cv_document_id` references
+       a `Document` with `document_type = 'cv'`, and
+       `cover_letter_document_id` (when set) references one with
+       `document_type = 'cover_letter'`. The database does not enforce this
+       distinction — it's the accepted tradeoff of merging CV and cover
+       letter into one `Document` entity for a unified UI grid.
+2. A `Document` can be reused by any number of `JobApplication` rows (as
+   either its CV or cover letter, per its type). Deleting a document that is
+   still referenced by an application should be prevented (or the
+   application should be required to point elsewhere first) — no orphaned
+   references.
 3. `ApplicationStatusHistory` is append-only. To change an application's
    status you insert a new history row; you don't edit old ones. The most
    recent row (by `changed_at`, tie-broken by `id`) determines

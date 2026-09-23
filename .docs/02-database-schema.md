@@ -35,16 +35,32 @@ avoided in favor of plural (`countries`, `organizations`, ...), surrogate
 
 Index: `(name)` for lookup/autocomplete when logging a new application.
 
-### `cvs`
+### `documents`
 
-| Column             | Type          | Constraints                    |
-|--------------------|---------------|----------------------------------|
-| id                 | bigserial     | PK                                |
-| label              | varchar(150)  | NOT NULL                          |
-| file_path          | text          | NOT NULL                          |
-| original_filename  | varchar(255)  | NOT NULL                          |
-| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()            |
-| notes              | text          | NULL                              |
+Holds both CVs and cover letters, distinguished by `document_type`. Merged
+into one table because the UI displays both in a single grid — one upload
+flow, one library, filtered by type rather than assembled from two tables.
+
+| Column             | Type          | Constraints                              |
+|--------------------|---------------|----------------------------------------------|
+| id                 | bigserial     | PK                                             |
+| document_type      | varchar(20)   | NOT NULL, `CHECK (document_type IN ('cv', 'cover_letter'))` (or native `ENUM` — open decision) |
+| label              | varchar(150)  | NOT NULL                                       |
+| file_path          | text          | NOT NULL                                       |
+| original_filename  | varchar(255)  | NOT NULL                                       |
+| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()                         |
+| notes              | text          | NULL                                            |
+
+Index: `(document_type)` — the grid's primary filter dimension.
+
+**Type safety tradeoff:** `job_applications.cv_document_id` and
+`cover_letter_document_id` are both plain FKs into this one table. Postgres
+cannot itself guarantee that `cv_document_id` points at a `document_type =
+'cv'` row rather than a `cover_letter` one — that check is the application
+layer's responsibility (see domain model rule 1a). A composite-FK approach
+(`UNIQUE(id, document_type)` + a two-column FK per reference) could enforce
+it at the DB level, but adds enough schema complexity that it isn't worth it
+for a single-user local tool.
 
 ### `skills`
 
@@ -53,30 +69,15 @@ Index: `(name)` for lookup/autocomplete when logging a new application.
 | id     | bigserial     | PK                      |
 | name   | varchar(100)  | UNIQUE, NOT NULL        |
 
-### `cover_letters`
-
-Identical shape to `cvs` — a separate table (not a shared "documents" table
-with a type column) because CVs and cover letters have distinct lifecycles
-and, later, may need different metadata.
-
-| Column             | Type          | Constraints                    |
-|--------------------|---------------|----------------------------------|
-| id                 | bigserial     | PK                                |
-| label              | varchar(150)  | NOT NULL                          |
-| file_path          | text          | NOT NULL                          |
-| original_filename  | varchar(255)  | NOT NULL                          |
-| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()            |
-| notes              | text          | NULL                              |
-
 ### `job_applications`
 
 | Column            | Type          | Constraints                                  |
 |-------------------|---------------|-------------------------------------------------|
-| id                | bigserial     | PK                                               |
-| organization_id   | bigint        | FK → organizations(id), NOT NULL                 |
-| cv_id             | bigint        | FK → cvs(id), NOT NULL                           |
-| cover_letter_id   | bigint        | FK → cover_letters(id), NULL (optional)          |
-| country_id        | bigint        | FK → countries(id), NOT NULL                     |
+| id                        | bigserial     | PK                                               |
+| organization_id           | bigint        | FK → organizations(id), NOT NULL                 |
+| cv_document_id            | bigint        | FK → documents(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
+| cover_letter_document_id  | bigint        | FK → documents(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
+| country_id                | bigint        | FK → countries(id), NOT NULL                     |
 | job_title         | varchar(200)  | NOT NULL                                         |
 | job_posting_url   | text          | NULL                                             |
 | source            | varchar(100)  | NULL                                             |
@@ -86,9 +87,9 @@ and, later, may need different metadata.
 | created_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 | updated_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 
-Indexes: `(organization_id)`, `(cv_id)`, `(cover_letter_id)`, `(country_id)`,
-`(applied_at)`, `(current_status)` — these are the expected filter/sort
-dimensions in the UI.
+Indexes: `(organization_id)`, `(cv_document_id)`, `(cover_letter_document_id)`,
+`(country_id)`, `(applied_at)`, `(current_status)` — these are the expected
+filter/sort dimensions in the UI.
 
 `daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` (see
 [01-domain-model.md](./01-domain-model.md#derived--computed-fields-not-stored))
@@ -172,10 +173,11 @@ INSERT INTO countries (iso_code, name, flag_emoji) VALUES
 - `organizations.country_id`, `job_applications.country_id`: `ON DELETE
   RESTRICT` — a country should never be deletable once referenced (it's
   reference data; see domain rule 5).
-- `job_applications.cv_id`: `ON DELETE RESTRICT` — protects against
-  orphaning an application by deleting the CV it was sent with.
-- `job_applications.cover_letter_id`: `ON DELETE RESTRICT` when set — same
-  reasoning as `cv_id`, just nullable.
+- `job_applications.cv_document_id`: `ON DELETE RESTRICT` — protects
+  against orphaning an application by deleting the document it was sent
+  with.
+- `job_applications.cover_letter_document_id`: `ON DELETE RESTRICT` when
+  set — same reasoning, just nullable.
 - `job_applications.organization_id`: `ON DELETE RESTRICT` — an
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
