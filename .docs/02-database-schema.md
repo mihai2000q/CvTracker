@@ -12,6 +12,20 @@ avoided in favor of plural (`countries`, `organizations`, ...), surrogate
 
 ## Tables
 
+### `users`
+
+Minimal on purpose — no profile image, no roles. Rows are created only by
+the signup endpoint; there is no seed data for this table (contrast with
+`countries` below, which is seeded).
+
+| Column         | Type          | Constraints                  |
+|----------------|---------------|-------------------------------|
+| id             | bigserial     | PK                             |
+| name           | varchar(150)  | NOT NULL                       |
+| email          | varchar(200)  | UNIQUE, NOT NULL               |
+| password_hash  | text          | NOT NULL                       |
+| created_at     | timestamptz   | NOT NULL DEFAULT now()         |
+
 ### `countries` (seeded reference data)
 
 | Column       | Type          | Constraints                  |
@@ -26,6 +40,7 @@ avoided in favor of plural (`countries`, `organizations`, ...), surrogate
 | Column       | Type          | Constraints                              |
 |--------------|---------------|--------------------------------------------|
 | id           | bigserial     | PK                                          |
+| user_id      | bigint        | FK → users(id), NOT NULL                    |
 | name         | varchar(200)  | NOT NULL                                    |
 | country_id   | bigint        | FK → countries(id), NOT NULL                |
 | website      | varchar(300)  | NULL                                         |
@@ -33,7 +48,8 @@ avoided in favor of plural (`countries`, `organizations`, ...), surrogate
 | created_at   | timestamptz   | NOT NULL DEFAULT now()                      |
 | updated_at   | timestamptz   | NOT NULL DEFAULT now()                      |
 
-Index: `(name)` for lookup/autocomplete when logging a new application.
+Index: `(user_id, name)` for lookup/autocomplete when logging a new
+application, scoped to the current user.
 
 ### `documents`
 
@@ -44,6 +60,7 @@ flow, one library, filtered by type rather than assembled from two tables.
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|----------------------------------------------|
 | id                 | bigserial     | PK                                             |
+| user_id            | bigint        | FK → users(id), NOT NULL                       |
 | document_type      | varchar(20)   | NOT NULL, `CHECK (document_type IN ('cv', 'cover_letter'))` (or native `ENUM` — open decision) |
 | label              | varchar(150)  | NOT NULL                                       |
 | file_path          | text          | NOT NULL                                       |
@@ -51,7 +68,7 @@ flow, one library, filtered by type rather than assembled from two tables.
 | uploaded_at        | timestamptz   | NOT NULL DEFAULT now()                         |
 | notes              | text          | NULL                                            |
 
-Index: `(document_type)` — the grid's primary filter dimension.
+Index: `(user_id, document_type)` — the grid's primary filter dimensions.
 
 **Type safety tradeoff:** `job_applications.cv_document_id` and
 `cover_letter_document_id` are both plain FKs into this one table. Postgres
@@ -60,20 +77,22 @@ cannot itself guarantee that `cv_document_id` points at a `document_type =
 layer's responsibility (see domain model rule 1a). A composite-FK approach
 (`UNIQUE(id, document_type)` + a two-column FK per reference) could enforce
 it at the DB level, but adds enough schema complexity that it isn't worth it
-for a single-user local tool.
+for a small local tool with no external API consumers to defend against.
 
 ### `skills`
 
-| Column | Type          | Constraints          |
-|--------|---------------|------------------------|
-| id     | bigserial     | PK                      |
-| name   | varchar(100)  | UNIQUE, NOT NULL        |
+| Column  | Type          | Constraints                          |
+|---------|---------------|-----------------------------------------|
+| id      | bigserial     | PK                                        |
+| user_id | bigint        | FK → users(id), NOT NULL                  |
+| name    | varchar(100)  | NOT NULL, `UNIQUE(user_id, name)`         |
 
 ### `job_applications`
 
 | Column            | Type          | Constraints                                  |
 |-------------------|---------------|-------------------------------------------------|
 | id                        | bigserial     | PK                                               |
+| user_id                   | bigint        | FK → users(id), NOT NULL                         |
 | organization_id           | bigint        | FK → organizations(id), NOT NULL                 |
 | cv_document_id            | bigint        | FK → documents(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
 | cover_letter_document_id  | bigint        | FK → documents(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
@@ -87,9 +106,10 @@ for a single-user local tool.
 | created_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 | updated_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 
-Indexes: `(organization_id)`, `(cv_document_id)`, `(cover_letter_document_id)`,
-`(country_id)`, `(applied_at)`, `(current_status)` — these are the expected
-filter/sort dimensions in the UI.
+Indexes: `(user_id, organization_id)`, `(cv_document_id)`,
+`(cover_letter_document_id)`, `(user_id, country_id)`, `(user_id, applied_at)`,
+`(user_id, current_status)` — `user_id` leads every composite index since
+virtually every query is scoped to the current user first.
 
 `daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` (see
 [01-domain-model.md](./01-domain-model.md#derived--computed-fields-not-stored))
@@ -185,3 +205,7 @@ INSERT INTO countries (iso_code, name, flag_emoji) VALUES
   `job_application_skills.*`: `ON DELETE CASCADE` — these are owned by the
   job application; deleting an application should clean up its timeline,
   contacts, interview rounds, and tags.
+- `organizations.user_id`, `documents.user_id`, `skills.user_id`,
+  `job_applications.user_id`: `ON DELETE CASCADE` — deleting a user (an
+  account-deletion feature, not currently exposed via the API) removes all
+  of their owned data.

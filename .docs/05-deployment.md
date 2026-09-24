@@ -1,7 +1,11 @@
 # Deployment
 
-Local-only, single-user, Docker-based. No cloud provider, no CI/CD
-requirement, no TLS/auth needed.
+Local-only, Docker-based, personal deployment. No cloud provider, no CI/CD
+requirement, no TLS — the app has real signup/login (see
+[04-api-design.md](./04-api-design.md#authentication)), but since it's
+served over plain `http://localhost`, the session cookie is not marked
+`Secure` (that flag requires HTTPS); revisit if this is ever exposed beyond
+your own machine.
 
 ## Shape
 
@@ -23,8 +27,9 @@ flowchart LR
   built from a `Dockerfile` in the repo root, exposed on `localhost:3000`.
 - **`db`** — official `postgres` image, with a named volume for data
   persistence across container restarts (`pg_data`).
-- **`cv_uploads`** — a separate named volume mounted into `app`, holding
-  the uploaded CV files referenced by `cvs.file_path`.
+- **`document_uploads`** — a separate named volume mounted into `app`,
+  holding the uploaded CV/cover letter files referenced by
+  `documents.file_path`.
 
 ## Illustrative `docker-compose.yml` shape
 
@@ -48,15 +53,16 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: postgresql://cvtracker:cvtracker@db:5432/cvtracker
-      CV_STORAGE_PATH: /data/cvs
+      DOCUMENT_STORAGE_PATH: /data/documents
+      JWT_SECRET: change-me   # local-only; a real secret still belongs in .env, not committed
     depends_on:
       - db
     volumes:
-      - cv_uploads:/data/cvs
+      - document_uploads:/data/documents
 
 volumes:
   pg_data:
-  cv_uploads:
+  document_uploads:
 ```
 
 Exact env var names, whether schema setup happens via
@@ -68,15 +74,19 @@ details — the above is the shape, not the final file.
 
 1. `docker compose up` — starts Postgres (seeded with schema + countries on
    first run) and the Next.js app together.
-2. App available at `http://localhost:3000`.
-3. Uploaded CVs persist in the `cv_uploads` volume; database persists in
-   `pg_data`. Both survive `docker compose down` (without `-v`).
-4. `docker compose down -v` for a full reset (wipes DB + uploaded CVs) —
-   useful during early development.
+2. App available at `http://localhost:3000`. Sign up on first visit — there
+   is no pre-created account.
+3. Uploaded documents persist in the `document_uploads` volume; database
+   persists in `pg_data`. Both survive `docker compose down` (without `-v`).
+4. `docker compose down -v` for a full reset (wipes DB + uploaded documents,
+   including all accounts) — useful during early development.
 
 ## Explicitly out of scope
 
 - Remote hosting, domains, TLS.
 - Backups/disaster recovery beyond "the Docker volumes are on your disk".
-- Multi-user concerns, secrets management, environment-specific configs
-  (staging/prod) — there is only one environment: your machine.
+- Secrets management beyond a local `.env` file, environment-specific
+  configs (staging/prod) — there is only one environment: your machine.
+  (Real multi-user *accounts* are in scope via signup/login — see
+  [04-api-design.md](./04-api-design.md#authentication) — it's the
+  deployment/infrastructure that stays single-environment.)

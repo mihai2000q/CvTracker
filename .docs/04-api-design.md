@@ -1,13 +1,36 @@
 # API Design
 
 All endpoints are Next.js Route Handlers under `app/api/**`, returning JSON
-(`multipart/form-data` for the one upload endpoint). No authentication — the
-tool is single-user and local-only, so every endpoint is unauthenticated by
-design.
+(`multipart/form-data` for the document upload endpoint). Every endpoint
+except signup, login, and `GET /api/countries` requires authentication —
+see below.
 
 This is the conceptual surface — request/response field shapes will be
 refined during implementation, but the resources and verbs below are meant
 to be stable, since they map directly to the domain model.
+
+## Authentication
+
+Signup and login are the only endpoints that don't require an existing
+session. Both, on success, set the same HTTP-only session cookie described
+in [03-architecture.md](./03-architecture.md#authentication-flow) — a
+successful signup logs the new user in immediately, no separate login step
+needed.
+
+| Method | Path                  | Purpose                                                        |
+|--------|-----------------------|--------------------------------------------------------------------|
+| POST   | `/api/auth/signup`    | Create a `User` (`name`, `email`, `password`); sets the session cookie |
+| POST   | `/api/auth/login`     | Verify `email` + `password`; sets the session cookie             |
+| POST   | `/api/auth/logout`    | Clear the session cookie                                          |
+| GET    | `/api/auth/me`        | Return the current authenticated user (`id`, `name`, `email` — never `password_hash`) |
+
+- `signup` returns `409` if the email is already registered.
+- `login` returns `401` on any mismatch (wrong email or wrong password) —
+  never distinguishing which, to avoid leaking which emails are registered.
+- Every other endpoint below returns `401` if the session cookie is
+  missing, invalid, or expired. None of them accept or expose a `userId`
+  field — the current user is always resolved from the verified session,
+  never from client input (see domain model rule 11).
 
 ## Countries
 
@@ -112,6 +135,10 @@ overwriting a field.
   at personal-job-search volume; revisit if this ever becomes an issue).
 - Errors return a JSON body `{ "error": "message" }` with an appropriate
   4xx/5xx status code. No error-code taxonomy needed yet — single consumer
-  (your own UI), single user.
+  (your own UI).
+- `401` means "no valid session" (see Authentication above); `403` is not
+  used anywhere in this phase since there are no roles/permissions beyond
+  plain ownership, and a request for another user's resource should return
+  `404`, not `403` — it shouldn't confirm the resource exists at all.
 - No versioning prefix (`/api/v1/...`) — not warranted for a local,
   single-consumer tool; add it later only if it ever becomes necessary.

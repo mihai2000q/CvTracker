@@ -2,6 +2,21 @@
 
 ## Entities
 
+### User
+The owner of a set of data, created via signup. Kept deliberately minimal —
+no profile image, no roles/permissions.
+
+- `id`
+- `name`
+- `email` (unique)
+- `password_hash` (hashed at signup time — bcrypt/argon2; never plaintext,
+  never returned by any endpoint)
+- `created_at`
+
+There is no seeded user — the first account, like every account, is created
+by calling signup. See [04-api-design.md](./04-api-design.md#authentication)
+for the signup/login/session flow.
+
 ### Country
 Seeded reference data. Every other entity that needs a location points at
 a `Country` by id, never by free-text name.
@@ -14,9 +29,11 @@ a `Country` by id, never by free-text name.
 
 ### Organization
 A company you've applied to. One organization can have **many** job
-applications over time (e.g. three different roles at Siemens).
+applications over time (e.g. three different roles at Siemens). Owned by a
+`User` — each user has their own list of organizations.
 
 - `id`
+- `user_id` → User
 - `name`
 - `country_id` → Country (the organization's primary/HQ location)
 - `website` (optional)
@@ -32,6 +49,7 @@ exactly one CV-type document (required) and optionally one cover-letter-type
 document — whichever versions were actually sent.
 
 - `id`
+- `user_id` → User (each user has their own document library)
 - `document_type` (`cv` | `cover_letter`)
 - `label` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
   not derived
@@ -51,18 +69,21 @@ check moves to the application layer (see business rule 1a).
 ### Skill
 A tag describing a technology/competency, reusable across applications
 (e.g. "React", "PostgreSQL", "Kotlin"). Lets you later ask "which CV did I
-use for React roles?".
+use for React roles?". Scoped per user — each user builds their own tag
+vocabulary; uniqueness is per-user, not global.
 
 - `id`
-- `name` (unique)
+- `user_id` → User
+- `name` (unique per user)
 
 ### JobApplication
 The central entity — one row per application you sent. Links an
 Organization, the CV document you actually sent, and the country where
 **that specific role** is based (which may differ from the organization's
-own country, e.g. a remote role or a foreign subsidiary).
+own country, e.g. a remote role or a foreign subsidiary). Owned by a `User`.
 
 - `id`
+- `user_id` → User
 - `organization_id` → Organization
 - `cv_document_id` → Document (must be a `cv`-type document)
 - `cover_letter_document_id` → Document, optional (must be a `cover_letter`-type document)
@@ -120,6 +141,10 @@ relevant to (or emphasized in) a given application.
 
 ```mermaid
 erDiagram
+    USER ||--o{ ORGANIZATION : "owns"
+    USER ||--o{ DOCUMENT : "owns"
+    USER ||--o{ SKILL : "owns"
+    USER ||--o{ JOB_APPLICATION : "owns"
     COUNTRY ||--o{ ORGANIZATION : "located in"
     COUNTRY ||--o{ JOB_APPLICATION : "role located in"
     ORGANIZATION ||--o{ JOB_APPLICATION : "receives"
@@ -130,6 +155,12 @@ erDiagram
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
     JOB_APPLICATION }o--o{ SKILL : "tagged with"
 ```
+
+`Country` is the one entity that stays global, shared reference data — it
+is not owned by any `User`. `ApplicationStatusHistory`, `Contact`,
+`InterviewRound`, and the `JobApplicationSkill` join table don't need their
+own `user_id`: they're only ever reached through their parent
+`JobApplication`, which is already scoped.
 
 ## Derived / computed fields (not stored)
 
@@ -188,3 +219,16 @@ and become user-adjustable later without any migration.
    application's `current_status` — passing a technical round doesn't by
    itself change the application's status; you still log that via
    `ApplicationStatusHistory` (e.g. moving to `interview` or `offer`).
+9. Every `Organization`, `Document`, `Skill`, and `JobApplication` belongs
+   to exactly one `User`. All queries and writes in the application/API
+   layers must filter/scope by the current user's `user_id` — there is no
+   cross-user visibility.
+10. `Skill.name` uniqueness is scoped to `(user_id, name)`, not global —
+    each user can have their own "React" skill row, independent of any
+    other user's.
+11. `User` accounts are created only via signup — there is no seed data for
+    `users` (unlike `Country`). The current user for any request is
+    resolved from a signed JWT (see
+    [04-api-design.md](./04-api-design.md#authentication)), never passed
+    directly by the client and never trusted from anywhere but that
+    verified token.

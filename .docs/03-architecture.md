@@ -69,6 +69,34 @@ This layering exists so that business rules (layer 2) aren't duplicated
 across every route handler, and so persistence details (layer 3) can change
 later (e.g. swapping raw SQL for an ORM) without touching the other two.
 
+## Authentication flow
+
+Signup and login are their own endpoints (`/api/auth/signup`,
+`/api/auth/login` — see [04-api-design.md](./04-api-design.md#authentication));
+every other endpoint requires the caller to be authenticated. Concretely:
+
+1. **Signup** hashes the given password and creates a `User` row, then logs
+   the new user in immediately (see below) — no separate email verification
+   step in this phase.
+2. **Login** verifies the given email/password against `password_hash`,
+   then issues a signed JWT (the user's `id` as its subject, plus an
+   expiry) and sets it as an HTTP-only, `SameSite=Lax` cookie. `SameSite=Lax`
+   is sufficient CSRF protection here since the app is single-origin (no
+   third-party site ever needs to submit requests to it).
+3. **Every other route handler** verifies that JWT before doing anything
+   else — checking its signature and expiry, then reading the user id from
+   it. This check sits at the front of the **API layer** (e.g. a shared
+   helper each route handler calls first, or Next.js middleware — an
+   implementation-phase choice), so the application and data layers below
+   it never see a request without a trusted `user_id` already resolved. A
+   missing/invalid/expired token short-circuits to `401` before reaching
+   the application layer.
+4. **Logout** simply clears the cookie client-side. Because the JWT is
+   stateless (no sessions table), there's no server-side revocation before
+   its natural expiry — an accepted tradeoff of this approach, worth
+   revisiting if it ever matters (e.g. a short-lived JWT plus a longer-lived
+   refresh token, or moving to DB-backed sessions).
+
 ## File storage for documents
 
 Uploaded CV and cover letter files are **not** stored in PostgreSQL as
@@ -86,3 +114,5 @@ These are deliberately **not** decided yet:
 - Validation library for request payloads (e.g. Zod)
 - Exact `app/` folder structure beyond the `api/` convention described above
 - Migration tooling for the PostgreSQL schema
+- JWT expiry duration and where the signing secret lives (env var at minimum)
+- Password hashing library (bcrypt vs. argon2)
