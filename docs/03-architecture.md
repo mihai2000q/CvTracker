@@ -202,6 +202,47 @@ This is also how a migration package for **any** hand-authored operation
 gets created — not just data fixes — whenever there's no schema diff for
 `migration plan` to pick up.
 
+## Seeding: reference data vs. sample data
+
+Prisma 8 has no first-class seeding concept — confirmed against the
+official docs, which name a hand-written TypeScript script invoked via an
+npm script as the intended workaround. This project uses that workaround
+for two *deliberately separate* purposes, since they have different
+audiences and different rules about when they run:
+
+- **`database/reference-data/`** — data every instance of this app needs to
+  function, not optional. Right now that's just `countries` (you can't
+  create an `Organization` or `JobApplication` without a `Country` to
+  reference — see [02-database-schema.md](./02-database-schema.md#seed-data--country)).
+  Run via `npm run db:seed`, which is itself part of `npm run db:setup`
+  (`migrations:up` then `db:seed`) — setting up a fresh database is meant
+  to be one command, not "migrate, then remember to also seed."
+- **`database/sample-data/`** — genuinely optional dev fixtures (currently
+  one example `User`), for a frontend developer who wants something to
+  render against without hand-creating rows first. Run manually via
+  `npm run db:seed:sample`, **never** part of `db:setup` — an empty
+  database (beyond reference data) is the correct state for anyone not
+  explicitly asking for fixtures.
+
+Both follow the same internal shape: each module exports one named
+`seed<Thing>(db)` function; each folder's `index.ts` is the explicit,
+hand-written call order (`seedReferenceData` / `seedSampleData`) — not
+inferred from filenames, so adding a new module is one import and one call,
+no renumbering; a small `<name>.ts` entrypoint at the `database/` root
+opens the `db` client and runs the folder's `index.ts`.
+
+**Writing values for `varchar(n)` fields in a seed script:** the generated
+contract types every sized-string field as a *branded* string
+(`string & { readonly __varcharLength: n }`), so a plain string literal
+isn't directly assignable to a `.create()`/`.upsert()` call — and the real
+brand type lives in an internal package (`@prisma/orm-target-postgres`)
+this project's own conventions (and the framework's docs) say never to
+import from. `database/sized-value.ts` exports a small `sized<N>(value)`
+helper with a **structurally identical** local type — TypeScript brands are
+structural, so this satisfies the real one without importing anything
+internal. Any future write path (signup creating a `User`, creating an
+`Organization`, etc.) will hit the same thing and can reuse this helper.
+
 ## Open questions for the implementation phase
 
 These are deliberately **not** decided yet:
