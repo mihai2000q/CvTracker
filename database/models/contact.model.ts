@@ -5,11 +5,11 @@ export function contactModel({ model, field }: ContractHelpers, sqlTypes: SqlTyp
   return model('Contact', {
     fields: {
       id: field.id.uuidv7String(),
-      jobApplicationId: field.uuidString(),
       name: field.namedType(sqlTypes.varChar150),
       email: field.namedType(sqlTypes.email).optional(),
       phone: field.namedType(sqlTypes.varChar50).optional(),
       role: field.namedType(sqlTypes.varChar100).optional(),
+      jobApplicationId: field.uuidString(),
     },
   });
 }

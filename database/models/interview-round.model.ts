@@ -6,11 +6,11 @@ export function interviewRoundModel({ model, field }: ContractHelpers, sqlTypes:
   return model('InterviewRound', {
     fields: {
       id: field.id.uuidv7String(),
-      jobApplicationId: field.uuidString(),
       roundType: field.namedType(sqlTypes.varChar100),
       scheduledAt: field.temporal.timestamptzString(),
       outcome: field.namedType(InterviewOutcome).default(InterviewOutcome.members.Scheduled),
       notes: field.text().optional(),
+      jobApplicationId: field.uuidString(),
     },
   }).sql(({ cols, constraints }) => ({
     indexes: [

@@ -6,12 +6,12 @@ export function documentModel({ model, field }: ContractHelpers, sqlTypes: SqlTy
   return model('Document', {
     fields: {
       id: field.id.uuidv7String(),
-      userId: field.uuidString(),
       documentType: field.namedType(DocumentType),
       label: field.namedType(sqlTypes.varChar150),
       filePath: field.text(),
       originalFilename: field.namedType(sqlTypes.varChar255),
       notes: field.text().optional(),
+      userId: field.uuidString(),
       uploadedAt: field.temporal.createdAtString(),
     },
   }).sql(({ cols, constraints }) => ({

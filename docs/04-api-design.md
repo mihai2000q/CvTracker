@@ -49,7 +49,7 @@ direct DB update or a future seed re-run, not through the API.
 | GET    | `/api/organizations`              | List organizations (search by name, filter by country) |
 | POST   | `/api/organizations`              | Create an organization                       |
 | GET    | `/api/organizations/:id`          | Get one organization, with its job applications and `countryIds` |
-| PATCH  | `/api/organizations/:id`          | Update name/country/website/notes/`countryIds` |
+| PATCH  | `/api/organizations/:id`          | Update name/country/websiteUrl/notes/`countryIds` |
 | DELETE | `/api/organizations/:id`          | Delete (only if it has no job applications)   |
 
 `countryIds` (an array) is the organization's `OrganizationCountry`

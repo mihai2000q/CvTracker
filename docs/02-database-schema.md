@@ -26,30 +26,35 @@ the signup endpoint; there is no seed data for this table (contrast with
 | Column         | Type          | Constraints                  |
 |----------------|---------------|-------------------------------|
 | id             | bigserial     | PK                             |
+| email          | varchar(255)  | UNIQUE, NOT NULL               |
 | name           | varchar(150)  | NOT NULL                       |
-| email          | varchar(200)  | UNIQUE, NOT NULL               |
 | password_hash  | text          | NOT NULL                       |
 | created_at     | timestamptz   | NOT NULL DEFAULT now()         |
+| updated_at     | timestamptz   | NOT NULL DEFAULT now()         |
 
 ### `country` (seeded reference data)
+
+No flag column — flags are rendered from `iso_code` via
+[flag-icons](https://flagicons.lipis.dev/) at the UI layer, not stored.
 
 | Column       | Type          | Constraints                  |
 |--------------|---------------|-------------------------------|
 | id           | bigserial     | PK                             |
 | iso_code     | varchar(2)    | UNIQUE, NOT NULL               |
 | name         | varchar(100)  | NOT NULL                       |
-| flag_emoji   | varchar(8)    | NULL (placeholder for now)     |
 
 ### `organization`
+
+No `country_id` here — an organization's countries are the many-to-many
+set in `organization_in_country` below, not a single column.
 
 | Column       | Type          | Constraints                              |
 |--------------|---------------|--------------------------------------------|
 | id           | bigserial     | PK                                          |
-| user_id      | bigint        | FK → user(id), NOT NULL                    |
 | name         | varchar(200)  | NOT NULL                                    |
-| country_id   | bigint        | FK → country(id), NOT NULL                |
-| website      | varchar(300)  | NULL                                         |
 | notes        | text          | NULL                                         |
+| website_url  | text          | NULL                                         |
+| user_id      | bigint        | FK → user(id), NOT NULL                    |
 | created_at   | timestamptz   | NOT NULL DEFAULT now()                      |
 | updated_at   | timestamptz   | NOT NULL DEFAULT now()                      |
 
@@ -77,13 +82,13 @@ flow, one library, filtered by type rather than assembled from two tables.
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|----------------------------------------------|
 | id                 | bigserial     | PK                                             |
-| user_id            | bigint        | FK → user(id), NOT NULL                       |
-| document_type      | varchar(20)   | NOT NULL, `CHECK (document_type IN ('cv', 'cover_letter'))` (or native `ENUM` — open decision) |
+| document_type      | native `ENUM` | NOT NULL — `DocumentType` (`cv`, `cover_letter`) |
 | label              | varchar(150)  | NOT NULL                                       |
 | file_path          | text          | NOT NULL                                       |
 | original_filename  | varchar(255)  | NOT NULL                                       |
-| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()                         |
 | notes              | text          | NULL                                            |
+| user_id            | bigint        | FK → user(id), NOT NULL                       |
+| uploaded_at        | timestamptz   | NOT NULL DEFAULT now()                         |
 
 Index: `(user_id, document_type)` — the grid's primary filter dimensions.
 
@@ -101,25 +106,25 @@ for a small local tool with no external API consumers to defend against.
 | Column  | Type          | Constraints                          |
 |---------|---------------|-----------------------------------------|
 | id      | bigserial     | PK                                        |
-| user_id | bigint        | FK → user(id), NOT NULL                  |
 | name    | varchar(100)  | NOT NULL, `UNIQUE(user_id, name)`         |
+| user_id | bigint        | FK → user(id), NOT NULL                  |
 
 ### `job_application`
 
 | Column            | Type          | Constraints                                  |
 |-------------------|---------------|-------------------------------------------------|
 | id                        | bigserial     | PK                                               |
-| user_id                   | bigint        | FK → user(id), NOT NULL                         |
+| job_title         | varchar(200)  | NOT NULL                                         |
+| job_posting_url   | text          | NULL                                             |
+| source            | varchar(100)  | NULL                                             |
+| current_status    | native `ENUM` | NOT NULL DEFAULT 'applied' — `ApplicationStatus` |
+| applied_at        | date          | NOT NULL                                         |
+| notes             | text          | NULL                                             |
 | organization_id           | bigint        | FK → organization(id), NOT NULL                 |
 | cv_document_id            | bigint        | FK → document(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
 | cover_letter_document_id  | bigint        | FK → document(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
 | country_id                | bigint        | FK → country(id), NOT NULL                     |
-| job_title         | varchar(200)  | NOT NULL                                         |
-| job_posting_url   | text          | NULL                                             |
-| source            | varchar(100)  | NULL                                             |
-| applied_at        | date          | NOT NULL                                         |
-| current_status    | varchar(30)   | NOT NULL DEFAULT 'applied'                       |
-| notes             | text          | NULL                                             |
+| user_id                   | bigint        | FK → user(id), NOT NULL                         |
 | created_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 | updated_at        | timestamptz   | NOT NULL DEFAULT now()                           |
 
@@ -134,22 +139,25 @@ are **not columns** — they're computed by the application layer from
 `applied_at` and `application_status_history.changed_at` at read time.
 
 `current_status` is denormalized from `application_status_history` for
-cheap listing/filtering; it must be kept in sync whenever a history row is
-inserted (application-layer responsibility, or a DB trigger — open decision).
+cheap listing/filtering; it is kept in sync by the **application layer**
+whenever a history row is inserted — no DB trigger. Keeping this logic in
+the application (not the database) matches the rest of the schema: no other
+business rule here relies on triggers/stored procedures either.
 
-Suggested `current_status` / `application_status_history.status` values
-(a Postgres `CHECK` constraint or native `ENUM` — open decision):
-`applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`.
+`current_status` / `application_status_history.status` are implemented as
+a native Postgres `ENUM` (`ApplicationStatus` in `database/enums.ts`), not
+a `CHECK` constraint — this is decided, not open. Values: `applied`,
+`screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`.
 
 ### `application_status_history`
 
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|--------------------------------------------|
 | id                 | bigserial     | PK                                          |
-| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
-| status             | varchar(30)   | NOT NULL                                    |
-| changed_at         | timestamptz   | NOT NULL DEFAULT now()                      |
+| status             | native `ENUM` | NOT NULL — `ApplicationStatus`              |
 | note               | text          | NULL                                        |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
+| changed_at         | timestamptz   | NOT NULL DEFAULT now()                      |
 
 Index: `(job_application_id, changed_at)`.
 
@@ -158,22 +166,22 @@ Index: `(job_application_id, changed_at)`.
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|--------------------------------------------|
 | id                 | bigserial     | PK                                          |
-| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
 | name               | varchar(150)  | NOT NULL                                    |
-| email              | varchar(200)  | NULL                                        |
+| email              | varchar(255)  | NULL                                        |
 | phone              | varchar(50)   | NULL                                        |
 | role               | varchar(100)  | NULL                                        |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
 
 ### `interview_round`
 
 | Column             | Type          | Constraints                                                          |
 |--------------------|---------------|-------------------------------------------------------------------------|
 | id                 | bigserial     | PK                                                                       |
-| job_application_id | bigint        | FK → job_application(id), NOT NULL                                     |
 | round_type         | varchar(100)  | NOT NULL                                                                 |
 | scheduled_at       | timestamptz   | NOT NULL                                                                 |
-| outcome            | varchar(20)   | NOT NULL DEFAULT 'scheduled' (`scheduled`, `passed`, `failed`, `cancelled`) |
+| outcome            | native `ENUM` | NOT NULL DEFAULT 'scheduled' — `InterviewOutcome` (`scheduled`, `passed`, `failed`, `cancelled`) |
 | notes              | text          | NULL                                                                     |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL                                     |
 
 Index: `(job_application_id, scheduled_at)`.
 
@@ -186,30 +194,46 @@ Index: `(job_application_id, scheduled_at)`.
 
 ## Seed data — `country`
 
-Seed with a working ISO-3166 style set now; names/flags get corrected later
-in place (see domain rule: `country_id` values never need to change).
-Illustrative seed shape:
+Seeded via `npm run db:seed` (part of `db:setup`), not baked into a
+migration — Prisma 8 has no first-class seeding concept (confirmed against
+the official docs: "write a TypeScript script that imports your `db`
+instance... invoke it from `package.json`'s scripts" is the documented
+workaround). Corrections (names, additions) happen by re-running it,
+matching domain rule 5 (`country_id` values never need to change, only the
+row's own data does).
 
-```sql
-INSERT INTO country (iso_code, name, flag_emoji) VALUES
-  ('DE', 'Germany', '🇩🇪'),
-  ('RO', 'Romania', '🇷🇴'),
-  ('AT', 'Austria', '🇦🇹'),
-  ('NL', 'Netherlands', '🇳🇱'),
-  ('FR', 'France', '🇫🇷'),
-  ('GB', 'United Kingdom', '🇬🇧'),
-  ('US', 'United States', '🇺🇸'),
-  ('CH', 'Switzerland', '🇨🇭'),
-  ('ES', 'Spain', '🇪🇸'),
-  ('IT', 'Italy', '🇮🇹');
-  -- full ISO-3166 list to be filled in during implementation
-```
+This is `database/reference-data/`, not `database/sample-data/` — countries
+are required for the app to function at all (every `Organization` and
+`JobApplication` needs one), unlike the separate, genuinely-optional
+`sample-data/` fixtures (e.g. a dev example user) covered in
+[03-architecture.md](./03-architecture.md#seeding-reference-data-vs-sample-data).
+
+- `database/reference-data/countries.ts` holds the list and a
+  `seedCountries(db)` function that upserts each row by `iso_code` (create
+  if missing, update `name` if it already exists).
+- `database/reference-data/index.ts` is the explicit run order for all
+  reference-data modules (just `countries` for now) — order lives in this
+  one file, not in filenames, so adding a new module later is one import +
+  one call, no renumbering.
+- `database/seed-reference-data.ts` is the entrypoint
+  (`node database/seed-reference-data.ts`, or `npm run db:seed`) that opens
+  the `db` client and runs them.
+
+The full ISO 3166-1 alpha-2 list (249 entries). Codes are hardcoded directly
+(stable — rarely changes); names were generated once via Node's built-in
+`Intl.DisplayNames` rather than hand-typed or scraped from a third-party
+source, with a handful of CLDR's short-form names overridden for clarity
+(e.g. `CD` → "Democratic Republic of the Congo" instead of "Congo -
+Kinshasa") and `&` normalized to "and" throughout. This was a one-time
+generation, not something computed at seed-run time — the committed array
+in `countries.ts` is the source of truth, so the data can't shift if a
+future Node/ICU version resolves a name differently.
 
 ## Referential integrity notes
 
-- `organization.country_id`, `job_application.country_id`: `ON DELETE
-  RESTRICT` — a country should never be deletable once referenced (it's
-  reference data; see domain rule 5).
+- `job_application.country_id`: `ON DELETE RESTRICT` — a country should
+  never be deletable once referenced (it's reference data; see domain
+  rule 5).
 - `job_application.cv_document_id`: `ON DELETE RESTRICT` — protects
   against orphaning an application by deleting the document it was sent
   with.

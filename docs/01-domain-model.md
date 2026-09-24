@@ -7,11 +7,11 @@ The owner of a set of data, created via signup. Kept deliberately minimal —
 no profile image, no roles/permissions.
 
 - `id`
-- `name`
 - `email` (unique)
+- `name`
 - `password_hash` (hashed at signup time — bcrypt/argon2; never plaintext,
   never returned by any endpoint)
-- `created_at`
+- `created_at`, `updated_at`
 
 There is no seeded user — the first account, like every account, is created
 by calling signup. See [04-api-design.md](./04-api-design.md#authentication)
@@ -22,10 +22,13 @@ Seeded reference data. Every other entity that needs a location points at
 a `Country` by id, never by free-text name.
 
 - `id`
-- `name`
-- `iso_code` (e.g. `DE`, `RO`) — placeholder-accurate for now, to be
+- `iso_code` (e.g. `DE`, `RO`), unique — placeholder-accurate for now, to be
   corrected later without touching foreign keys
-- `flag_emoji` or `flag_url` (placeholder for now)
+- `name`
+
+No flag column: the UI renders each country's flag from `iso_code` via
+[flag-icons](https://flagicons.lipis.dev/) (bundled SVGs, works offline) —
+nothing to store or keep in sync.
 
 ### Organization
 A company you've applied to. One organization can have **many** job
@@ -33,24 +36,22 @@ applications over time (e.g. three different roles at Siemens). Owned by a
 `User` — each user has their own list of organizations.
 
 - `id`
-- `user_id` → User
 - `name`
-- `country_id` → Country (the organization's primary/HQ location)
-- `website` (optional)
 - `notes` (free text, optional)
+- `websiteUrl` (optional)
+- `user_id` → User
 - timestamps
 
 An organization can operate in more than one country (branches, regional
-offices), so a single `country_id` isn't enough to capture where you might
-actually be applying. See `OrganizationCountry` below for the broader
-set, which the UI uses to filter the country choices when logging a new
-job application for this organization.
+offices), so there's no single primary/HQ `country_id` field here — see
+`OrganizationCountry` below for the full set, which the UI uses to filter
+the country choices when logging a new job application for this
+organization.
 
 ### OrganizationCountry (join table)
-The set of countries an organization is known to operate in — a superset
-that should typically include the organization's primary `country_id`,
-though this isn't database-enforced. Maintained as part of the
-organization itself: there's no separate add/remove endpoint for this —
+The set of countries an organization is known to operate in. Maintained as
+part of the organization itself: there's no separate add/remove endpoint
+for this —
 creating or updating an `Organization` replaces its full set of countries
 in one write (see
 [04-api-design.md](./04-api-design.md#organizations)). It exists purely to
@@ -70,14 +71,14 @@ exactly one CV-type document (required) and optionally one cover-letter-type
 document — whichever versions were actually sent.
 
 - `id`
-- `user_id` → User (each user has their own document library)
 - `document_type` (`cv` | `cover_letter`)
 - `label` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
   not derived
 - `file_path` (location on the local filesystem/volume)
 - `original_filename`
-- `uploaded_at`
 - `notes` (optional)
+- `user_id` → User (each user has their own document library)
+- `uploaded_at`
 
 CV and cover letter started as identical, separately-modeled entities; they
 were merged into one `Document` entity specifically because the UI shows
@@ -94,8 +95,8 @@ use for React roles?". Scoped per user — each user builds their own tag
 vocabulary; uniqueness is per-user, not global.
 
 - `id`
-- `user_id` → User
 - `name` (unique per user)
+- `user_id` → User
 
 ### JobApplication
 The central entity — one row per application you sent. Links an
@@ -104,18 +105,18 @@ Organization, the CV document you actually sent, and the country where
 own country, e.g. a remote role or a foreign subsidiary). Owned by a `User`.
 
 - `id`
-- `user_id` → User
+- `job_title`
+- `job_posting_url` (optional)
+- `source` (e.g. "LinkedIn", "Company site", "Referral", "Indeed" — free text or small enum)
+- `current_status` (denormalized convenience field — always equal to the
+  latest entry in `ApplicationStatusHistory`, kept for cheap filtering/listing)
+- `applied_at` (date)
+- `notes` (optional)
 - `organization_id` → Organization
 - `cv_document_id` → Document (must be a `cv`-type document)
 - `cover_letter_document_id` → Document, optional (must be a `cover_letter`-type document)
 - `country_id` → Country (role location, independent of the organization's country)
-- `job_title`
-- `job_posting_url` (optional)
-- `source` (e.g. "LinkedIn", "Company site", "Referral", "Indeed" — free text or small enum)
-- `applied_at` (date)
-- `current_status` (denormalized convenience field — always equal to the
-  latest entry in `ApplicationStatusHistory`, kept for cheap filtering/listing)
-- `notes` (optional)
+- `user_id` → User
 - timestamps
 
 ### ApplicationStatusHistory
@@ -123,20 +124,20 @@ An append-only timeline of status changes for a job application — this is
 what answers "when did they call me, and what did I say happened next".
 
 - `id`
-- `job_application_id` → JobApplication
 - `status` (e.g. `applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`)
-- `changed_at` (date/timestamp)
 - `note` (optional free text — "recruiter called, phone screen scheduled")
+- `job_application_id` → JobApplication
+- `changed_at` (date/timestamp)
 
 ### Contact
 A recruiter or hiring contact associated with a job application.
 
 - `id`
-- `job_application_id` → JobApplication
 - `name`
 - `email` (optional)
 - `phone` (optional)
 - `role` (optional, e.g. "Recruiter", "Hiring Manager")
+- `job_application_id` → JobApplication
 
 ### InterviewRound
 A structured step in an application's interview process — distinct from
@@ -145,11 +146,11 @@ A round records *what kind* of interview and *when*, so "I have a technical
 round with Siemens next Tuesday" is a queryable fact, not buried in a note.
 
 - `id`
-- `job_application_id` → JobApplication
 - `round_type` (e.g. "Phone screen", "Technical", "Onsite", "HR" — free text)
 - `scheduled_at` (date/timestamp)
 - `outcome` (`scheduled`, `passed`, `failed`, `cancelled` — default `scheduled`)
 - `notes` (optional)
+- `job_application_id` → JobApplication
 
 ### JobApplicationHasSkill (join table)
 Many-to-many between JobApplication and Skill — which skills/tags were
@@ -235,7 +236,8 @@ and become user-adjustable later without any migration.
    entry (`applied`, dated `applied_at`) at creation time.
 5. `Country` rows are never deleted once referenced — they are reference
    data. Corrections (accurate names/flags) happen as updates in place, so
-   `country_id` values on existing organizations/applications remain valid.
+   `country_id` values on existing job applications and `OrganizationCountry`
+   rows remain valid.
 6. `Skill` names are unique; tagging an application with a skill that
    doesn't exist yet creates it (or the UI offers autocomplete over
    existing ones — implementation detail, not a schema constraint).

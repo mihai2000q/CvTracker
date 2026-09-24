@@ -244,19 +244,19 @@ export type FieldOutputTypes = {
   readonly public: {
     readonly ApplicationStatusHistory: {
       readonly id: Char<36>;
-      readonly jobApplicationId: Char<36>;
       readonly status:
         'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
-      readonly changedAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly note: CodecTypes['pg/text@1']['output'] | null;
+      readonly jobApplicationId: Char<36>;
+      readonly changedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly Contact: {
       readonly id: Char<36>;
-      readonly jobApplicationId: Char<36>;
       readonly name: Varchar<150>;
       readonly email: Varchar<255> | null;
       readonly phone: Varchar<50> | null;
       readonly role: Varchar<100> | null;
+      readonly jobApplicationId: Char<36>;
     };
     readonly Country: {
       readonly id: Char<36>;
@@ -265,29 +265,24 @@ export type FieldOutputTypes = {
     };
     readonly Document: {
       readonly id: Char<36>;
-      readonly userId: Char<36>;
       readonly documentType: 'cv' | 'cover_letter';
       readonly label: Varchar<150>;
       readonly filePath: CodecTypes['pg/text@1']['output'];
       readonly originalFilename: Varchar<255>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly userId: Char<36>;
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
     readonly InterviewRound: {
       readonly id: Char<36>;
-      readonly jobApplicationId: Char<36>;
       readonly roundType: Varchar<100>;
       readonly scheduledAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly jobApplicationId: Char<36>;
     };
     readonly JobApplication: {
       readonly id: Char<36>;
-      readonly organizationId: Char<36>;
-      readonly cvDocumentId: Char<36>;
-      readonly coverLetterDocumentId: Char<36> | null;
-      readonly countryId: Char<36>;
-      readonly userId: Char<36>;
       readonly title: Varchar<200>;
       readonly postingUrl: CodecTypes['pg/text@1']['output'] | null;
       readonly source: Varchar<100> | null;
@@ -295,6 +290,11 @@ export type FieldOutputTypes = {
         'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
       readonly appliedAt: CodecTypes['pg/date-temporal@1']['output'];
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
+      readonly organizationId: Char<36>;
+      readonly cvDocumentId: Char<36>;
+      readonly coverLetterDocumentId: Char<36> | null;
+      readonly countryId: Char<36>;
+      readonly userId: Char<36>;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -304,10 +304,10 @@ export type FieldOutputTypes = {
     };
     readonly Organization: {
       readonly id: Char<36>;
-      readonly userId: Char<36>;
       readonly name: Varchar<200>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly websiteUrl: CodecTypes['pg/text@1']['output'] | null;
+      readonly userId: Char<36>;
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
@@ -317,8 +317,8 @@ export type FieldOutputTypes = {
     };
     readonly Skill: {
       readonly id: Char<36>;
-      readonly userId: Char<36>;
       readonly name: Varchar<100>;
+      readonly userId: Char<36>;
     };
     readonly User: {
       readonly id: Char<36>;
@@ -334,19 +334,19 @@ export type FieldInputTypes = {
   readonly public: {
     readonly ApplicationStatusHistory: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
       readonly status:
         'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
-      readonly changedAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly note: CodecTypes['pg/text@1']['input'] | null;
+      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
+      readonly changedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly Contact: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly email: CodecTypes['sql/varchar@1']['input'] | null;
       readonly phone: CodecTypes['sql/varchar@1']['input'] | null;
       readonly role: CodecTypes['sql/varchar@1']['input'] | null;
+      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
     };
     readonly Country: {
       readonly id: CodecTypes['sql/char@1']['input'];
@@ -355,29 +355,24 @@ export type FieldInputTypes = {
     };
     readonly Document: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly documentType: 'cv' | 'cover_letter';
       readonly label: CodecTypes['sql/varchar@1']['input'];
       readonly filePath: CodecTypes['pg/text@1']['input'];
       readonly originalFilename: CodecTypes['sql/varchar@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
     readonly InterviewRound: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
       readonly roundType: CodecTypes['sql/varchar@1']['input'];
       readonly scheduledAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
     };
     readonly JobApplication: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly organizationId: CodecTypes['sql/char@1']['input'];
-      readonly cvDocumentId: CodecTypes['sql/char@1']['input'];
-      readonly coverLetterDocumentId: CodecTypes['sql/char@1']['input'] | null;
-      readonly countryId: CodecTypes['sql/char@1']['input'];
-      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly title: CodecTypes['sql/varchar@1']['input'];
       readonly postingUrl: CodecTypes['pg/text@1']['input'] | null;
       readonly source: CodecTypes['sql/varchar@1']['input'] | null;
@@ -385,6 +380,11 @@ export type FieldInputTypes = {
         'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
       readonly appliedAt: CodecTypes['pg/date-temporal@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
+      readonly organizationId: CodecTypes['sql/char@1']['input'];
+      readonly cvDocumentId: CodecTypes['sql/char@1']['input'];
+      readonly coverLetterDocumentId: CodecTypes['sql/char@1']['input'] | null;
+      readonly countryId: CodecTypes['sql/char@1']['input'];
+      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -394,10 +394,10 @@ export type FieldInputTypes = {
     };
     readonly Organization: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly websiteUrl: CodecTypes['pg/text@1']['input'] | null;
+      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly createdAt: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly updatedAt: CodecTypes['pg/timestamptz-string@1']['input'];
     };
@@ -407,8 +407,8 @@ export type FieldInputTypes = {
     };
     readonly Skill: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly userId: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
+      readonly userId: CodecTypes['sql/char@1']['input'];
     };
     readonly User: {
       readonly id: CodecTypes['sql/char@1']['input'];
@@ -623,10 +623,10 @@ export namespace Models {
   };
   export type public_Organization = {
     id: Char<36>;
-    userId: Char<36>;
     name: Varchar<200>;
     notes: CodecTypes['pg/text@1']['output'] | null;
     websiteUrl: CodecTypes['pg/text@1']['output'] | null;
+    userId: Char<36>;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     organizationCountries: public_OrganizationCountry[];
@@ -642,12 +642,12 @@ export namespace Models {
   };
   export type public_Document = {
     id: Char<36>;
-    userId: Char<36>;
     documentType: 'cv' | 'cover_letter';
     label: Varchar<150>;
     filePath: CodecTypes['pg/text@1']['output'];
     originalFilename: Varchar<255>;
     notes: CodecTypes['pg/text@1']['output'] | null;
+    userId: Char<36>;
     uploadedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     user: public_User;
     cvForJobApplications: public_JobApplication[];
@@ -656,19 +656,14 @@ export namespace Models {
   };
   export type public_Skill = {
     id: Char<36>;
-    userId: Char<36>;
     name: Varchar<100>;
+    userId: Char<36>;
     user: public_User;
     jobApplicationTags: public_JobApplicationHasSkill[];
     readonly [RelationKeys]?: 'user' | 'jobApplicationTags';
   };
   export type public_JobApplication = {
     id: Char<36>;
-    organizationId: Char<36>;
-    cvDocumentId: Char<36>;
-    coverLetterDocumentId: Char<36> | null;
-    countryId: Char<36>;
-    userId: Char<36>;
     title: Varchar<200>;
     postingUrl: CodecTypes['pg/text@1']['output'] | null;
     source: Varchar<100> | null;
@@ -676,6 +671,11 @@ export namespace Models {
       'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
     appliedAt: CodecTypes['pg/date-temporal@1']['output'];
     notes: CodecTypes['pg/text@1']['output'] | null;
+    organizationId: Char<36>;
+    cvDocumentId: Char<36>;
+    coverLetterDocumentId: Char<36> | null;
+    countryId: Char<36>;
+    userId: Char<36>;
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     organization: public_Organization;
@@ -700,31 +700,31 @@ export namespace Models {
   };
   export type public_ApplicationStatusHistory = {
     id: Char<36>;
-    jobApplicationId: Char<36>;
     status:
       'applied' | 'screening' | 'interview' | 'offer' | 'rejected' | 'withdrawn' | 'no_response';
-    changedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     note: CodecTypes['pg/text@1']['output'] | null;
+    jobApplicationId: Char<36>;
+    changedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     jobApplication: public_JobApplication;
     readonly [RelationKeys]?: 'jobApplication';
   };
   export type public_Contact = {
     id: Char<36>;
-    jobApplicationId: Char<36>;
     name: Varchar<150>;
     email: Varchar<255> | null;
     phone: Varchar<50> | null;
     role: Varchar<100> | null;
+    jobApplicationId: Char<36>;
     jobApplication: public_JobApplication;
     readonly [RelationKeys]?: 'jobApplication';
   };
   export type public_InterviewRound = {
     id: Char<36>;
-    jobApplicationId: Char<36>;
     roundType: Varchar<100>;
     scheduledAt: CodecTypes['pg/timestamptz-string@1']['output'];
     outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
     notes: CodecTypes['pg/text@1']['output'] | null;
+    jobApplicationId: Char<36>;
     jobApplication: public_JobApplication;
     readonly [RelationKeys]?: 'jobApplication';
   };
@@ -779,26 +779,26 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly job_application_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly status: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly changed_at: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-string@1';
                   readonly nullable: false;
                 };
                 readonly note: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly job_application_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly changed_at: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-string@1';
+                  readonly nullable: false;
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
@@ -841,12 +841,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly job_application_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly name: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
@@ -870,6 +864,12 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: true;
                   readonly typeRef: 'varChar100';
+                };
+                readonly job_application_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
@@ -932,12 +932,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly user_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly document_type: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -964,6 +958,12 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly user_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
                 readonly uploaded_at: {
                   readonly nativeType: 'timestamptz';
@@ -1012,12 +1012,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly job_application_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly round_type: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
@@ -1042,6 +1036,12 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly job_application_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
@@ -1084,36 +1084,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly organization_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
-                readonly cv_document_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
-                readonly cover_letter_document_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: true;
-                  readonly typeParams: { readonly length: 36 };
-                };
-                readonly country_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
-                readonly user_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly title: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
@@ -1149,6 +1119,36 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly organization_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly cv_document_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly cover_letter_document_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly country_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly user_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
                 readonly created_at: {
                   readonly nativeType: 'timestamptz';
@@ -1332,12 +1332,6 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly user_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly name: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
@@ -1353,6 +1347,12 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: true;
+                };
+                readonly user_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
                 readonly created_at: {
                   readonly nativeType: 'timestamptz';
@@ -1466,17 +1466,17 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly user_id: {
-                  readonly nativeType: 'character';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                };
                 readonly name: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
                   readonly typeRef: 'varChar100';
+                };
+                readonly user_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
@@ -1673,6 +1673,14 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly note: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly jobApplicationId: {
                 readonly nullable: false;
                 readonly type: {
@@ -1681,20 +1689,12 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
-              readonly status: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
               readonly changedAt: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'pg/timestamptz-string@1';
                 };
-              };
-              readonly note: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
             };
             readonly relations: {
@@ -1716,24 +1716,16 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly jobApplicationId: { readonly column: 'job_application_id' };
                 readonly status: { readonly column: 'status' };
-                readonly changedAt: { readonly column: 'changed_at' };
                 readonly note: { readonly column: 'note' };
+                readonly jobApplicationId: { readonly column: 'job_application_id' };
+                readonly changedAt: { readonly column: 'changed_at' };
               };
             };
           };
           readonly Contact: {
             readonly fields: {
               readonly id: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/char@1';
-                  readonly typeParams: { readonly length: 36 };
-                };
-              };
-              readonly jobApplicationId: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
@@ -1757,6 +1749,14 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
               };
+              readonly jobApplicationId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
             };
             readonly relations: {
               readonly jobApplication: {
@@ -1777,11 +1777,11 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly jobApplicationId: { readonly column: 'job_application_id' };
                 readonly name: { readonly column: 'name' };
                 readonly email: { readonly column: 'email' };
                 readonly phone: { readonly column: 'phone' };
                 readonly role: { readonly column: 'role' };
+                readonly jobApplicationId: { readonly column: 'job_application_id' };
               };
             };
           };
@@ -1825,14 +1825,6 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/char@1';
-                  readonly typeParams: { readonly length: 36 };
-                };
-              };
               readonly documentType: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1852,6 +1844,14 @@ type ContractBase = Omit<
               readonly notes: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
               };
               readonly uploadedAt: {
                 readonly nullable: false;
@@ -1899,12 +1899,12 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly userId: { readonly column: 'user_id' };
                 readonly documentType: { readonly column: 'document_type' };
                 readonly label: { readonly column: 'label' };
                 readonly filePath: { readonly column: 'file_path' };
                 readonly originalFilename: { readonly column: 'original_filename' };
                 readonly notes: { readonly column: 'notes' };
+                readonly userId: { readonly column: 'user_id' };
                 readonly uploadedAt: { readonly column: 'uploaded_at' };
               };
             };
@@ -1912,14 +1912,6 @@ type ContractBase = Omit<
           readonly InterviewRound: {
             readonly fields: {
               readonly id: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/char@1';
-                  readonly typeParams: { readonly length: 36 };
-                };
-              };
-              readonly jobApplicationId: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
@@ -1946,6 +1938,14 @@ type ContractBase = Omit<
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly jobApplicationId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
             };
             readonly relations: {
               readonly jobApplication: {
@@ -1966,11 +1966,11 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly jobApplicationId: { readonly column: 'job_application_id' };
                 readonly roundType: { readonly column: 'round_type' };
                 readonly scheduledAt: { readonly column: 'scheduled_at' };
                 readonly outcome: { readonly column: 'outcome' };
                 readonly notes: { readonly column: 'notes' };
+                readonly jobApplicationId: { readonly column: 'job_application_id' };
               };
             };
           };
@@ -1983,6 +1983,30 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/char@1';
                   readonly typeParams: { readonly length: 36 };
                 };
+              };
+              readonly title: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
+              readonly postingUrl: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly source: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
+              readonly currentStatus: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly appliedAt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-temporal@1' };
+              };
+              readonly notes: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly organizationId: {
                 readonly nullable: false;
@@ -2023,30 +2047,6 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/char@1';
                   readonly typeParams: { readonly length: 36 };
                 };
-              };
-              readonly title: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
-              };
-              readonly postingUrl: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly source: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
-              };
-              readonly currentStatus: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly appliedAt: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/date-temporal@1' };
-              };
-              readonly notes: {
-                readonly nullable: true;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly createdAt: {
                 readonly nullable: false;
@@ -2171,17 +2171,17 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly organizationId: { readonly column: 'organization_id' };
-                readonly cvDocumentId: { readonly column: 'cv_document_id' };
-                readonly coverLetterDocumentId: { readonly column: 'cover_letter_document_id' };
-                readonly countryId: { readonly column: 'country_id' };
-                readonly userId: { readonly column: 'user_id' };
                 readonly title: { readonly column: 'title' };
                 readonly postingUrl: { readonly column: 'posting_url' };
                 readonly source: { readonly column: 'source' };
                 readonly currentStatus: { readonly column: 'current_status' };
                 readonly appliedAt: { readonly column: 'applied_at' };
                 readonly notes: { readonly column: 'notes' };
+                readonly organizationId: { readonly column: 'organization_id' };
+                readonly cvDocumentId: { readonly column: 'cv_document_id' };
+                readonly coverLetterDocumentId: { readonly column: 'cover_letter_document_id' };
+                readonly countryId: { readonly column: 'country_id' };
+                readonly userId: { readonly column: 'user_id' };
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly updatedAt: { readonly column: 'updated_at' };
               };
@@ -2251,14 +2251,6 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
-              readonly userId: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/char@1';
-                  readonly typeParams: { readonly length: 36 };
-                };
-              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
@@ -2270,6 +2262,14 @@ type ContractBase = Omit<
               readonly websiteUrl: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly userId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
               };
               readonly createdAt: {
                 readonly nullable: false;
@@ -2313,10 +2313,10 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly userId: { readonly column: 'user_id' };
                 readonly name: { readonly column: 'name' };
                 readonly notes: { readonly column: 'notes' };
                 readonly websiteUrl: { readonly column: 'website_url' };
+                readonly userId: { readonly column: 'user_id' };
                 readonly createdAt: { readonly column: 'created_at' };
                 readonly updatedAt: { readonly column: 'updated_at' };
               };
@@ -2386,6 +2386,10 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
               readonly userId: {
                 readonly nullable: false;
                 readonly type: {
@@ -2393,10 +2397,6 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/char@1';
                   readonly typeParams: { readonly length: 36 };
                 };
-              };
-              readonly name: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
               };
             };
             readonly relations: {
@@ -2426,8 +2426,8 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly userId: { readonly column: 'user_id' };
                 readonly name: { readonly column: 'name' };
+                readonly userId: { readonly column: 'user_id' };
               };
             };
           };

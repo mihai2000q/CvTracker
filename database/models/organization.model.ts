@@ -5,10 +5,10 @@ export function organizationModels({ model, field }: ContractHelpers, sqlTypes: 
   const Organization = model('Organization', {
     fields: {
       id: field.id.uuidv7String(),
-      userId: field.uuidString(),
       name: field.namedType(sqlTypes.varChar200),
       notes: field.text().optional(),
       websiteUrl: field.text().optional(),
+      userId: field.uuidString(),
       createdAt: field.temporal.createdAtString(),
       updatedAt: field.temporal.updatedAtString(),
     },

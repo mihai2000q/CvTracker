@@ -5,10 +5,10 @@ export function applicationStatusHistoryModel({ model, field }: ContractHelpers)
   return model('ApplicationStatusHistory', {
     fields: {
       id: field.id.uuidv7String(),
-      jobApplicationId: field.uuidString(),
       status: field.namedType(ApplicationStatus),
-      changedAt: field.temporal.timestamptzString(),
       note: field.text().optional(),
+      jobApplicationId: field.uuidString(),
+      changedAt: field.temporal.timestamptzString(),
     },
   }).sql(({ cols, constraints }) => ({
     indexes: [
