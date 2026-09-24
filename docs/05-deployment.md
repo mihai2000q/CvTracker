@@ -1,11 +1,21 @@
 # Deployment
 
-Local-only, Docker-based, personal deployment. No cloud provider, no CI/CD
-requirement, no TLS — the app has real signup/login (see
+This describes the deployment **topology** — services, volumes, ports —
+and what's explicitly out of scope for now. For instructions on actually
+running the app (day-to-day dev, or fully containerized), see the main
+[`README.md`](../README.md) — that's where developer-facing "how do I run
+this" content lives; this doc is for the shape underneath it, and for
+production/hosting concerns if this is ever deployed beyond your own
+machine (a real server, secrets management, backups, monitoring — none of
+that exists yet, see *Explicitly out of scope*).
+
+Currently: local-only, Docker-based, personal deployment. No cloud
+provider, no CI/CD. The app has real signup/login (see
 [04-api-design.md](./04-api-design.md#authentication)), but since it's
 served over plain `http://localhost`, the session cookie is not marked
-`Secure` (that flag requires HTTPS); revisit if this is ever exposed beyond
-your own machine.
+`Secure` (that flag requires HTTPS) — this is exactly the kind of thing
+that would need revisiting if this were ever hosted somewhere reachable
+beyond your own machine.
 
 ## Shape
 
@@ -16,70 +26,30 @@ flowchart LR
     subgraph Docker Compose
         app["app (Next.js)\nport 3000"]
         db[("postgres\nport 5432")]
-        vol[("cv_uploads volume")]
+        vol[("document_uploads volume")]
     end
     app -- "SQL" --> db
     app -- "read/write files" --> vol
-    browser["Browser (localhost:3000)"] --> app
+    browser["Browser (localhost:APP_PORT)"] --> app
 ```
 
 - **`app`** — the Next.js application (UI + API routes in one container),
-  built from a `Dockerfile` in the repo root, exposed on `localhost:3000`.
-- **`db`** — official `postgres` image, with a named volume for data
-  persistence across container restarts (`pg_data`).
+  built from a `Dockerfile` in the repo root. Always listens on port `3000`
+  *inside* the container (matching the Dockerfile); the host-facing port is
+  `APP_PORT` (`.env`, default `3001`) — deliberately different from `3000`
+  so the containerized app and a locally-running `npm run dev` (fixed at
+  `3000`, see [`README.md`](../README.md)) can run side by side without a
+  port clash.
+- **`db`** — official `postgres` image, with a bind mount
+  (`.container-data/postgres-data`, gitignored) for data persistence
+  across container restarts.
 - **`document_uploads`** — a separate named volume mounted into `app`,
   holding the uploaded CV/cover letter files referenced by
   `documents.file_path`.
 
-## Illustrative `docker-compose.yml` shape
-
-```yaml
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: cvtracker
-      POSTGRES_USER: cvtracker
-      POSTGRES_PASSWORD: cvtracker   # local-only, no secrets management needed
-    ports:
-      - "5432:5432"
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-      - ./db/seed:/docker-entrypoint-initdb.d  # runs schema + country seed on first boot
-
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      DATABASE_URL: postgresql://cvtracker:cvtracker@db:5432/cvtracker
-      DOCUMENT_STORAGE_PATH: /data/documents
-      JWT_SECRET: change-me   # local-only; a real secret still belongs in .env, not committed
-    depends_on:
-      - db
-    volumes:
-      - document_uploads:/data/documents
-
-volumes:
-  pg_data:
-  document_uploads:
-```
-
-Exact env var names, whether schema setup happens via
-`docker-entrypoint-initdb.d` SQL scripts or an ORM migration step run on
-container start, and the `Dockerfile` contents are implementation-phase
-details — the above is the shape, not the final file.
-
-## Local workflow
-
-1. `docker compose up` — starts Postgres (seeded with schema + countries on
-   first run) and the Next.js app together.
-2. App available at `http://localhost:3000`. Sign up on first visit — there
-   is no pre-created account.
-3. Uploaded documents persist in the `document_uploads` volume; database
-   persists in `pg_data`. Both survive `docker compose down` (without `-v`).
-4. `docker compose down -v` for a full reset (wipes DB + uploaded documents,
-   including all accounts) — useful during early development.
+The real `docker-compose.yml` at the repo root is authoritative — see it
+directly rather than an illustrative copy here. It doesn't yet have
+`document_uploads`/a `JWT_SECRET` since uploads and auth aren't implemented.
 
 ## Explicitly out of scope
 
