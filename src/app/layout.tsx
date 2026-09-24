@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Roboto } from 'next/font/google';
 import './globals.css';
-import { cn } from '@/src/lib/utils';
+import { cn } from '@/lib/utils';
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
