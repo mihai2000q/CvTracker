@@ -105,14 +105,48 @@ see [05-deployment.md](./05-deployment.md)), and the `documents` table
 stores only the `file_path` pointing at them. This keeps the database small
 and lets files be inspected/backed up directly on disk.
 
+## ORM and migrations: Prisma
+
+The **data layer** is implemented with Prisma (`@prisma/orm-postgres`, v8
+release-candidate). This version is a significant departure from classic
+Prisma — no `schema.prisma` file, and no `prisma migrate dev`/`deploy`.
+Instead:
+
+- The schema is authored as TypeScript in `database/contract.ts` (a code
+  DSL — models, fields, relations — rather than the old `.prisma` syntax).
+- `npm run contract:generate` (`prisma contract emit`) compiles that source
+  into `database/contract.json` and `database/contract.d.ts` — generated
+  artifacts (never hand-edited) that `database/db.ts` loads to build the
+  typed client. Run it after every change to `contract.ts`.
+- Migrations are a **static, hand-planned graph** of on-disk packages under
+  `database/migrations/`, not an auto-diffed history. `prisma migration
+  plan` compares the current contract against the graph and writes a new
+  migration package (offline — no DB required); `prisma db migrate` applies
+  every pending on-disk migration forward. Notably, applying **never
+  invents a rollback edge** — a "down" migration only exists if you
+  explicitly plan one first.
+
+### npm scripts
+
+- **`migrations:up`** (`prisma db migrate`) — applies every pending
+  on-disk migration to the database, advancing it forward. This is the
+  normal "run my migrations" command.
+- **`migrations:down`** (`prisma migration plan --name rollback --to`) —
+  *plans* (writes to disk, does not apply) a new migration that reverses
+  back to an earlier state. It needs the target migration to undo, named
+  explicitly: `npm run migrations:down -- <migration-dir>^` (the `^` means
+  "the state before that migration"; find directory names with `prisma
+  migration list`). Review the generated package, then run `npm run
+  migrations:up` to actually apply it — Prisma 8 deliberately keeps
+  planning and applying separate here, so a rollback is never applied
+  silently.
+
 ## Open questions for the implementation phase
 
 These are deliberately **not** decided yet:
 
-- ORM/query builder vs. raw SQL (Prisma, Drizzle, `pg` directly, etc.)
 - Server Components vs. Client Components split in the UI
 - Validation library for request payloads (e.g. Zod)
 - Exact `app/` folder structure beyond the `api/` convention described above
-- Migration tooling for the PostgreSQL schema
 - JWT expiry duration and where the signing secret lives (env var at minimum)
 - Password hashing library (bcrypt vs. argon2)

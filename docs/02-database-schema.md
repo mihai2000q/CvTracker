@@ -1,9 +1,10 @@
 # Database Schema (PostgreSQL)
 
-This describes the schema conceptually and with illustrative DDL. The exact
-migration tooling (raw SQL migrations vs. an ORM like Prisma/Drizzle) is an
-**implementation-phase decision**, not fixed here — this document defines
-the shape the tool must produce, not how.
+This describes the schema conceptually and with illustrative DDL — the
+shape the tool must produce. The actual source of truth once implemented is
+`database/contract.ts` (Prisma 8's code-first schema); see
+[03-architecture.md](./03-architecture.md#orm-and-migrations-prisma) for how
+that's generated and migrated.
 
 Naming convention: `snake_case` tables and columns, singular table names
 avoided in favor of plural (`countries`, `organizations`, ...), surrogate
