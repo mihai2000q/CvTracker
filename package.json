@@ -12,7 +12,10 @@
     "format:check": "prettier --check .",
     "contract:generate": "prisma contract emit",
     "migrations:up": "prisma db migrate",
-    "migrations:down": "prisma migration plan --name rollback --to"
+    "migrations:down": "prisma migration plan --name rollback --to",
+    "db:seed": "node database/seed-reference-data.ts",
+    "db:seed:sample": "node database/seed-sample-data.ts",
+    "db:setup": "npm run migrations:up && npm run db:seed"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
