@@ -48,14 +48,12 @@ CvTracker exists to answer these questions reliably.
 - **No cloud infrastructure.** No AWS, no managed DB, no object storage.
   Everything runs locally via Docker.
 - **No mobile app, no notifications, no email integration.**
-- **No accurate/curated country data yet.** Seed with a reasonable working
-  set now (ISO-3166 style); refine names/flags later without changing the
-  schema or any `country_id` foreign keys.
-- **No implementation yet.** This phase produces documentation: domain
-  model, database schema, architecture shape, and API surface. Backend
-  internals (ORM choice, exact Next.js file layout, validation library,
-  etc.) are intentionally left open until the implementation phase, since
-  the author is still ramping up on Next.js.
+- **No API routes or UI yet.** The database layer (schema, migrations,
+  seed data — see [02-database-schema.md](./02-database-schema.md) and
+  [03-architecture.md](./03-architecture.md)) is implemented; Next.js route
+  handlers and the frontend itself are not. Exact `app/` folder structure,
+  validation library, etc. are still open — see
+  [03-architecture.md](./03-architecture.md)'s open questions.
 
 ## Tech stack (decided so far)
 
