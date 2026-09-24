@@ -10,7 +10,7 @@ machine (a real server, secrets management, backups, monitoring — none of
 that exists yet, see *Explicitly out of scope*).
 
 Currently: local-only, Docker-based, personal deployment. No cloud
-provider, no CI/CD. The app has real signup/login (see
+provider, no CI/CD. The app has real signup/sign-in (see
 [04-api-design.md](./04-api-design.md#authentication)), but since it's
 served over plain `http://localhost`, the session cookie is not marked
 `Secure` (that flag requires HTTPS) — this is exactly the kind of thing
@@ -57,6 +57,6 @@ directly rather than an illustrative copy here. It doesn't yet have
 - Backups/disaster recovery beyond "the Docker volumes are on your disk".
 - Secrets management beyond a local `.env` file, environment-specific
   configs (staging/prod) — there is only one environment: your machine.
-  (Real multi-user *accounts* are in scope via signup/login — see
+  (Real multi-user *accounts* are in scope via signup/sign-in — see
   [04-api-design.md](./04-api-design.md#authentication) — it's the
   deployment/infrastructure that stays single-environment.)

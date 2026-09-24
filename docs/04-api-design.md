@@ -2,7 +2,7 @@
 
 All endpoints are Next.js Route Handlers under `app/api/**`, returning JSON
 (`multipart/form-data` for the document upload endpoint). Every endpoint
-except signup, login, and `GET /api/countries` requires authentication —
+except signup, sign-in, and `GET /api/countries` requires authentication —
 see below.
 
 This is the conceptual surface — request/response field shapes will be
@@ -11,21 +11,21 @@ to be stable, since they map directly to the domain model.
 
 ## Authentication
 
-Signup and login are the only endpoints that don't require an existing
+Signup and sign-in are the only endpoints that don't require an existing
 session. Both, on success, set the same HTTP-only session cookie described
 in [03-architecture.md](./03-architecture.md#authentication-flow) — a
-successful signup logs the new user in immediately, no separate login step
-needed.
+successful signup signs the new user in immediately, no separate sign-in
+step needed.
 
 | Method | Path                  | Purpose                                                        |
 |--------|-----------------------|--------------------------------------------------------------------|
 | POST   | `/api/auth/signup`    | Create a `User` (`name`, `email`, `password`); sets the session cookie |
-| POST   | `/api/auth/login`     | Verify `email` + `password`; sets the session cookie             |
+| POST   | `/api/auth/signin`    | Verify `email` + `password`; sets the session cookie             |
 | POST   | `/api/auth/logout`    | Clear the session cookie                                          |
 | GET    | `/api/auth/me`        | Return the current authenticated user (`id`, `name`, `email` — never `password_hash`) |
 
 - `signup` returns `409` if the email is already registered.
-- `login` returns `401` on any mismatch (wrong email or wrong password) —
+- `signin` returns `401` on any mismatch (wrong email or wrong password) —
   never distinguishing which, to avoid leaking which emails are registered.
 - Every other endpoint below returns `401` if the session cookie is
   missing, invalid, or expired. None of them accept or expose a `userId`

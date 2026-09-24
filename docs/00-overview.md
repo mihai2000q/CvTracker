@@ -32,8 +32,8 @@ CvTracker exists to answer these questions reliably.
   `user_id` on the data you own (organizations, documents, job
   applications, skills), so the schema doesn't need a disruptive retrofit
   if the tool ever grows beyond one person.
-- Support real **signup and login**: a `User` account is created via
-  signup (hashed password), authenticated via login, and identified on
+- Support real **signup and sign-in**: a `User` account is created via
+  signup (hashed password), authenticated via sign-in, and identified on
   every subsequent request via a signed JWT held in an HTTP-only cookie.
   No accounts are pre-seeded — the first user is created through the
   signup flow like any other.
@@ -43,7 +43,7 @@ CvTracker exists to answer these questions reliably.
 - **No authorization/roles beyond ownership.** Every user has identical
   capabilities over their own data; there are no admin roles, permissions,
   or sharing between users.
-- **No password reset / email verification / OAuth.** Signup and login
+- **No password reset / email verification / OAuth.** Signup and sign-in
   with email + password only, for now.
 - **No cloud infrastructure.** No AWS, no managed DB, no object storage.
   Everything runs locally via Docker.
@@ -64,7 +64,7 @@ CvTracker exists to answer these questions reliably.
 | Database            | PostgreSQL                                         |
 | File storage        | Local filesystem, mounted as a Docker volume       |
 | Deployment          | Docker Compose, local-only                         |
-| Auth                | Signup + login, stateless signed JWT in an HTTP-only cookie |
+| Auth                | Signup + sign-in, stateless signed JWT in an HTTP-only cookie |
 | Users               | Modeled in the data (`User`, `user_id` on owned entities); created via signup, no seeding |
 
 ## Document map

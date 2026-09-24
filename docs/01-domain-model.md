@@ -15,7 +15,7 @@ no profile image, no roles/permissions.
 
 There is no seeded user — the first account, like every account, is created
 by calling signup. See [04-api-design.md](./04-api-design.md#authentication)
-for the signup/login/session flow.
+for the signup/sign-in/session flow.
 
 ### Country
 Seeded reference data. Every other entity that needs a location points at

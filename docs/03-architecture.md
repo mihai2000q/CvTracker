@@ -71,14 +71,14 @@ later (e.g. swapping raw SQL for an ORM) without touching the other two.
 
 ## Authentication flow
 
-Signup and login are their own endpoints (`/api/auth/signup`,
-`/api/auth/login` — see [04-api-design.md](./04-api-design.md#authentication));
+Signup and sign-in are their own endpoints (`/api/auth/signup`,
+`/api/auth/signin` — see [04-api-design.md](./04-api-design.md#authentication));
 every other endpoint requires the caller to be authenticated. Concretely:
 
-1. **Signup** hashes the given password and creates a `User` row, then logs
+1. **Signup** hashes the given password and creates a `User` row, then signs
    the new user in immediately (see below) — no separate email verification
    step in this phase.
-2. **Login** verifies the given email/password against `password_hash`,
+2. **Sign-in** verifies the given email/password against `password_hash`,
    then issues a signed JWT (the user's `id` as its subject, plus an
    expiry) and sets it as an HTTP-only, `SameSite=Lax` cookie. `SameSite=Lax`
    is sufficient CSRF protection here since the app is single-origin (no
