@@ -52,6 +52,18 @@ the signup endpoint; there is no seed data for this table (contrast with
 Index: `(user_id, name)` for lookup/autocomplete when logging a new
 application, scoped to the current user.
 
+### `organization_in_countries` (join table)
+
+The broader set of countries an organization operates in, beyond its
+primary `country_id` — used only to filter the country dropdown on the
+job-application form. Written wholesale by the organization create/update
+endpoints (full replace), never via a dedicated add/remove endpoint.
+
+| Column          | Type    | Constraints                              |
+|-----------------|---------|--------------------------------------------|
+| organization_id | bigint  | FK → organizations(id), PK (part 1)        |
+| country_id      | bigint  | FK → countries(id), PK (part 2)            |
+
 ### `documents`
 
 Holds both CVs and cover letters, distinguished by `document_type`. Merged
@@ -161,7 +173,7 @@ Index: `(job_application_id, changed_at)`.
 
 Index: `(job_application_id, scheduled_at)`.
 
-### `job_application_skills` (join table)
+### `job_application_has_skills` (join table)
 
 | Column             | Type    | Constraints                              |
 |--------------------|---------|--------------------------------------------|
@@ -203,9 +215,14 @@ INSERT INTO countries (iso_code, name, flag_emoji) VALUES
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
   `contacts.job_application_id`, `interview_rounds.job_application_id`,
-  `job_application_skills.*`: `ON DELETE CASCADE` — these are owned by the
-  job application; deleting an application should clean up its timeline,
-  contacts, interview rounds, and tags.
+  `job_application_has_skills.*`: `ON DELETE CASCADE` — these are owned by
+  the job application; deleting an application should clean up its
+  timeline, contacts, interview rounds, and tags.
+- `organization_in_countries.organization_id`: `ON DELETE CASCADE` —
+  owned by the organization; deleting an organization clears its country
+  set with it.
+- `organization_in_countries.country_id`: `ON DELETE RESTRICT` — same
+  reference-data protection as every other `country_id` FK (domain rule 5).
 - `organizations.user_id`, `documents.user_id`, `skills.user_id`,
   `job_applications.user_id`: `ON DELETE CASCADE` — deleting a user (an
   account-deletion feature, not currently exposed via the API) removes all

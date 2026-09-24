@@ -48,9 +48,18 @@ direct DB update or a future seed re-run, not through the API.
 |--------|-----------------------------------|----------------------------------------------|
 | GET    | `/api/organizations`              | List organizations (search by name, filter by country) |
 | POST   | `/api/organizations`              | Create an organization                       |
-| GET    | `/api/organizations/:id`          | Get one organization, with its job applications |
-| PATCH  | `/api/organizations/:id`          | Update name/country/website/notes            |
+| GET    | `/api/organizations/:id`          | Get one organization, with its job applications and `countryIds` |
+| PATCH  | `/api/organizations/:id`          | Update name/country/website/notes/`countryIds` |
 | DELETE | `/api/organizations/:id`          | Delete (only if it has no job applications)   |
+
+`countryIds` (an array) is the organization's `OrganizationInCountries`
+set — the countries it's known to operate in, beyond its primary
+`countryId`. It's a plain field on the create/update payload, **not** a
+separate sub-resource: `POST`/`PATCH` write the entire set at once (full
+replace on `PATCH`, not incremental add/remove), and `GET` includes it in
+the response. See
+[01-domain-model.md](./01-domain-model.md#organizationincountries-join-table)
+for why it's modeled this way instead of dedicated add/remove endpoints.
 
 ## Documents
 
@@ -82,7 +91,7 @@ rather than splitting into separate endpoints.
 | Method | Path                                   | Purpose                                              |
 |--------|-----------------------------------------|---------------------------------------------------------|
 | GET    | `/api/job-applications`                 | List, with filters: `organizationId`, `countryId`, `status`, date range, `needsFollowUp`, `isGhosted` |
-| POST   | `/api/job-applications`                 | Create an application (also creates its first status-history row, "applied") |
+| POST   | `/api/job-applications`                 | Create an application (`countryId` may be any country — see note below; also creates its first status-history row, "applied") |
 | GET    | `/api/job-applications/:id`             | Get full detail: organization, cv document, cover letter document, country, contacts, skills, interview rounds, status history |
 | PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv document/cover letter document/country (not status — see below) |
 | DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, contacts, interview rounds, skill tags) |
@@ -91,6 +100,13 @@ List responses for `/api/job-applications` include the computed fields
 `daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` per row (see
 [01-domain-model.md](./01-domain-model.md#derived--computed-fields-not-stored))
 so the UI can surface a "needs follow-up" view without a dedicated endpoint.
+
+**Country filtering is client-side only.** When building the "new job
+application" form for a given organization, the UI fetches that
+organization's `countryIds` (from `GET /api/organizations/:id`) to narrow
+the country dropdown to places it's known to operate — but `countryId` here
+accepts any country; the server never validates it against the
+organization's set (domain model rule 12).
 
 ### Status history (sub-resource)
 
@@ -121,6 +137,10 @@ overwriting a field.
 | DELETE | `/api/job-applications/:id/interview-rounds/:roundId`    | Remove a round                     |
 
 ### Skill tags (sub-resource)
+
+Backed by the `job_application_has_skills` join table (see
+[02-database-schema.md](./02-database-schema.md)) — managed incrementally
+here, unlike `Organization.countryIds` above.
 
 | Method | Path                                                    | Purpose                        |
 |--------|------------------------------------------------------------|------------------------------------|
