@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { definePrismaConfig } from '@prisma/cli-engine';
 import { defineConfig as ormConfig } from '@prisma/orm-postgres/config';
+import { databaseUrl } from './database/env.ts';
 
 export default definePrismaConfig({
   orm: ormConfig({
@@ -9,7 +10,7 @@ export default definePrismaConfig({
       dir: "./database/migrations"
     },
     db: {
-      connection: process.env['DATABASE_URL']!,
+      connection: databaseUrl,
     },
   }),
 });
