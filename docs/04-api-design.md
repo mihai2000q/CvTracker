@@ -52,13 +52,13 @@ direct DB update or a future seed re-run, not through the API.
 | PATCH  | `/api/organizations/:id`          | Update name/country/website/notes/`countryIds` |
 | DELETE | `/api/organizations/:id`          | Delete (only if it has no job applications)   |
 
-`countryIds` (an array) is the organization's `OrganizationInCountries`
+`countryIds` (an array) is the organization's `OrganizationCountry`
 set — the countries it's known to operate in, beyond its primary
 `countryId`. It's a plain field on the create/update payload, **not** a
 separate sub-resource: `POST`/`PATCH` write the entire set at once (full
 replace on `PATCH`, not incremental add/remove), and `GET` includes it in
 the response. See
-[01-domain-model.md](./01-domain-model.md#organizationincountries-join-table)
+[01-domain-model.md](./01-domain-model.md#organizationcountry-join-table)
 for why it's modeled this way instead of dedicated add/remove endpoints.
 
 ## Documents
@@ -138,7 +138,7 @@ overwriting a field.
 
 ### Skill tags (sub-resource)
 
-Backed by the `job_application_has_skills` join table (see
+Backed by the `job_application_has_skill` join table (see
 [02-database-schema.md](./02-database-schema.md)) — managed incrementally
 here, unlike `Organization.countryIds` above.
 

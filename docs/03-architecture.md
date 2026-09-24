@@ -101,7 +101,7 @@ every other endpoint requires the caller to be authenticated. Concretely:
 
 Uploaded CV and cover letter files are **not** stored in PostgreSQL as
 blobs. They're written to a local directory (mounted as a Docker volume —
-see [05-deployment.md](./05-deployment.md)), and the `documents` table
+see [05-deployment.md](./05-deployment.md)), and the `document` table
 stores only the `file_path` pointing at them. This keeps the database small
 and lets files be inspected/backed up directly on disk.
 
@@ -140,6 +140,67 @@ Instead:
   migrations:up` to actually apply it — Prisma 8 deliberately keeps
   planning and applying separate here, so a rollback is never applied
   silently.
+
+### Creating a migration
+
+Concretely, adding or changing a table means:
+
+1. **Edit the schema.** Change fields in the relevant `database/models/*.ts`
+   file (add a field, add a model, wire a new relation in the matching
+   `*.relations.ts` file, register a brand-new model in `database/contract.ts`).
+2. **Regenerate the compiled contract:** `npm run contract:generate`. Do
+   this after every edit, before planning — the planner diffs against this
+   generated output, not your source files directly.
+3. **Plan the migration:** `npx prisma migration plan --name <short-slug>`
+   (e.g. `--name add-interview-notes`). This is offline — no database
+   connection needed — and writes a new, timestamped package under
+   `database/migrations/app/<timestamp>_<slug>/` containing the SQL to get
+   from the previous schema state to the new one. For the very first
+   migration in a project, this is a "baseline" plan that creates
+   everything.
+4. **Review the generated package** before applying — it's plain SQL
+   (`CREATE TABLE`, `ALTER TABLE ... ADD COLUMN`, etc.) you can read
+   directly. This step matters: the planner works from the on-disk
+   migration graph plus a local ref file, not by inspecting the live
+   database, so confirming it diffs from where you expect (not a
+   surprise full rebuild) is worth the extra look.
+5. **Apply it:** `npm run migrations:up`. This runs against whatever
+   `DATABASE_URL` you have configured (see [05-deployment.md](./05-deployment.md)).
+6. **Commit the new `database/migrations/app/<dir>` folder.** Migrations
+   are version-controlled, plan-then-apply artifacts, not generated/ignored
+   output — everyone applying the schema needs the same package.
+
+### Creating an empty migration (a custom data fix)
+
+The steps above cover a *schema* change, which `migration plan` can diff
+automatically. Sometimes there's nothing for the planner to detect — a
+one-off data fix, a manual backfill unrelated to any column being added
+right now — and for that you author a migration directly:
+
+```bash
+npx prisma migration new --name <snake_slug>
+```
+
+This renders an **empty** package at `database/migrations/app/<timestamp>_<slug>/`
+— same shape as a planned one, just with an empty `operations` list instead
+of a diffed one. You then:
+
+1. Edit its `migration.ts`, adding your own step(s) to the `operations`
+   getter — typically a `this.dataTransform(endContract, '<name>', { check, run })`
+   call: `check` is a query returning a row if work remains, `run` is the
+   actual mutation, both built as query-builder closures against the
+   migration's own `endContract` (Prisma's docs cover the exact query
+   syntax — this project doesn't have one of these yet to point at as a
+   worked example).
+2. **Self-emit** to turn your edits into the package's real artifacts:
+   `node database/migrations/app/<dir>/migration.ts`. This regenerates
+   `ops.json`/`migration.json` from the TS — it's the only supported way
+   to update a migration package after hand-editing it.
+3. Apply it the same way as any other migration: `npm run migrations:up`.
+
+This is also how a migration package for **any** hand-authored operation
+gets created — not just data fixes — whenever there's no schema diff for
+`migration plan` to pick up.
 
 ## Open questions for the implementation phase
 

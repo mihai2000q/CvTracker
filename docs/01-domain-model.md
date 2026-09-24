@@ -42,11 +42,11 @@ applications over time (e.g. three different roles at Siemens). Owned by a
 
 An organization can operate in more than one country (branches, regional
 offices), so a single `country_id` isn't enough to capture where you might
-actually be applying. See `OrganizationInCountries` below for the broader
+actually be applying. See `OrganizationCountry` below for the broader
 set, which the UI uses to filter the country choices when logging a new
 job application for this organization.
 
-### OrganizationInCountries (join table)
+### OrganizationCountry (join table)
 The set of countries an organization is known to operate in — a superset
 that should typically include the organization's primary `country_id`,
 though this isn't database-enforced. Maintained as part of the
@@ -151,10 +151,10 @@ round with Siemens next Tuesday" is a queryable fact, not buried in a note.
 - `outcome` (`scheduled`, `passed`, `failed`, `cancelled` — default `scheduled`)
 - `notes` (optional)
 
-### JobApplicationHasSkills (join table)
+### JobApplicationHasSkill (join table)
 Many-to-many between JobApplication and Skill — which skills/tags were
 relevant to (or emphasized in) a given application. Unlike
-`OrganizationInCountries`, this one *is* managed through its own
+`OrganizationCountry`, this one *is* managed through its own
 sub-resource endpoints (see
 [04-api-design.md](./04-api-design.md#skill-tags-sub-resource)) — tags are
 added/removed incrementally over an application's life as you decide which
@@ -185,7 +185,7 @@ erDiagram
 
 `Country` is the one entity that stays global, shared reference data — it
 is not owned by any `User`. `ApplicationStatusHistory`, `Contact`,
-`InterviewRound`, `OrganizationInCountries`, and `JobApplicationHasSkills`
+`InterviewRound`, `OrganizationCountry`, and `JobApplicationHasSkill`
 don't need their own `user_id`: they're only ever reached through their
 parent (`JobApplication` or `Organization`), which is already scoped.
 
@@ -254,20 +254,20 @@ and become user-adjustable later without any migration.
     each user can have their own "React" skill row, independent of any
     other user's.
 11. `User` accounts are created only via signup — there is no seed data for
-    `users` (unlike `Country`). The current user for any request is
+    the `user` table (unlike `Country`). The current user for any request is
     resolved from a signed JWT (see
     [04-api-design.md](./04-api-design.md#authentication)), never passed
     directly by the client and never trusted from anywhere but that
     verified token.
-12. `OrganizationInCountries` is advisory, not a constraint: a
+12. `OrganizationCountry` is advisory, not a constraint: a
     `JobApplication.country_id` may be **any** `Country`, including one not
-    in its organization's `OrganizationInCountries` set (e.g. the very
+    in its organization's `OrganizationCountry` set (e.g. the very
     first time you apply to a new branch). The set only drives UI filtering
     — it is never checked or enforced when a `JobApplication` is created or
     updated.
-13. `OrganizationInCountries` has full-replace semantics: creating or
+13. `OrganizationCountry` has full-replace semantics: creating or
     updating an `Organization` with a list of country ids sets its complete
     set of operating countries, replacing whatever was there before — there
     is no incremental add/remove operation for it (contrast with
-    `JobApplicationHasSkills`, rule per its own section, which is managed
+    `JobApplicationHasSkill`, rule per its own section, which is managed
     incrementally through dedicated endpoints).

@@ -6,18 +6,22 @@ shape the tool must produce. The actual source of truth once implemented is
 [03-architecture.md](./03-architecture.md#orm-and-migrations-prisma) for how
 that's generated and migrated.
 
-Naming convention: `snake_case` tables and columns, singular table names
-avoided in favor of plural (`countries`, `organizations`, ...), surrogate
-`id` primary keys (`bigserial` or `uuid` — open decision, examples below use
-`bigserial` for readability).
+Naming convention: `snake_case` tables and columns, **singular** table
+names (`country`, `organization`, ...) — Prisma 8's naming config has no
+pluralization option (confirmed against the official docs), so this is
+its default rather than a deliberate choice; the two join tables
+(`organization_in_country`, `job_application_has_skill`) are named
+explicitly since a compound name isn't derivable from the model name
+either way. Surrogate `id` primary keys (`bigserial` or `uuid` — open
+decision, examples below use `bigserial` for readability).
 
 ## Tables
 
-### `users`
+### `user`
 
 Minimal on purpose — no profile image, no roles. Rows are created only by
 the signup endpoint; there is no seed data for this table (contrast with
-`countries` below, which is seeded).
+`country` below, which is seeded).
 
 | Column         | Type          | Constraints                  |
 |----------------|---------------|-------------------------------|
@@ -27,7 +31,7 @@ the signup endpoint; there is no seed data for this table (contrast with
 | password_hash  | text          | NOT NULL                       |
 | created_at     | timestamptz   | NOT NULL DEFAULT now()         |
 
-### `countries` (seeded reference data)
+### `country` (seeded reference data)
 
 | Column       | Type          | Constraints                  |
 |--------------|---------------|-------------------------------|
@@ -36,14 +40,14 @@ the signup endpoint; there is no seed data for this table (contrast with
 | name         | varchar(100)  | NOT NULL                       |
 | flag_emoji   | varchar(8)    | NULL (placeholder for now)     |
 
-### `organizations`
+### `organization`
 
 | Column       | Type          | Constraints                              |
 |--------------|---------------|--------------------------------------------|
 | id           | bigserial     | PK                                          |
-| user_id      | bigint        | FK → users(id), NOT NULL                    |
+| user_id      | bigint        | FK → user(id), NOT NULL                    |
 | name         | varchar(200)  | NOT NULL                                    |
-| country_id   | bigint        | FK → countries(id), NOT NULL                |
+| country_id   | bigint        | FK → country(id), NOT NULL                |
 | website      | varchar(300)  | NULL                                         |
 | notes        | text          | NULL                                         |
 | created_at   | timestamptz   | NOT NULL DEFAULT now()                      |
@@ -52,7 +56,7 @@ the signup endpoint; there is no seed data for this table (contrast with
 Index: `(user_id, name)` for lookup/autocomplete when logging a new
 application, scoped to the current user.
 
-### `organization_in_countries` (join table)
+### `organization_in_country` (join table)
 
 The broader set of countries an organization operates in, beyond its
 primary `country_id` — used only to filter the country dropdown on the
@@ -61,10 +65,10 @@ endpoints (full replace), never via a dedicated add/remove endpoint.
 
 | Column          | Type    | Constraints                              |
 |-----------------|---------|--------------------------------------------|
-| organization_id | bigint  | FK → organizations(id), PK (part 1)        |
-| country_id      | bigint  | FK → countries(id), PK (part 2)            |
+| organization_id | bigint  | FK → organization(id), PK (part 1)        |
+| country_id      | bigint  | FK → country(id), PK (part 2)            |
 
-### `documents`
+### `document`
 
 Holds both CVs and cover letters, distinguished by `document_type`. Merged
 into one table because the UI displays both in a single grid — one upload
@@ -73,7 +77,7 @@ flow, one library, filtered by type rather than assembled from two tables.
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|----------------------------------------------|
 | id                 | bigserial     | PK                                             |
-| user_id            | bigint        | FK → users(id), NOT NULL                       |
+| user_id            | bigint        | FK → user(id), NOT NULL                       |
 | document_type      | varchar(20)   | NOT NULL, `CHECK (document_type IN ('cv', 'cover_letter'))` (or native `ENUM` — open decision) |
 | label              | varchar(150)  | NOT NULL                                       |
 | file_path          | text          | NOT NULL                                       |
@@ -83,7 +87,7 @@ flow, one library, filtered by type rather than assembled from two tables.
 
 Index: `(user_id, document_type)` — the grid's primary filter dimensions.
 
-**Type safety tradeoff:** `job_applications.cv_document_id` and
+**Type safety tradeoff:** `job_application.cv_document_id` and
 `cover_letter_document_id` are both plain FKs into this one table. Postgres
 cannot itself guarantee that `cv_document_id` points at a `document_type =
 'cv'` row rather than a `cover_letter` one — that check is the application
@@ -92,24 +96,24 @@ layer's responsibility (see domain model rule 1a). A composite-FK approach
 it at the DB level, but adds enough schema complexity that it isn't worth it
 for a small local tool with no external API consumers to defend against.
 
-### `skills`
+### `skill`
 
 | Column  | Type          | Constraints                          |
 |---------|---------------|-----------------------------------------|
 | id      | bigserial     | PK                                        |
-| user_id | bigint        | FK → users(id), NOT NULL                  |
+| user_id | bigint        | FK → user(id), NOT NULL                  |
 | name    | varchar(100)  | NOT NULL, `UNIQUE(user_id, name)`         |
 
-### `job_applications`
+### `job_application`
 
 | Column            | Type          | Constraints                                  |
 |-------------------|---------------|-------------------------------------------------|
 | id                        | bigserial     | PK                                               |
-| user_id                   | bigint        | FK → users(id), NOT NULL                         |
-| organization_id           | bigint        | FK → organizations(id), NOT NULL                 |
-| cv_document_id            | bigint        | FK → documents(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
-| cover_letter_document_id  | bigint        | FK → documents(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
-| country_id                | bigint        | FK → countries(id), NOT NULL                     |
+| user_id                   | bigint        | FK → user(id), NOT NULL                         |
+| organization_id           | bigint        | FK → organization(id), NOT NULL                 |
+| cv_document_id            | bigint        | FK → document(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
+| cover_letter_document_id  | bigint        | FK → document(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
+| country_id                | bigint        | FK → country(id), NOT NULL                     |
 | job_title         | varchar(200)  | NOT NULL                                         |
 | job_posting_url   | text          | NULL                                             |
 | source            | varchar(100)  | NULL                                             |
@@ -142,30 +146,30 @@ Suggested `current_status` / `application_status_history.status` values
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|--------------------------------------------|
 | id                 | bigserial     | PK                                          |
-| job_application_id | bigint        | FK → job_applications(id), NOT NULL         |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
 | status             | varchar(30)   | NOT NULL                                    |
 | changed_at         | timestamptz   | NOT NULL DEFAULT now()                      |
 | note               | text          | NULL                                        |
 
 Index: `(job_application_id, changed_at)`.
 
-### `contacts`
+### `contact`
 
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|--------------------------------------------|
 | id                 | bigserial     | PK                                          |
-| job_application_id | bigint        | FK → job_applications(id), NOT NULL         |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
 | name               | varchar(150)  | NOT NULL                                    |
 | email              | varchar(200)  | NULL                                        |
 | phone              | varchar(50)   | NULL                                        |
 | role               | varchar(100)  | NULL                                        |
 
-### `interview_rounds`
+### `interview_round`
 
 | Column             | Type          | Constraints                                                          |
 |--------------------|---------------|-------------------------------------------------------------------------|
 | id                 | bigserial     | PK                                                                       |
-| job_application_id | bigint        | FK → job_applications(id), NOT NULL                                     |
+| job_application_id | bigint        | FK → job_application(id), NOT NULL                                     |
 | round_type         | varchar(100)  | NOT NULL                                                                 |
 | scheduled_at       | timestamptz   | NOT NULL                                                                 |
 | outcome            | varchar(20)   | NOT NULL DEFAULT 'scheduled' (`scheduled`, `passed`, `failed`, `cancelled`) |
@@ -173,21 +177,21 @@ Index: `(job_application_id, changed_at)`.
 
 Index: `(job_application_id, scheduled_at)`.
 
-### `job_application_has_skills` (join table)
+### `job_application_has_skill` (join table)
 
 | Column             | Type    | Constraints                              |
 |--------------------|---------|--------------------------------------------|
-| job_application_id | bigint  | FK → job_applications(id), PK (part 1)     |
-| skill_id           | bigint  | FK → skills(id), PK (part 2)               |
+| job_application_id | bigint  | FK → job_application(id), PK (part 1)     |
+| skill_id           | bigint  | FK → skill(id), PK (part 2)               |
 
-## Seed data — `countries`
+## Seed data — `country`
 
 Seed with a working ISO-3166 style set now; names/flags get corrected later
 in place (see domain rule: `country_id` values never need to change).
 Illustrative seed shape:
 
 ```sql
-INSERT INTO countries (iso_code, name, flag_emoji) VALUES
+INSERT INTO country (iso_code, name, flag_emoji) VALUES
   ('DE', 'Germany', '🇩🇪'),
   ('RO', 'Romania', '🇷🇴'),
   ('AT', 'Austria', '🇦🇹'),
@@ -203,27 +207,27 @@ INSERT INTO countries (iso_code, name, flag_emoji) VALUES
 
 ## Referential integrity notes
 
-- `organizations.country_id`, `job_applications.country_id`: `ON DELETE
+- `organization.country_id`, `job_application.country_id`: `ON DELETE
   RESTRICT` — a country should never be deletable once referenced (it's
   reference data; see domain rule 5).
-- `job_applications.cv_document_id`: `ON DELETE RESTRICT` — protects
+- `job_application.cv_document_id`: `ON DELETE RESTRICT` — protects
   against orphaning an application by deleting the document it was sent
   with.
-- `job_applications.cover_letter_document_id`: `ON DELETE RESTRICT` when
+- `job_application.cover_letter_document_id`: `ON DELETE RESTRICT` when
   set — same reasoning, just nullable.
-- `job_applications.organization_id`: `ON DELETE RESTRICT` — an
+- `job_application.organization_id`: `ON DELETE RESTRICT` — an
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
-  `contacts.job_application_id`, `interview_rounds.job_application_id`,
-  `job_application_has_skills.*`: `ON DELETE CASCADE` — these are owned by
+  `contact.job_application_id`, `interview_round.job_application_id`,
+  `job_application_has_skill.*`: `ON DELETE CASCADE` — these are owned by
   the job application; deleting an application should clean up its
-  timeline, contacts, interview rounds, and tags.
-- `organization_in_countries.organization_id`: `ON DELETE CASCADE` —
+  timeline, contact, interview rounds, and tags.
+- `organization_in_country.organization_id`: `ON DELETE CASCADE` —
   owned by the organization; deleting an organization clears its country
   set with it.
-- `organization_in_countries.country_id`: `ON DELETE RESTRICT` — same
+- `organization_in_country.country_id`: `ON DELETE RESTRICT` — same
   reference-data protection as every other `country_id` FK (domain rule 5).
-- `organizations.user_id`, `documents.user_id`, `skills.user_id`,
-  `job_applications.user_id`: `ON DELETE CASCADE` — deleting a user (an
+- `organization.user_id`, `document.user_id`, `skill.user_id`,
+  `job_application.user_id`: `ON DELETE CASCADE` — deleting a user (an
   account-deletion feature, not currently exposed via the API) removes all
   of their owned data.
