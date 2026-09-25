@@ -71,31 +71,65 @@ later (e.g. swapping raw SQL for an ORM) without touching the other two.
 
 ## Authentication flow
 
-Signup and sign-in are their own endpoints (`/api/auth/signup`,
-`/api/auth/signin` — see [04-api-design.md](./04-api-design.md#authentication));
-every other endpoint requires the caller to be authenticated. Concretely:
+Signup and sign-in are Server Actions (`src/features/auth/*/actions/`), not
+Route Handlers — the app calls into the server the same way for auth as for
+everything else, via `<form action={...}>` / `useActionState`, not `fetch()`
+against a JSON API. Every other Server Action requires the caller to be
+authenticated. Concretely:
 
 1. **Signup** hashes the given password and creates a `User` row, then signs
    the new user in immediately (see below) — no separate email verification
    step in this phase.
 2. **Sign-in** verifies the given email/password against `password_hash`,
    then issues a signed JWT (the user's `id` as its subject, plus an
-   expiry) and sets it as an HTTP-only, `SameSite=Lax` cookie. `SameSite=Lax`
-   is sufficient CSRF protection here since the app is single-origin (no
-   third-party site ever needs to submit requests to it).
-3. **Every other route handler** verifies that JWT before doing anything
-   else — checking its signature and expiry, then reading the user id from
-   it. This check sits at the front of the **API layer** (e.g. a shared
-   helper each route handler calls first, or Next.js middleware — an
-   implementation-phase choice), so the application and data layers below
-   it never see a request without a trusted `user_id` already resolved. A
-   missing/invalid/expired token short-circuits to `401` before reaching
-   the application layer.
+   expiry) and sets it as the `session` cookie: HTTP-only, `SameSite=Lax`.
+   `SameSite=Lax` is sufficient CSRF protection here since the app is
+   single-origin (no third-party site ever needs to submit requests to it).
+3. **Every other Server Action** calls `verifySession()`
+   (`src/lib/session.ts`) before doing anything else — it reads the
+   `session` cookie and verifies the JWT's signature and expiry, silently
+   reissuing it if it's only expired (see below). `getUserId(session)` then
+   pulls the `sub` claim out of an already-verified session; it never
+   re-verifies anything itself, and the user id is never trusted from
+   client input (see [01-domain-model.md](./01-domain-model.md) business
+   rules). Not every Server Action needs a user id — `verifySession()` is
+   only called where authentication is actually required, and
+   `getUserId()` is a separate step so an action can check "is someone
+   signed in" without needing their id at all.
 4. **Logout** simply clears the cookie client-side. Because the JWT is
    stateless (no sessions table), there's no server-side revocation before
-   its natural expiry — an accepted tradeoff of this approach, worth
-   revisiting if it ever matters (e.g. a short-lived JWT plus a longer-lived
-   refresh token, or moving to DB-backed sessions).
+   its natural expiry.
+
+### Token refresh, without a refresh token
+
+There is deliberately **no refresh token** — one more moving part (a second
+token, its own storage/rotation) that a personal, single-user app doesn't
+need. Instead, an expired JWT can still be silently renewed, because JWT
+verification checks the signature *before* it checks expiry: if a token
+fails verification for being expired specifically — as opposed to a bad
+signature, wrong algorithm, or malformed token — that already proves it was
+genuinely issued by this app for this user; only its age is a problem.
+
+This happens entirely **inline inside `verifySession()`**, with no separate
+route or redirect — a Server Action can read and write cookies in the same
+request it's already handling, so there's no round trip to make:
+
+- **Valid session** — return it as-is.
+- **Expired, but the signature checks out** — look the user up by the
+  token's `sub`; if they still exist, issue a brand new JWT, set it as the
+  `session` cookie, and return the (still-valid) claims to the caller, who
+  continues as if nothing happened. No password, no refresh token — the
+  expired-but-genuine JWT is itself the proof of identity.
+- **Genuinely invalid** (bad signature, wrong algorithm, tampered), or the
+  user behind an expired token no longer exists — nothing can be salvaged,
+  so this redirects to `/sign-in`. This is the one case that's still a real
+  navigation: there's no identity to hand back to the caller.
+
+`getUserId(session)` throws if a *valid* session has no `sub` — a malformed
+or foreign token that verified against our secret but was never issued
+correctly. That can't be fixed by refreshing (it isn't expired) or by
+retrying (the same broken cookie comes back every time), so it's treated as
+a genuine bug signal rather than a normal, recoverable auth failure.
 
 ## File storage for documents
 
@@ -232,16 +266,18 @@ no renumbering; a small `<name>.ts` entrypoint at the `database/` root
 opens the `db` client and runs the folder's `index.ts`.
 
 **Writing values for `varchar(n)` fields in a seed script:** the generated
-contract types every sized-string field as a *branded* string
-(`string & { readonly __varcharLength: n }`), so a plain string literal
-isn't directly assignable to a `.create()`/`.upsert()` call — and the real
-brand type lives in an internal package (`@prisma/orm-target-postgres`)
-this project's own conventions (and the framework's docs) say never to
-import from. `database/sized-value.ts` exports a small `sized<N>(value)`
-helper with a **structurally identical** local type — TypeScript brands are
-structural, so this satisfies the real one without importing anything
-internal. Any future write path (signup creating a `User`, creating an
-`Organization`, etc.) will hit the same thing and can reuse this helper.
+contract types every sized-string field with an extra compile-time-only
+marker (`string & { readonly __varcharLength: n }`), so a plain string
+literal isn't directly assignable to a `.create()`/`.upsert()` call — and
+the real marker type lives in an internal package
+(`@prisma/orm-target-postgres`) this project's own conventions (and the
+framework's docs) say never to import from. `database/field-values.ts`
+exports a small `sized<N>(value)` helper (and a `uuid(value)` counterpart
+for uuidString() fields) with a **structurally identical** local type —
+TypeScript only checks shape, so this satisfies the real one without
+importing anything internal. Any future write path (signup creating a
+`User`, creating an `Organization`, etc.) will hit the same thing and can
+reuse these helpers.
 
 ## Open questions for the implementation phase
 
