@@ -53,7 +53,9 @@ export function jobApplicationRelations(
     ApplicationStatusHistory: ApplicationStatusHistory.relations({
       jobApplication: rel
         .belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' })
-        .sql({ fk: { name: 'fk_application_status_history_job_application_id', onDelete: 'cascade' } }),
+        .sql({
+          fk: { name: 'fk_application_status_history_job_application_id', onDelete: 'cascade' },
+        }),
     }),
     Contact: Contact.relations({
       jobApplication: rel
@@ -68,7 +70,9 @@ export function jobApplicationRelations(
     JobApplicationHasSkill: JobApplicationHasSkill.relations({
       jobApplication: rel
         .belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' })
-        .sql({ fk: { name: 'fk_job_application_has_skill_job_application_id', onDelete: 'cascade' } }),
+        .sql({
+          fk: { name: 'fk_job_application_has_skill_job_application_id', onDelete: 'cascade' },
+        }),
       skill: rel
         .belongsTo(Skill, { from: 'skillId', to: 'id' })
         .sql({ fk: { name: 'fk_job_application_has_skill_skill_id', onDelete: 'cascade' } }),

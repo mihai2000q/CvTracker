@@ -5,9 +5,9 @@ import { databaseUrl } from './database/env.ts';
 
 export default definePrismaConfig({
   orm: ormConfig({
-    contract: "./database/contract.ts",
+    contract: './database/contract.ts',
     migrations: {
-      dir: "./database/migrations"
+      dir: './database/migrations',
     },
     db: {
       connection: databaseUrl,
