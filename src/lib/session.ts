@@ -5,6 +5,15 @@ import { db } from '@database/db';
 import { uuid } from '@database/field-values';
 import { createAuthToken, verifyAuthToken } from '@/lib/jwt';
 
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days, in seconds
+
+export const sessionCookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: SESSION_COOKIE_MAX_AGE,
+};
+
 // authoritative check - used on server side
 export async function verifySession(): Promise<JWTPayload> {
   const cookieStore = await cookies();
@@ -19,11 +28,7 @@ export async function verifySession(): Promise<JWTPayload> {
     const user = await db.User.where({ id: uuid(result.payload.sub) }).first();
     if (user) {
       const newToken = await createAuthToken(user.id);
-      cookieStore.set('session', newToken, {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-      });
+      cookieStore.set('session', newToken, sessionCookieOptions);
       return result.payload;
     }
   }

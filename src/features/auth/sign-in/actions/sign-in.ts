@@ -8,6 +8,7 @@ import { db } from '@database/db';
 import { sized } from '@database/field-values';
 import { createAuthToken } from '@/lib/jwt';
 import { verifyPassword } from '@/lib/password';
+import { sessionCookieOptions } from '@/lib/session';
 import { SignInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 
 const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials.';
@@ -30,11 +31,7 @@ export async function signIn(
   }
 
   const token = await createAuthToken(user.id);
-  (await cookies()).set('session', token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-  });
+  (await cookies()).set('session', token, sessionCookieOptions);
 
   redirect('/dashboard');
 }

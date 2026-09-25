@@ -9,6 +9,7 @@ import { sized } from '@database/field-values';
 import { isUniqueConstraintError } from '@database/sql-error';
 import { createAuthToken } from '@/lib/jwt';
 import { hashPassword } from '@/lib/password';
+import { sessionCookieOptions } from '@/lib/session';
 import { SignUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
 
 export async function signUp(
@@ -38,11 +39,7 @@ export async function signUp(
   }
 
   const token = await createAuthToken(user.id);
-  (await cookies()).set('session', token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    path: '/',
-  });
+  (await cookies()).set('session', token, sessionCookieOptions);
 
   redirect('/dashboard');
 }
