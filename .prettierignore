@@ -18,7 +18,14 @@ pnpm-lock.yaml
 
 # Generated
 next-env.d.ts
+contract.json
+contract.d.ts
+
+# database seed data and migrations
+database/reference-data
+database/sample-data
+database/migrations
 
 # Docs
 README.md
-.docs/
+docs/
