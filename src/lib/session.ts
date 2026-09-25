@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import type { JWTPayload } from 'jose';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
-import { verifyAuthToken, createAuthToken } from '@/lib/jwt';
+import { createAuthToken, verifyAuthToken } from '@/lib/jwt';
 
+// authoritative check - used on server side
 export async function verifySession(): Promise<JWTPayload> {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
@@ -17,7 +18,7 @@ export async function verifySession(): Promise<JWTPayload> {
   if (result.status === 'expired' && result.payload.sub) {
     const user = await db.orm.public.User.where({ id: uuid(result.payload.sub) }).first();
     if (user) {
-      const newToken = await createAuthToken(user.id)
+      const newToken = await createAuthToken(user.id);
       cookieStore.set('session', newToken, {
         httpOnly: true,
         sameSite: 'lax',
@@ -37,4 +38,9 @@ export function getUserId(session: JWTPayload): string {
     throw new Error('Session is missing a user id');
   }
   return session.sub;
+}
+
+// optimistic check - used on client side
+export async function hasValidSession(): Promise<boolean> {
+  return (await cookies()).has('session');
 }
