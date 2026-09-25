@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono, Roboto } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/components/theme-provider.tsx';
+import { TooltipProvider } from '@/components/ui/tooltip.tsx';
+import { Toaster } from '@/components/ui/toast.tsx';
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -32,8 +35,21 @@ export default function AppLayout({ children }: LayoutProps<'/'>) {
         'font-sans',
         roboto.variable
       )}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <main>{children}</main>
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
