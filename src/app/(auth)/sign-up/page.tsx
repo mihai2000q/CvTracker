@@ -1,4 +1,9 @@
-import React from 'react';
+'use client';
+
+import React, { startTransition, useActionState } from 'react';
+import Link from 'next/link';
+import { getInputProps, useForm } from '@conform-to/react';
+import { zodValidator } from '@/components/form/zod-validator';
 import {
   Card,
   CardContent,
@@ -7,58 +12,85 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card.tsx';
-import { Label } from '@/components/ui/label.tsx';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Marker, MarkerContent } from '@/components/ui/marker.tsx';
-import Link from 'next/link';
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { signUp } from '@/features/auth/sign-up/actions/sign-up';
+import { SignUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
 
 const SignUp = () => {
+  const [lastResult, formAction, isPending] = useActionState(signUp, undefined);
+  const [form, fields] = useForm({
+    lastResult,
+    shouldValidate: 'onBlur',
+    shouldRevalidate: 'onInput',
+    onValidate: zodValidator(SignUpSchema),
+    onSubmit(event, { formData }) {
+      event.preventDefault();
+      startTransition(() => formAction(formData));
+    },
+  });
+
   return (
     <div className={'flex min-h-screen flex-col items-center justify-center'}>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Create a new account</CardTitle>
-          <CardDescription>Enter your email below to create an account</CardDescription>
-        </CardHeader>
+      <form
+        id={form.id}
+        onSubmit={form.onSubmit}
+        noValidate
+        className="w-full max-w-sm"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Create a new account</CardTitle>
+            <CardDescription>Enter your details below to create an account</CardDescription>
+          </CardHeader>
 
-        <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                  <a
-                    href="#"
-                    className="ml-auto inline-block text-xs text-gray-400 underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
-                </div>
-                <Input id="password" type="password" placeholder={'Your password'} required />
-              </div>
-            </div>
-          </form>
-        </CardContent>
+          <CardContent>
+            <FieldGroup>
+              <Field data-invalid={!!fields.name.errors}>
+                <FieldLabel htmlFor={fields.name.id}>Name</FieldLabel>
+                <Input {...getInputProps(fields.name, { type: 'text' })} placeholder="Example" />
+                <FieldError errors={fields.name.errors?.map((message) => ({ message }))} />
+              </Field>
 
-        <CardFooter className="flex-col gap-2">
-          <Button type="submit" className="w-full">
-            Sign up
-          </Button>
-          <Marker variant="separator">
-            <MarkerContent>or</MarkerContent>
-          </Marker>
-          <Link href={'/sign-in'} className="w-full">
-            <Button variant="outline" className="w-full">
-              Login with existing account
+              <Field data-invalid={!!fields.email.errors}>
+                <FieldLabel htmlFor={fields.email.id}>Email</FieldLabel>
+                <Input
+                  {...getInputProps(fields.email, { type: 'email' })}
+                  placeholder="m@example.com"
+                />
+                <FieldError errors={fields.email.errors?.map((message) => ({ message }))} />
+              </Field>
+
+              <Field data-invalid={!!fields.password.errors}>
+                <FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
+                <Input
+                  {...getInputProps(fields.password, { type: 'password' })}
+                  placeholder="Your password"
+                />
+                <FieldError errors={fields.password.errors?.map((message) => ({ message }))} />
+              </Field>
+
+              {form.errors && <FieldError errors={form.errors.map((message) => ({ message }))} />}
+            </FieldGroup>
+          </CardContent>
+
+          <CardFooter className="flex-col gap-2">
+            <Button type="submit" className="w-full" loading={isPending}>
+              Sign up
             </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+            <Marker variant="separator">
+              <MarkerContent>or</MarkerContent>
+            </Marker>
+            <Link href={'/sign-in'} className="w-full">
+              <Button variant="outline" className="w-full">
+                Login with existing account
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+      </form>
     </div>
   );
 };
