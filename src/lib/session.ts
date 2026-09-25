@@ -16,7 +16,7 @@ export async function verifySession(): Promise<JWTPayload> {
   }
 
   if (result.status === 'expired' && result.payload.sub) {
-    const user = await db.orm.public.User.where({ id: uuid(result.payload.sub) }).first();
+    const user = await db.User.where({ id: uuid(result.payload.sub) }).first();
     if (user) {
       const newToken = await createAuthToken(user.id);
       cookieStore.set('session', newToken, {

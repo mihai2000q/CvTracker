@@ -267,7 +267,7 @@ const countries: { isoCode: Sized<2>; name: Sized<100> }[] = [
 // be re-run safely any time the list is extended or a name is corrected.
 export async function seedCountries(db: Database) {
   for (const country of countries) {
-    await db.orm.public.Country.where({ isoCode: country.isoCode }).upsert({
+    await db.Country.where({ isoCode: country.isoCode }).upsert({
       create: country,
       update: { name: country.name },
     });

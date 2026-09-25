@@ -9,7 +9,7 @@ const sampleUser = {
 };
 
 export async function seedSampleUser(db: Database) {
-  await db.orm.public.User.where({ email: sampleUser.email }).upsert({
+  await db.User.where({ email: sampleUser.email }).upsert({
     create: sampleUser,
     update: { name: sampleUser.name },
   });
