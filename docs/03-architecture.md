@@ -131,6 +131,72 @@ correctly. That can't be fixed by refreshing (it isn't expired) or by
 retrying (the same broken cookie comes back every time), so it's treated as
 a genuine bug signal rather than a normal, recoverable auth failure.
 
+### Two tiers: optimistic routing vs. the real check
+
+Route protection is deliberately split into two layers with different jobs:
+
+- **`hasValidSession()`** (`src/lib/session.ts`), called directly from
+  `(root)/layout.tsx`, `(auth)/layout.tsx`, and the homepage
+  (`src/app/page.tsx`), checks exactly one thing: whether a `session` cookie
+  *exists* — no signature verification, no DB lookup. `(root)`'s layout
+  redirects to `/sign-in` if it's missing; `(auth)`'s layout redirects to
+  `/dashboard` if it's present (the *opposite* direction, since an
+  authenticated visitor shouldn't see the signup form); the homepage picks
+  between the two depending on which way it goes. This is an **optimistic**
+  check — good enough to decide what a visitor sees, not something anything
+  else trusts.
+- **`verifySession()`** is the actual security boundary: full signature and
+  expiry verification, plus the DB-backed refresh — the only one of the two
+  that a caller can trust the returned identity from. It only runs inside
+  Server Actions, never a layout, because reissuing an expiring token
+  requires writing a cookie, and cookie writes only work in a Server Action
+  or Route Handler — a Server Component (which a layout is) can only read
+  one.
+
+Nothing downstream trusts the layout check: every Server Action still calls
+`verifySession()` itself regardless of what the layout already decided.
+These layout-level checks exist only to bounce an obviously-signed-out (or
+obviously-already-signed-in) visitor before they see a page that was never
+going to work for them — a UX nicety on top of a security boundary that
+doesn't depend on it at all.
+
+**Known limitation, accepted deliberately:** a layout doesn't re-render on
+every client-side navigation between sibling pages it wraps — Next's
+Partial Rendering can reuse an already-rendered layout segment instead of
+re-invoking its server logic. So if a session goes bad *while* a user is
+already inside `(root)` (say, the cookie gets cleared by some other means)
+and they then click a `<Link>` to a sibling `(root)` page rather than doing
+a full reload, this check will not necessarily re-run for that navigation.
+This is a real, Next-documented gap, not an oversight — it also applies
+equally to `(auth)`'s "already signed in" check. It's an acceptable
+tradeoff **here** because: (1) nothing security-sensitive depends on it —
+every actual mutation still goes through `verifySession()` in its own
+Server Action, so the worst case is a stale page shell, never an
+unauthorized write; and (2) the scenario that triggers it (something
+invalidating the session out from under an already-open tab) barely applies
+to a personal, single-user, local-only app.
+
+**The more robust alternative — and why it isn't used here:** Next.js
+Proxy (`src/proxy.ts`, formerly `middleware.ts`) runs before routing
+resolves at all, on every navigation *and* every `<Link>` prefetch, so it
+doesn't have this gap. It was tried first. It doesn't scale well as a
+general pattern, though: Proxy is a single file for the *entire* project —
+there's no way to colocate one per route segment or route group the way a
+layout can nest anywhere (confirmed against Next's own file-convention
+docs, and Proxy matchers cannot reference route groups like `(root)` either
+— route groups don't exist in the runtime routing manifest at all,
+confirmed via a long-standing, still-open upstream Next.js discussion).
+That leaves exactly one option for scoping it: a manually maintained
+`matcher` (or `PUBLIC_PATHS`/`PROTECTED_PATHS` list inside the Proxy
+function) that has to be kept in sync by hand as routes are added — which
+was the actual motivation for switching to layouts, since a layout's scope
+is implicit in *where the file lives*, matching the folder structure
+instead of a separate list of paths. For an app with many public/protected
+segments crossing over each other in ways route groups can't cleanly
+express, or where the Partial Rendering gap above is unacceptable, Proxy
+with a maintained matcher remains the correct choice — just not the one
+this app needs.
+
 ## File storage for documents
 
 Uploaded CV and cover letter files are **not** stored in PostgreSQL as
