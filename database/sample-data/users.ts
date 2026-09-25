@@ -1,5 +1,5 @@
 import type { Database } from '../db.ts';
-import { sized } from '../sized-value.ts';
+import { sized } from '../field-values.ts';
 
 const sampleUser = {
   email: sized<255>('dev@example.com'),

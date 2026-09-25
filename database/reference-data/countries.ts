@@ -1,5 +1,5 @@
 import type { Database } from '../db.ts';
-import { sized, type Sized } from '../sized-value.ts';
+import { sized, type Sized } from '../field-values.ts';
 
 // Full ISO 3166-1 alpha-2 list (249 entries). Codes are hardcoded (stable —
 // rarely changes); names are generated once via Node's built-in
