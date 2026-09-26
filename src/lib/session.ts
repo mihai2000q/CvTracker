@@ -14,6 +14,14 @@ export const sessionCookieOptions = {
   maxAge: SESSION_COOKIE_MAX_AGE,
 };
 
+export async function createSession(token: string) {
+  (await cookies()).set('session', token, sessionCookieOptions);
+}
+
+export async function deleteSession() {
+  (await cookies()).delete('session');
+}
+
 // authoritative check - used on server side
 export async function verifySession(): Promise<JWTPayload> {
   const cookieStore = await cookies();
