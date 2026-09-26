@@ -1,12 +1,13 @@
 import { errors, type JWTPayload, jwtVerify, SignJWT } from 'jose';
 import { requireEnv } from '@/lib/env';
+import { User } from '@/lib/types.ts';
 
 const secret = new TextEncoder().encode(requireEnv('JWT_SECRET'));
 
-export function createAuthToken(userId: string): Promise<string> {
+export function createAuthToken(user: User): Promise<string> {
   return new SignJWT({})
     .setProtectedHeader({ alg: 'HS256' })
-    .setSubject(userId)
+    .setSubject(user.id)
     .setIssuedAt()
     .setExpirationTime(requireEnv('JWT_EXPIRES_IN'))
     .sign(secret);
