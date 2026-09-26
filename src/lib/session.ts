@@ -4,6 +4,7 @@ import type { JWTPayload } from 'jose';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
 import { createAuthToken, verifyAuthToken } from '@/lib/jwt';
+import { User } from '@/lib/types.ts';
 
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days, in seconds
 
@@ -35,7 +36,7 @@ export async function verifySession(): Promise<JWTPayload> {
   if (result.status === 'expired' && result.payload.sub) {
     const user = await db.User.where({ id: uuid(result.payload.sub) }).first();
     if (user) {
-      const newToken = await createAuthToken(user.id);
+      const newToken = await createAuthToken(user);
       cookieStore.set('session', newToken, sessionCookieOptions);
       return result.payload;
     }
@@ -51,6 +52,20 @@ export function getUserId(session: JWTPayload): string {
     throw new Error('Session is missing a user id');
   }
   return session.sub;
+}
+
+export async function getCurrentUser(): Promise<User> {
+  const session = await verifySession()
+  if (!session.sub) {
+    throw new Error('Session is missing a user id');
+  }
+  const user = await db.User
+    .select('id', 'email', 'name')
+    .first({ id: uuid(session.sub) });
+  if (!user) {
+    throw new Error('User is missing');
+  }
+  return { ...user };
 }
 
 // optimistic check - used on client side
