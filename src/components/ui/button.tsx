@@ -63,7 +63,7 @@ function Button({
       <span className="grid grid-cols-1 grid-rows-1 place-items-center overflow-hidden">
         <span
           className={cn(
-            'col-start-1 row-start-1 flex items-center justify-center gap-1.5 transition-transform duration-300 ease-out',
+            'col-start-1 row-start-1 flex items-center justify-center gap-1.5 px-0.75 transition-transform duration-300 ease-out',
             loading ? '-translate-y-full' : 'translate-y-0'
           )}
         >
