@@ -3,46 +3,36 @@ import { redirect } from 'next/navigation';
 import type { JWTPayload } from 'jose';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
-import { createAuthToken, verifyAuthToken } from '@/lib/jwt';
+import { verifyAuthToken } from '@/lib/jwt';
 import { User } from '@/lib/types.ts';
 
-const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 days, in seconds
+export const SESSION_COOKIE_NAME = 'session';
 
 export const sessionCookieOptions = {
   httpOnly: true,
   sameSite: 'lax' as const,
   path: '/',
-  maxAge: SESSION_COOKIE_MAX_AGE,
+  maxAge: 60 * 60 * 24 * 7, // 7 days, in seconds
 };
 
 export async function createSession(token: string) {
-  (await cookies()).set('session', token, sessionCookieOptions);
+  (await cookies()).set(SESSION_COOKIE_NAME, token, sessionCookieOptions);
 }
 
 export async function deleteSession() {
-  (await cookies()).delete('session');
+  (await cookies()).delete(SESSION_COOKIE_NAME);
 }
 
-// authoritative check - used on server side
+// Authoritative check
 export async function verifySession(): Promise<JWTPayload> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('session')?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const result = token ? await verifyAuthToken(token) : ({ status: 'invalid' } as const);
 
   if (result.status === 'valid') {
     return result.payload;
   }
 
-  if (result.status === 'expired' && result.payload.sub) {
-    const user = await db.User.where({ id: uuid(result.payload.sub) }).first();
-    if (user) {
-      const newToken = await createAuthToken(user);
-      cookieStore.set('session', newToken, sessionCookieOptions);
-      return result.payload;
-    }
-  }
-
-  cookieStore.delete('session');
   redirect('/sign-in');
 }
 
@@ -66,9 +56,4 @@ export async function getCurrentUser(): Promise<User> {
     throw new Error('User is missing');
   }
   return { ...user };
-}
-
-// optimistic check - used on client side
-export async function hasValidSession(): Promise<boolean> {
-  return (await cookies()).has('session');
 }

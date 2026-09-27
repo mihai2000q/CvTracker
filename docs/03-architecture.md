@@ -74,8 +74,7 @@ later (e.g. swapping raw SQL for an ORM) without touching the other two.
 Signup and sign-in are Server Actions (`src/features/auth/*/actions/`), not
 Route Handlers — the app calls into the server the same way for auth as for
 everything else, via `<form action={...}>` / `useActionState`, not `fetch()`
-against a JSON API. Every other Server Action requires the caller to be
-authenticated. Concretely:
+against a JSON API. Concretely:
 
 1. **Signup** hashes the given password and creates a `User` row, then signs
    the new user in immediately (see below) — no separate email verification
@@ -85,20 +84,18 @@ authenticated. Concretely:
    expiry) and sets it as the `session` cookie: HTTP-only, `SameSite=Lax`.
    `SameSite=Lax` is sufficient CSRF protection here since the app is
    single-origin (no third-party site ever needs to submit requests to it).
-3. **Every other Server Action** calls `verifySession()`
-   (`src/lib/session.ts`) before doing anything else — it reads the
-   `session` cookie and verifies the JWT's signature and expiry, silently
-   reissuing it if it's only expired (see below). `getUserId(session)` then
-   pulls the `sub` claim out of an already-verified session; it never
-   re-verifies anything itself, and the user id is never trusted from
-   client input (see [01-domain-model.md](./01-domain-model.md) business
-   rules). Not every Server Action needs a user id — `verifySession()` is
-   only called where authentication is actually required, and
-   `getUserId()` is a separate step so an action can check "is someone
-   signed in" without needing their id at all.
-4. **Logout** simply clears the cookie client-side. Because the JWT is
-   stateless (no sessions table), there's no server-side revocation before
-   its natural expiry.
+3. **Every Server Component, query, and Server Action that needs to know
+   who's signed in** calls `verifySession()` (`src/lib/session.ts`). It
+   reads the `session` cookie and verifies the JWT's signature and expiry.
+   It's read-only — it never writes the cookie — so it's safe to call from
+   anywhere: on a valid session it returns the claims, otherwise it
+   redirects to `/sign-in`. `getUserId(session)` then pulls the `sub` claim
+   out of an already-verified session; it never re-verifies anything
+   itself, and the user id is never trusted from client input (see
+   [01-domain-model.md](./01-domain-model.md) business rules).
+4. **Logout** clears the cookie via a Server Action (`deleteSession()`).
+   Because the JWT is stateless (no sessions table), there's no
+   server-side revocation before its natural expiry.
 
 ### Token refresh, without a refresh token
 
@@ -110,20 +107,20 @@ fails verification for being expired specifically — as opposed to a bad
 signature, wrong algorithm, or malformed token — that already proves it was
 genuinely issued by this app for this user; only its age is a problem.
 
-This happens entirely **inline inside `verifySession()`**, with no separate
-route or redirect — a Server Action can read and write cookies in the same
-request it's already handling, so there's no round trip to make:
+Rotation happens in `src/proxy.ts`, which runs before every matched request
+— a full navigation, a `<Link>` prefetch, or a Server Action (a Server
+Action is a POST to the route it's called from, so it goes through proxy
+too):
 
-- **Valid session** — return it as-is.
-- **Expired, but the signature checks out** — look the user up by the
-  token's `sub`; if they still exist, issue a brand new JWT, set it as the
-  `session` cookie, and return the (still-valid) claims to the caller, who
-  continues as if nothing happened. No password, no refresh token — the
-  expired-but-genuine JWT is itself the proof of identity.
+- **Valid session** — request proceeds unchanged.
+- **Expired, but the signature checks out** — proxy looks the user up by
+  the token's `sub`; if they still exist, it issues a brand new JWT, sets
+  it as the `session` cookie on the response, and rewrites it onto the
+  request too, so anything reading the session later in this same request
+  (a query, an action) already sees the fresh token.
 - **Genuinely invalid** (bad signature, wrong algorithm, tampered), or the
-  user behind an expired token no longer exists — nothing can be salvaged,
-  so this redirects to `/sign-in`. This is the one case that's still a real
-  navigation: there's no identity to hand back to the caller.
+  user behind an expired token no longer exists — proxy redirects to
+  `/sign-in`.
 
 `getUserId(session)` throws if a *valid* session has no `sub` — a malformed
 or foreign token that verified against our secret but was never issued
@@ -131,71 +128,20 @@ correctly. That can't be fixed by refreshing (it isn't expired) or by
 retrying (the same broken cookie comes back every time), so it's treated as
 a genuine bug signal rather than a normal, recoverable auth failure.
 
-### Two tiers: optimistic routing vs. the real check
+### Route protection
 
-Route protection is deliberately split into two layers with different jobs:
+`src/proxy.ts` is the single gate for every route, running before any
+rendering starts: it redirects an unauthenticated visitor to `/sign-in`,
+and redirects an authenticated one away from `/sign-in`/`/sign-up` to
+`/dashboard`. `(root)/layout.tsx` and `(auth)/layout.tsx` contain no auth
+logic of their own — by the time either renders, proxy has already decided
+the visitor belongs there.
 
-- **`hasValidSession()`** (`src/lib/session.ts`), called directly from
-  `(root)/layout.tsx`, `(auth)/layout.tsx`, and the homepage
-  (`src/app/page.tsx`), checks exactly one thing: whether a `session` cookie
-  *exists* — no signature verification, no DB lookup. `(root)`'s layout
-  redirects to `/sign-in` if it's missing; `(auth)`'s layout redirects to
-  `/dashboard` if it's present (the *opposite* direction, since an
-  authenticated visitor shouldn't see the signup form); the homepage picks
-  between the two depending on which way it goes. This is an **optimistic**
-  check — good enough to decide what a visitor sees, not something anything
-  else trusts.
-- **`verifySession()`** is the actual security boundary: full signature and
-  expiry verification, plus the DB-backed refresh — the only one of the two
-  that a caller can trust the returned identity from. It only runs inside
-  Server Actions, never a layout, because reissuing an expiring token
-  requires writing a cookie, and cookie writes only work in a Server Action
-  or Route Handler — a Server Component (which a layout is) can only read
-  one.
-
-Nothing downstream trusts the layout check: every Server Action still calls
-`verifySession()` itself regardless of what the layout already decided.
-These layout-level checks exist only to bounce an obviously-signed-out (or
-obviously-already-signed-in) visitor before they see a page that was never
-going to work for them — a UX nicety on top of a security boundary that
-doesn't depend on it at all.
-
-**Known limitation, accepted deliberately:** a layout doesn't re-render on
-every client-side navigation between sibling pages it wraps — Next's
-Partial Rendering can reuse an already-rendered layout segment instead of
-re-invoking its server logic. So if a session goes bad *while* a user is
-already inside `(root)` (say, the cookie gets cleared by some other means)
-and they then click a `<Link>` to a sibling `(root)` page rather than doing
-a full reload, this check will not necessarily re-run for that navigation.
-This is a real, Next-documented gap, not an oversight — it also applies
-equally to `(auth)`'s "already signed in" check. It's an acceptable
-tradeoff **here** because: (1) nothing security-sensitive depends on it —
-every actual mutation still goes through `verifySession()` in its own
-Server Action, so the worst case is a stale page shell, never an
-unauthorized write; and (2) the scenario that triggers it (something
-invalidating the session out from under an already-open tab) barely applies
-to a personal, single-user, local-only app.
-
-**The more robust alternative — and why it isn't used here:** Next.js
-Proxy (`src/proxy.ts`, formerly `middleware.ts`) runs before routing
-resolves at all, on every navigation *and* every `<Link>` prefetch, so it
-doesn't have this gap. It was tried first. It doesn't scale well as a
-general pattern, though: Proxy is a single file for the *entire* project —
-there's no way to colocate one per route segment or route group the way a
-layout can nest anywhere (confirmed against Next's own file-convention
-docs, and Proxy matchers cannot reference route groups like `(root)` either
-— route groups don't exist in the runtime routing manifest at all,
-confirmed via a long-standing, still-open upstream Next.js discussion).
-That leaves exactly one option for scoping it: a manually maintained
-`matcher` (or `PUBLIC_PATHS`/`PROTECTED_PATHS` list inside the Proxy
-function) that has to be kept in sync by hand as routes are added — which
-was the actual motivation for switching to layouts, since a layout's scope
-is implicit in *where the file lives*, matching the folder structure
-instead of a separate list of paths. For an app with many public/protected
-segments crossing over each other in ways route groups can't cleanly
-express, or where the Partial Rendering gap above is unacceptable, Proxy
-with a maintained matcher remains the correct choice — just not the one
-this app needs.
+Every Server Action, query, and Server Component still calls
+`verifySession()` independently rather than trusting proxy's decision —
+that's the actual security boundary. Proxy's check narrows what a visitor
+even reaches; `verifySession()` is what a caller can trust the returned
+identity from.
 
 ## File storage for documents
 
