@@ -16,16 +16,16 @@ import Link from 'next/link';
 import { getInputProps, useForm } from '@conform-to/react';
 import { zodValidator } from '@/components/form/zod-validator.ts';
 import { signIn } from '@/features/auth/sign-in/actions/sign-in.ts';
-import { SignInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
+import { SignInForm, signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 
 const SignIn = () => {
   const [lastResult, formAction, isPending] = useActionState(signIn, undefined);
-  const [form, fields] = useForm({
+  const [form, fields] = useForm<SignInForm>({
     lastResult,
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
-    onValidate: zodValidator(SignInSchema),
+    onValidate: zodValidator(signInSchema),
     onSubmit(event, { formData }) {
       event.preventDefault();
       startTransition(() => formAction(formData));

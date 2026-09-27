@@ -1,7 +1,6 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { parseWithZod } from '@conform-to/zod/v4';
 import type { SubmissionResult } from '@conform-to/react';
 import { db } from '@database/db';
 import { sized } from '@database/field-values';
@@ -9,13 +8,14 @@ import { isUniqueConstraintError } from '@database/sql-error';
 import { createAuthToken } from '@/lib/jwt';
 import { hashPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
-import { SignUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
+import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
+import { zodValidate } from '@/lib/zod.ts';
 
 export async function signUp(
   _lastResult: SubmissionResult | undefined,
   formData: FormData
 ): Promise<SubmissionResult> {
-  const submission = parseWithZod(formData, { schema: SignUpSchema, disableAutoCoercion: true });
+  const submission = zodValidate({ formData, schema: signUpSchema });
   if (submission.status !== 'success') {
     return submission.reply();
   }

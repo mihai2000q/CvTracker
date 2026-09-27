@@ -17,15 +17,15 @@ import { Button } from '@/components/ui/button.tsx';
 import { Marker, MarkerContent } from '@/components/ui/marker.tsx';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { signUp } from '@/features/auth/sign-up/actions/sign-up';
-import { SignUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
+import { SignUpForm, signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
 
 const SignUp = () => {
   const [lastResult, formAction, isPending] = useActionState(signUp, undefined);
-  const [form, fields] = useForm({
+  const [form, fields] = useForm<SignUpForm>({
     lastResult,
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
-    onValidate: zodValidator(SignUpSchema),
+    onValidate: zodValidator(signUpSchema),
     onSubmit(event, { formData }) {
       event.preventDefault();
       startTransition(() => formAction(formData));

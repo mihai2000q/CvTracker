@@ -8,7 +8,9 @@ import { sized } from '@database/field-values';
 import { createAuthToken } from '@/lib/jwt';
 import { verifyPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
-import { SignInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
+import { signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
+import { zodValidate } from '@/lib/zod.ts';
+import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema.ts';
 
 const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials.';
 
@@ -16,7 +18,7 @@ export async function signIn(
   _lastResult: SubmissionResult | undefined,
   formData: FormData
 ): Promise<SubmissionResult> {
-  const submission = parseWithZod(formData, { schema: SignInSchema, disableAutoCoercion: true });
+  const submission = zodValidate({ formData, schema: signInSchema });
   if (submission.status !== 'success') {
     return submission.reply();
   }
