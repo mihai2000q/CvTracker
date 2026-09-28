@@ -51,7 +51,7 @@ const SignUp = () => {
               <Field data-invalid={!!fields.name.errors}>
                 <FieldLabel htmlFor={fields.name.id}>Name</FieldLabel>
                 <Input {...getInputProps(fields.name, { type: 'text' })} placeholder="Example" />
-                <FieldError errors={fields.name.errors?.map((message) => ({ message }))} />
+                <FieldError errors={fields.name.errors} />
               </Field>
 
               <Field data-invalid={!!fields.email.errors}>
@@ -60,7 +60,7 @@ const SignUp = () => {
                   {...getInputProps(fields.email, { type: 'email' })}
                   placeholder="m@example.com"
                 />
-                <FieldError errors={fields.email.errors?.map((message) => ({ message }))} />
+                <FieldError errors={fields.email.errors} />
               </Field>
 
               <Field data-invalid={!!fields.password.errors}>
@@ -69,10 +69,10 @@ const SignUp = () => {
                   {...getInputProps(fields.password, { type: 'password' })}
                   placeholder="Your password"
                 />
-                <FieldError errors={fields.password.errors?.map((message) => ({ message }))} />
+                <FieldError errors={fields.password.errors} />
               </Field>
 
-              {form.errors && <FieldError errors={form.errors.map((message) => ({ message }))} />}
+              {form.errors && <FieldError errors={form.errors} />}
             </FieldGroup>
           </CardContent>
 

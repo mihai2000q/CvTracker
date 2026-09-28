@@ -49,7 +49,7 @@ const SignIn = () => {
                   {...getInputProps(fields.email, { type: 'email' })}
                   placeholder="m@example.com"
                 />
-                <FieldError errors={fields.email.errors?.map((message) => ({ message }))} />
+                <FieldError errors={fields.email.errors} />
               </Field>
 
               <Field data-invalid={!!fields.password.errors}>
@@ -66,10 +66,10 @@ const SignIn = () => {
                   {...getInputProps(fields.password, { type: 'password' })}
                   placeholder="Your password"
                 />
-                <FieldError errors={fields.password.errors?.map((message) => ({ message }))} />
+                <FieldError errors={fields.password.errors} />
               </Field>
 
-              {form.errors && <FieldError errors={form.errors.map((message) => ({ message }))} />}
+              {form.errors && <FieldError errors={form.errors} />}
             </FieldGroup>
           </CardContent>
 
