@@ -23,6 +23,7 @@
     "@conform-to/zod": "^1.21.1",
     "@prisma/orm-postgres": "^8.0.0-rc.11",
     "@remixicon/react": "^4.9.0",
+    "@tanstack/react-query": "^5.104.0",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
