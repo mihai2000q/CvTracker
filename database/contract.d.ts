@@ -606,7 +606,9 @@ export namespace Models {
     id: Char<36>;
     isoCode: Varchar<2>;
     name: Varchar<100>;
-    readonly [RelationKeys]?: never;
+    jobApplications: public_JobApplication[];
+    organizationCountries: public_OrganizationCountry[];
+    readonly [RelationKeys]?: 'jobApplications' | 'organizationCountries';
   };
   export type public_User = {
     id: Char<36>;
@@ -630,8 +632,9 @@ export namespace Models {
     createdAt: CodecTypes['pg/timestamptz-string@1']['output'];
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     organizationCountries: public_OrganizationCountry[];
+    jobApplications: public_JobApplication[];
     user: public_User;
-    readonly [RelationKeys]?: 'organizationCountries' | 'user';
+    readonly [RelationKeys]?: 'organizationCountries' | 'jobApplications' | 'user';
   };
   export type public_OrganizationCountry = {
     organizationId: Char<36>;
@@ -1804,7 +1807,30 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
               };
             };
-            readonly relations: Record<string, never>;
+            readonly relations: {
+              readonly jobApplications: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'JobApplication';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['countryId'];
+                };
+              };
+              readonly organizationCountries: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'OrganizationCountry';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['countryId'];
+                };
+              };
+            };
             readonly storage: {
               readonly table: 'country';
               readonly namespaceId: 'public';
@@ -2291,6 +2317,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'OrganizationCountry';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['organizationId'];
+                };
+              };
+              readonly jobApplications: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'JobApplication';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

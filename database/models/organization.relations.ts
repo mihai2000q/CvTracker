@@ -5,15 +5,17 @@ type OrganizationModels = {
   User: Model;
   Country: Model;
   OrganizationCountry: Model;
+  JobApplication: Model;
 };
 
 export function organizationRelations(
   { rel }: ContractHelpers,
-  { Organization, User, Country, OrganizationCountry }: OrganizationModels
+  { Organization, User, Country, OrganizationCountry, JobApplication }: OrganizationModels
 ) {
   return {
     Organization: Organization.relations({
       organizationCountries: rel.hasMany(OrganizationCountry, { by: 'organizationId' }),
+      jobApplications: rel.hasMany(JobApplication, { by: 'organizationId' }),
       user: rel
         .belongsTo(User, { from: 'userId', to: 'id' })
         .sql({ fk: { name: 'fk_organization_user_id', onDelete: 'cascade' } }),

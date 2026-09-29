@@ -333,7 +333,38 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "jobApplications": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "countryId"
+                  ]
+                },
+                "to": {
+                  "model": "JobApplication",
+                  "namespace": "public"
+                }
+              },
+              "organizationCountries": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "countryId"
+                  ]
+                },
+                "to": {
+                  "model": "OrganizationCountry",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "id": {
@@ -1045,6 +1076,21 @@
               }
             },
             "relations": {
+              "jobApplications": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "organizationId"
+                  ]
+                },
+                "to": {
+                  "model": "JobApplication",
+                  "namespace": "public"
+                }
+              },
               "organizationCountries": {
                 "cardinality": "1:N",
                 "on": {

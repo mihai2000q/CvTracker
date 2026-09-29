@@ -12,6 +12,7 @@ import { contactModel } from './models/contact.model.ts';
 import { interviewRoundModel } from './models/interview-round.model.ts';
 
 import { organizationRelations } from './models/organization.relations.ts';
+import { countryRelations } from './models/country.relations.ts';
 import { userRelations } from './models/user.relations.ts';
 import { documentRelations } from './models/document.relations.ts';
 import { skillRelations } from './models/skill.relations.ts';
@@ -41,10 +42,15 @@ export const contract = defineContract(
       enums: { DocumentType, ApplicationStatus, InterviewOutcome },
       types,
       models: {
-        // Reference data: no outgoing relations of its own.
-        Country,
+        ...countryRelations(helpers, { Country, JobApplication, OrganizationCountry }),
         ...userRelations(helpers, { User, Organization, Document, Skill, JobApplication }),
-        ...organizationRelations(helpers, { Organization, User, Country, OrganizationCountry }),
+        ...organizationRelations(helpers, {
+          Organization,
+          User,
+          Country,
+          OrganizationCountry,
+          JobApplication,
+        }),
         ...documentRelations(helpers, { Document, User, JobApplication }),
         ...skillRelations(helpers, { Skill, User, JobApplicationHasSkill }),
         ...jobApplicationRelations(helpers, {
