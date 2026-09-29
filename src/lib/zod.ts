@@ -17,7 +17,7 @@ export function emptyToUndefined<Schema extends z.ZodType>(schema: Schema) {
 // but that turns a blank required field into a raw Zod type-mismatch
 // error instead of our own message. None of our schemas have non-string
 // fields that need coercion, so it's simplest to just turn it off.
-export function zodValidate<Schema extends z.ZodType>({
+export function zodValidateForm<Schema extends z.ZodType>({
   formData,
   schema,
 }: {

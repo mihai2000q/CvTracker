@@ -9,13 +9,13 @@ import { createAuthToken } from '@/lib/jwt';
 import { hashPassword } from '@/lib/password';
 import { createSession } from '@/lib/session';
 import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
-import { zodValidate } from '@/lib/zod.ts';
+import { zodValidateForm } from '@/lib/zod.ts';
 
 export async function signUp(
   _lastResult: SubmissionResult | undefined,
   formData: FormData
 ): Promise<SubmissionResult> {
-  const submission = zodValidate({ formData, schema: signUpSchema });
+  const submission = zodValidateForm({ formData, schema: signUpSchema });
   if (submission.status !== 'success') {
     return submission.reply();
   }

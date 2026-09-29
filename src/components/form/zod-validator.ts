@@ -1,6 +1,6 @@
 import type { z } from 'zod';
-import { zodValidate } from '@/lib/zod.ts';
+import { zodValidateForm } from '@/lib/zod.ts';
 
 export function zodValidator<Schema extends z.ZodType>(schema: Schema) {
-  return ({ formData }: { formData: FormData }) => zodValidate({ formData, schema });
+  return ({ formData }: { formData: FormData }) => zodValidateForm({ formData, schema });
 }
