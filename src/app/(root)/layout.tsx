@@ -8,9 +8,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <SidebarProvider>
       <div className={'flex w-full'}>
         <AppSidebar />
-        <div className={'w-full'}>
+        <div className={'flex w-full min-w-0 flex-col'}>
           <AppTopbar />
-          <main className={'p-6'}>{children}</main>
+          <main className={'flex flex-1 flex-col px-5.5 py-4'}>{children}</main>
         </div>
       </div>
     </SidebarProvider>
