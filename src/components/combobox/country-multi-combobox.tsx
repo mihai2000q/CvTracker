@@ -40,7 +40,7 @@ const CountryMultiCombobox = ({ onChange, onBlur }: Props) => {
   };
 
   const [search, setSearch] = useState('');
-  const debouncedSearch = useDebouncedValue(search, 300);
+  const debouncedSearch = useDebouncedValue(search);
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
     queryKey: ['countries', debouncedSearch],

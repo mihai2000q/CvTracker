@@ -28,9 +28,9 @@ interface Props {
 
 const CountryCombobox = ({ value, onChange }: Props) => {
   const [search, setSearch] = useState('');
-  const debouncedSearch = useDebouncedValue(search, 300);
+  const debouncedSearch = useDebouncedValue(search);
 
-  const { data, fetchNextPage, hasNextPage, isFetching, isLoading } = useInfiniteQuery({
+  const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
     queryKey: ['countries', debouncedSearch],
     queryFn: async ({ pageParam }) =>
       fetchJson<{ items: CountrySummary[]; nextCursor: string | null }>(
@@ -62,13 +62,13 @@ const CountryCombobox = ({ value, onChange }: Props) => {
     >
       <ComboboxInput placeholder={'Select country...'} disabled={!hasLoaded}>
         <InputGroupAddon className={'p-0'}>
-          {isLoading ? <Spinner /> : <RiGlobalLine />}
+          {!hasLoaded ? <Spinner /> : <RiGlobalLine />}
         </InputGroupAddon>
       </ComboboxInput>
 
       <ComboboxContent>
         <ScrollArea viewportProps={{ onScroll: handleScroll, className: 'max-h-63' }}>
-          {!isLoading && countries.length === 0 && (
+          {hasLoaded && countries.length === 0 && (
             <ComboboxEmpty>No countries found</ComboboxEmpty>
           )}
           <ComboboxList className="max-h-none overflow-visible">
