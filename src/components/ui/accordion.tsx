@@ -37,7 +37,7 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
         {children}
         <RiArrowDownSLine
           data-slot="accordion-trigger-icon"
-          className="pointer-events-none transition-transform duration-150 group-aria-expanded/accordion-trigger:rotate-180"
+          className="pointer-events-none ml-auto shrink-0 transition-transform duration-150 group-aria-expanded/accordion-trigger:rotate-180"
         />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
