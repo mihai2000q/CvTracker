@@ -13,6 +13,21 @@ export function emptyToUndefined<Schema extends z.ZodType>(schema: Schema) {
   return z.preprocess((value) => (value === '' ? undefined : value), schema);
 }
 
+// With auto-coercion disabled (see `zodValidateForm` below), a multi-value
+// FormData field (a `<select multiple>`, several same-named checkboxes)
+// only actually looks like an array once 2+ entries are submitted: exactly
+// one entry comes through as a bare string, and none at all (nothing
+// selected - the field isn't even present in the FormData) comes through
+// as `undefined`. Either one fails `z.array()`'s own type check before a
+// `.min(1)` message ever gets a chance to fire. Normalize both before
+// validating.
+export function toArray<Schema extends z.ZodType>(schema: Schema) {
+  return z.preprocess((value) => {
+    if (value === undefined) return [];
+    return typeof value === 'string' ? [value] : value;
+  }, schema);
+}
+
 // Conform's auto-coercion treats an empty form field as `undefined` (so
 // `.optional()` fields work over FormData's string-only representation),
 // but that turns a blank required field into a raw Zod type-mismatch
