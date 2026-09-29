@@ -114,8 +114,8 @@ for a small local tool with no external API consumers to defend against.
 | Column            | Type          | Constraints                                  |
 |-------------------|---------------|-------------------------------------------------|
 | id                        | bigserial     | PK                                               |
-| job_title         | varchar(200)  | NOT NULL                                         |
-| job_posting_url   | text          | NULL                                             |
+| title             | varchar(200)  | NOT NULL                                         |
+| posting_url       | text          | NULL                                             |
 | source            | varchar(100)  | NULL                                             |
 | current_status    | native `ENUM` | NOT NULL DEFAULT 'applied' — `ApplicationStatus` |
 | applied_at        | date          | NOT NULL                                         |

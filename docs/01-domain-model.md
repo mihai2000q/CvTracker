@@ -105,8 +105,8 @@ Organization, the CV document you actually sent, and the country where
 own country, e.g. a remote role or a foreign subsidiary). Owned by a `User`.
 
 - `id`
-- `job_title`
-- `job_posting_url` (optional)
+- `title`
+- `posting_url` (optional)
 - `source` (e.g. "LinkedIn", "Company site", "Referral", "Indeed" — free text or small enum)
 - `current_status` (denormalized convenience field — always equal to the
   latest entry in `ApplicationStatusHistory`, kept for cheap filtering/listing)
@@ -185,7 +185,10 @@ erDiagram
 ```
 
 `Country` is the one entity that stays global, shared reference data — it
-is not owned by any `User`. `ApplicationStatusHistory`, `Contact`,
+is not owned by any `User` (see business rule 9: every `Organization`,
+`Document`, `Skill`, and `JobApplication` — unlike `Country` — belongs to
+exactly one `User` and must be scoped by `user_id` in every query).
+`ApplicationStatusHistory`, `Contact`,
 `InterviewRound`, `OrganizationCountry`, and `JobApplicationHasSkill`
 don't need their own `user_id`: they're only ever reached through their
 parent (`JobApplication` or `Organization`), which is already scoped.
