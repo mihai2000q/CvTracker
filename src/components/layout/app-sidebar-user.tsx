@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu.tsx';
 import { RiExpandUpDownLine, RiLogoutBoxLine } from '@remixicon/react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
-import type { User } from '@/lib/types.ts';
+import type { User } from '@/features/user/types/user.ts';
 import { signOut } from '@/features/auth/sign-out/actions/sign-out.ts';
 
 interface Props {

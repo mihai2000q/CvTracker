@@ -4,7 +4,7 @@ import type { JWTPayload } from 'jose';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
 import { verifyAuthToken } from '@/lib/jwt';
-import { User } from '@/lib/types.ts';
+import { User } from '@/features/user/types/user.ts';
 
 export const SESSION_COOKIE_NAME = 'session';
 
