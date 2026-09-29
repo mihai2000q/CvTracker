@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { parseWithZod } from '@conform-to/zod/v4';
+import { Result } from '@/types/result.ts';
 
 // Conform strips an empty form field to `undefined` before validation —
 // that's what makes `.optional()` fields work correctly over FormData
@@ -25,4 +26,20 @@ export function zodValidateForm<Schema extends z.ZodType>({
   schema: Schema;
 }) {
   return parseWithZod(formData, { schema, disableAutoCoercion: true });
+}
+
+// The non-conform, non-FormData sibling of `zodValidateForm` above:
+// validates a plain input (a query-string-derived object, anything else
+// raw) against a schema and returns a `Result` instead of a conform
+// `Submission` - for an app-layer function that owns its own validation
+// but isn't a form.
+export function zodValidate<Schema extends z.ZodType>(
+  input: unknown,
+  schema: Schema
+): Result<z.infer<Schema>> {
+  const parsed = schema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, errors: z.flattenError(parsed.error).fieldErrors };
+  }
+  return { success: true, data: parsed.data };
 }
