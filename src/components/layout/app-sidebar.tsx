@@ -23,8 +23,9 @@ const AppSidebar = async () => {
     <Sidebar collapsible={'icon'}>
       <SidebarHeader>
         <SidebarMenuItem
-          className={cn('flex flex-row items-center gap-2 p-3 group-data-[state=collapsed]:p-0')}
-          style={{ transition: '0.15s padding' }}
+          className={cn(
+            'flex flex-row items-center gap-2 p-3 transition-[padding] group-data-[state=collapsed]:p-0'
+          )}
         >
           <div
             className={cn(
