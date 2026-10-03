@@ -2,7 +2,7 @@ import { Organization } from '@/features/organizations/types/organization.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
-import { getUserId, verifySession } from '@/lib/session.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 
 export async function getOrganizations(): Promise<Organization[]> {
   const session = await verifySession();
