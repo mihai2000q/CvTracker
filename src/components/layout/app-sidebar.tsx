@@ -14,7 +14,7 @@ import { RiDashboardLine, RiInstanceLine } from '@remixicon/react';
 import { cn } from '@/lib/utils.ts';
 import AppSidebarCore from '@/components/layout/app-sidebar-core.tsx';
 import AppSidebarUser from '@/components/layout/app-sidebar-user.tsx';
-import { getCurrentUser } from '@/lib/session.ts';
+import { getCurrentUser } from '@/lib/auth/session.ts';
 
 const AppSidebar = async () => {
   const user = await getCurrentUser();
@@ -37,7 +37,7 @@ const AppSidebar = async () => {
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">CV Tracker</span>
-            <span className="truncate text-xs text-gray-400">Track your job hunt</span>
+            <span className="text-muted-foreground truncate text-xs">Track your job hunt</span>
           </div>
         </SidebarMenuItem>
       </SidebarHeader>
