@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useActionState } from 'react';
-import { getInputProps, useForm, useInputControl } from '@conform-to/react';
-import { zodValidator } from '@/components/form/zod-validator.ts';
+import React from 'react';
+import { getInputProps, useInputControl } from '@conform-to/react';
+import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import {
   Dialog,
   DialogClose,
@@ -15,7 +15,6 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { Label } from '@/components/ui/label.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { createOrganization } from '@/features/organizations/actions/create-organization.ts';
@@ -33,15 +32,9 @@ interface Props {
 }
 
 const CreateOrganizationDialog = ({ children }: Props) => {
-  const [lastResult, createOrganizationAction, isPending] = useActionState(
-    createOrganization,
-    undefined
-  );
-  const [form, fields] = useForm<CreateOrganizationForm>({
-    lastResult,
-    shouldValidate: 'onBlur',
-    shouldRevalidate: 'onInput',
-    onValidate: zodValidator(createOrganizationSchema),
+  const { open, setOpen, form, fields, isPending } = useFormDialog<CreateOrganizationForm>({
+    action: createOrganization,
+    schema: createOrganizationSchema,
   });
 
   const countryIds = useInputControl<string[]>({
@@ -51,10 +44,10 @@ const CreateOrganizationDialog = ({ children }: Props) => {
   });
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={children} />
       <DialogContent className="md:max-w-md">
-        <form id={form.id} onSubmit={form.onSubmit} action={createOrganizationAction} noValidate>
+        <form id={form.id} onSubmit={form.onSubmit} noValidate>
           <DialogHeader className={'mb-6'}>
             <DialogTitle>New Organization</DialogTitle>
             <DialogDescription>
@@ -67,7 +60,11 @@ const CreateOrganizationDialog = ({ children }: Props) => {
               <FieldLabel htmlFor={fields.name.id} required>
                 Name
               </FieldLabel>
-              <Input placeholder={'Example'} {...getInputProps(fields.name, { type: 'text' })} />
+              <Input
+                placeholder={'Example'}
+                {...getInputProps(fields.name, { type: 'text' })}
+                maxLength={200}
+              />
               <FieldError errors={fields.name.errors} />
             </Field>
 
@@ -94,7 +91,7 @@ const CreateOrganizationDialog = ({ children }: Props) => {
             </Field>
 
             <Field>
-              <Label htmlFor={fields.notes.id}>Notes</Label>
+              <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
               <Textarea
                 placeholder={'Add any extra content...'}
                 {...getInputProps(fields.notes, { type: 'text' })}
@@ -107,13 +104,9 @@ const CreateOrganizationDialog = ({ children }: Props) => {
             <Separator />
             <div className={'flex justify-end gap-2'}>
               <DialogClose render={<Button variant="outline">Cancel</Button>} />
-              <DialogClose
-                render={
-                  <Button type="submit" loading={isPending}>
-                    Create
-                  </Button>
-                }
-              />
+              <Button type="submit" loading={isPending}>
+                Create
+              </Button>
             </div>
           </DialogFooter>
         </form>
