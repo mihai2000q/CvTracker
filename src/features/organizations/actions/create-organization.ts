@@ -1,9 +1,10 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { db } from '@database/db';
 import { sized, uuid } from '@database/field-values';
 import { isForeignKeyConstraintError } from '@database/sql-error';
-import { getUserId, verifySession } from '@/lib/session';
+import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod.ts';
 import { createOrganizationSchema } from '@/features/organizations/schemas/create-organization-schema.ts';
@@ -25,7 +26,9 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
       websiteUrl,
       notes,
       organizationCountries: (organizationCountries) =>
-        organizationCountries.create(countryIds.map((countryId) => ({ countryId: uuid(countryId) }))),
+        organizationCountries.create(
+          countryIds.map((countryId) => ({ countryId: uuid(countryId) }))
+        ),
       userId: uuid(userId),
     });
   } catch (error) {
@@ -37,4 +40,7 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
     }
     throw error;
   }
+
+  revalidatePath('/organizations');
+  return submission.reply({ resetForm: true });
 }
