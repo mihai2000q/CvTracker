@@ -48,7 +48,7 @@ export function jobApplicationRelations(
       statusHistory: rel.hasMany(ApplicationStatusHistory, { by: 'jobApplicationId' }),
       contacts: rel.hasMany(Contact, { by: 'jobApplicationId' }),
       interviewRounds: rel.hasMany(InterviewRound, { by: 'jobApplicationId' }),
-      skillTags: rel.hasMany(JobApplicationHasSkill, { by: 'jobApplicationId' }),
+      skills: rel.hasMany(JobApplicationHasSkill, { by: 'jobApplicationId' }),
     }),
     ApplicationStatusHistory: ApplicationStatusHistory.relations({
       jobApplication: rel.belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' }).sql({
