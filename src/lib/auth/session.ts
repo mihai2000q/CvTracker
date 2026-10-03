@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import type { JWTPayload } from 'jose';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
-import { verifyAuthToken } from '@/lib/jwt';
+import { verifyAuthToken } from '@/lib/auth/jwt';
 import { User } from '@/features/user/types/user.ts';
 
 export const SESSION_COOKIE_NAME = 'session';
@@ -53,7 +53,8 @@ export async function getCurrentUser(): Promise<User> {
     .select('id', 'email', 'name')
     .first({ id: uuid(session.sub) });
   if (!user) {
-    throw new Error('User is missing');
+    // Valid token, deleted user: clear the stale cookie, then sign in again.
+    redirect('/api/session/clear');
   }
   return { ...user };
 }

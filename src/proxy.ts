@@ -1,8 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { db } from '@database/db';
 import { uuid } from '@database/field-values';
-import { createAuthToken, verifyAuthToken } from '@/lib/jwt';
-import { SESSION_COOKIE_NAME, sessionCookieOptions } from '@/lib/session';
+import { createAuthToken, verifyAuthToken } from '@/lib/auth/jwt';
+import { SESSION_COOKIE_NAME, sessionCookieOptions } from '@/lib/auth/session';
 
 const PUBLIC_ROUTES = ['/sign-in', '/sign-up'];
 

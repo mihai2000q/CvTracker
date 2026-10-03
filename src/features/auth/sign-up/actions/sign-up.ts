@@ -5,9 +5,9 @@ import type { SubmissionResult } from '@conform-to/react';
 import { db } from '@database/db';
 import { sized } from '@database/field-values';
 import { isUniqueConstraintError } from '@database/sql-error';
-import { createAuthToken } from '@/lib/jwt';
-import { hashPassword } from '@/lib/password';
-import { createSession } from '@/lib/session';
+import { createAuthToken } from '@/lib/auth/jwt';
+import { hashPassword } from '@/lib/auth/password';
+import { createSession } from '@/lib/auth/session';
 import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
 import { zodValidateForm } from '@/lib/zod.ts';
 

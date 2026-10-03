@@ -4,9 +4,9 @@ import { redirect } from 'next/navigation';
 import type { SubmissionResult } from '@conform-to/react';
 import { db } from '@database/db';
 import { sized } from '@database/field-values';
-import { createAuthToken } from '@/lib/jwt';
-import { verifyPassword } from '@/lib/password';
-import { createSession } from '@/lib/session';
+import { createAuthToken } from '@/lib/auth/jwt';
+import { verifyPassword } from '@/lib/auth/password';
+import { createSession } from '@/lib/auth/session';
 import { signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 import { zodValidateForm } from '@/lib/zod.ts';
 
