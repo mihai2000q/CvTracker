@@ -16,8 +16,8 @@ import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { RiBuilding2Line } from '@remixicon/react';
-import { fetchJson } from '@/lib/fetch-json.ts';
-import { buildSearchParams } from '@/lib/url-search-params.ts';
+import { fetchJson } from '@/lib/http/fetch-json.ts';
+import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 
