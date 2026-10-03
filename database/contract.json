@@ -20,6 +20,10 @@
       "model": "Document",
       "namespace": "public"
     },
+    "document_has_skill": {
+      "model": "DocumentHasSkill",
+      "namespace": "public"
+    },
     "interview_round": {
       "model": "InterviewRound",
       "namespace": "public"
@@ -413,7 +417,7 @@
                   }
                 }
               },
-              "label": {
+              "name": {
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
@@ -483,6 +487,21 @@
                   "namespace": "public"
                 }
               },
+              "skills": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "documentId"
+                  ]
+                },
+                "to": {
+                  "model": "DocumentHasSkill",
+                  "namespace": "public"
+                }
+              },
               "user": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -511,8 +530,8 @@
                 "id": {
                   "column": "id"
                 },
-                "label": {
-                  "column": "label"
+                "name": {
+                  "column": "name"
                 },
                 "notes": {
                   "column": "notes"
@@ -529,6 +548,76 @@
               },
               "namespaceId": "public",
               "table": "document"
+            }
+          },
+          "DocumentHasSkill": {
+            "fields": {
+              "documentId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/char@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              },
+              "skillId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/char@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              }
+            },
+            "relations": {
+              "document": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "documentId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Document",
+                  "namespace": "public"
+                }
+              },
+              "skill": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "skillId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Skill",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "documentId": {
+                  "column": "document_id"
+                },
+                "skillId": {
+                  "column": "skill_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "document_has_skill"
             }
           },
           "InterviewRound": {
@@ -851,7 +940,7 @@
                   "namespace": "public"
                 }
               },
-              "skillTags": {
+              "skills": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -1252,7 +1341,22 @@
               }
             },
             "relations": {
-              "jobApplicationTags": {
+              "documentHasSkills": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "skillId"
+                  ]
+                },
+                "to": {
+                  "model": "DocumentHasSkill",
+                  "namespace": "public"
+                }
+              },
+              "jobApplicationHasSkills": {
                 "cardinality": "1:N",
                 "on": {
                   "localFields": [
@@ -1688,7 +1792,7 @@
                     "length": 36
                   }
                 },
-                "label": {
+                "name": {
                   "codecId": "sql/varchar@1",
                   "nativeType": "character varying",
                   "nullable": false,
@@ -1765,6 +1869,89 @@
               "primaryKey": {
                 "columns": [
                   "id"
+                ]
+              },
+              "uniques": []
+            },
+            "document_has_skill": {
+              "columns": {
+                "document_id": {
+                  "codecId": "sql/char@1",
+                  "nativeType": "character",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 36
+                  }
+                },
+                "skill_id": {
+                  "codecId": "sql/char@1",
+                  "nativeType": "character",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "name": "fk_document_has_skill_document_id",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "document_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "document_has_skill"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "document"
+                  }
+                },
+                {
+                  "name": "fk_document_has_skill_skill_id",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "skill_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "document_has_skill"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "skill"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "document_id"
+                  ],
+                  "name": "document_has_skill_document_id_idx_d3d0944e",
+                  "prefix": "document_has_skill_document_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "skill_id"
+                  ],
+                  "name": "document_has_skill_skill_id_idx_676c8389",
+                  "prefix": "document_has_skill_skill_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "document_id",
+                  "skill_id"
                 ]
               },
               "uniques": []
@@ -2551,7 +2738,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "b6b95e0c17c836619585cc5dbc19513db33693fccad6d2770e04ca34d60c28d4",
+    "storageHash": "0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c",
     "types": {
       "email": {
         "codecId": "sql/varchar@1",

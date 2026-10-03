@@ -158,7 +158,7 @@
     "execute": [
       {
         "description": "create table \"document\"",
-        "sql": "CREATE TABLE \"public\".\"document\" (\n  \"document_type\" text NOT NULL,\n  \"file_path\" text NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"label\" character varying(150) NOT NULL,\n  \"notes\" text,\n  \"original_filename\" character varying(255) NOT NULL,\n  \"uploaded_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"user_id\" character(36) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"document_document_type_check_3f540265\" CHECK (\"document_type\" IN ('cv', 'cover_letter'))\n)",
+        "sql": "CREATE TABLE \"public\".\"document\" (\n  \"document_type\" text NOT NULL,\n  \"file_path\" text NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"name\" character varying(150) NOT NULL,\n  \"notes\" text,\n  \"original_filename\" character varying(255) NOT NULL,\n  \"uploaded_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"user_id\" character(36) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"document_document_type_check_3f540265\" CHECK (\"document_type\" IN ('cv', 'cover_letter'))\n)",
         "params": []
       }
     ],
@@ -168,6 +168,45 @@
         "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
         "params": [
           "\"public\".\"document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.document_has_skill",
+    "label": "Create table \"document_has_skill\"",
+    "summary": "Creates table \"document_has_skill\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "document_has_skill"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"document_has_skill\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"document_has_skill\"",
+        "sql": "CREATE TABLE \"public\".\"document_has_skill\" (\n  \"document_id\" character(36) NOT NULL,\n  \"skill_id\" character(36) NOT NULL,\n  PRIMARY KEY (\"document_id\", \"skill_id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"document_has_skill\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill\""
         ]
       }
     ]
@@ -762,6 +801,84 @@
         "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
         "params": [
           "\"public\".\"idx_user_id_document_type_58783512\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.document_has_skill.document_has_skill_document_id_idx_d3d0944e",
+    "label": "Create index \"document_has_skill_document_id_idx_d3d0944e\" on \"document_has_skill\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "document_has_skill_document_id_idx_d3d0944e",
+        "table": "document_has_skill"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"document_has_skill_document_id_idx_d3d0944e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill_document_id_idx_d3d0944e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"document_has_skill_document_id_idx_d3d0944e\"",
+        "sql": "CREATE INDEX \"document_has_skill_document_id_idx_d3d0944e\" ON \"public\".\"document_has_skill\" (\"document_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"document_has_skill_document_id_idx_d3d0944e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill_document_id_idx_d3d0944e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.document_has_skill.document_has_skill_skill_id_idx_676c8389",
+    "label": "Create index \"document_has_skill_skill_id_idx_676c8389\" on \"document_has_skill\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "document_has_skill_skill_id_idx_676c8389",
+        "table": "document_has_skill"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"document_has_skill_skill_id_idx_676c8389\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill_skill_id_idx_676c8389\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"document_has_skill_skill_id_idx_676c8389\"",
+        "sql": "CREATE INDEX \"document_has_skill_skill_id_idx_676c8389\" ON \"public\".\"document_has_skill\" (\"skill_id\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"document_has_skill_skill_id_idx_676c8389\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"document_has_skill_skill_id_idx_676c8389\""
         ]
       }
     ]
@@ -1434,6 +1551,90 @@
           "fk_document_user_id",
           "public",
           "\"public\".\"document\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.document_has_skill.fk_document_has_skill_document_id",
+    "label": "Add foreign key \"fk_document_has_skill_document_id\" on \"document_has_skill\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_document_has_skill_document_id",
+        "table": "document_has_skill"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_document_has_skill_document_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_document_has_skill_document_id",
+          "public",
+          "\"public\".\"document_has_skill\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_document_has_skill_document_id\"",
+        "sql": "ALTER TABLE \"public\".\"document_has_skill\"\nADD CONSTRAINT \"fk_document_has_skill_document_id\"\nFOREIGN KEY (\"document_id\")\nREFERENCES \"public\".\"document\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_document_has_skill_document_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_document_has_skill_document_id",
+          "public",
+          "\"public\".\"document_has_skill\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.document_has_skill.fk_document_has_skill_skill_id",
+    "label": "Add foreign key \"fk_document_has_skill_skill_id\" on \"document_has_skill\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "fk_document_has_skill_skill_id",
+        "table": "document_has_skill"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"fk_document_has_skill_skill_id\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_document_has_skill_skill_id",
+          "public",
+          "\"public\".\"document_has_skill\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"fk_document_has_skill_skill_id\"",
+        "sql": "ALTER TABLE \"public\".\"document_has_skill\"\nADD CONSTRAINT \"fk_document_has_skill_skill_id\"\nFOREIGN KEY (\"skill_id\")\nREFERENCES \"public\".\"skill\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"fk_document_has_skill_skill_id\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "fk_document_has_skill_skill_id",
+          "public",
+          "\"public\".\"document_has_skill\""
         ]
       }
     ]

@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'b6b95e0c17c836619585cc5dbc19513db33693fccad6d2770e04ca34d60c28d4'>;
+  StorageHashBase<'0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c'>;
 export type ExecutionHash =
   ExecutionHashBase<'bd711fb2ab037f61ad8ee7e8e8ba98448e25ade18b67169c151fee2674ed9f6b'>;
 export type ProfileHash =
@@ -266,13 +266,14 @@ export type FieldOutputTypes = {
     readonly Document: {
       readonly id: Char<36>;
       readonly documentType: 'cv' | 'cover_letter';
-      readonly label: Varchar<150>;
+      readonly name: Varchar<150>;
       readonly filePath: CodecTypes['pg/text@1']['output'];
       readonly originalFilename: Varchar<255>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly userId: Char<36>;
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     };
+    readonly DocumentHasSkill: { readonly documentId: Char<36>; readonly skillId: Char<36> };
     readonly InterviewRound: {
       readonly id: Char<36>;
       readonly roundType: Varchar<100>;
@@ -356,12 +357,16 @@ export type FieldInputTypes = {
     readonly Document: {
       readonly id: CodecTypes['sql/char@1']['input'];
       readonly documentType: 'cv' | 'cover_letter';
-      readonly label: CodecTypes['sql/varchar@1']['input'];
+      readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly filePath: CodecTypes['pg/text@1']['input'];
       readonly originalFilename: CodecTypes['sql/varchar@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly userId: CodecTypes['sql/char@1']['input'];
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly DocumentHasSkill: {
+      readonly documentId: CodecTypes['sql/char@1']['input'];
+      readonly skillId: CodecTypes['sql/char@1']['input'];
     };
     readonly InterviewRound: {
       readonly id: CodecTypes['sql/char@1']['input'];
@@ -447,12 +452,13 @@ export type StorageColumnTypes = {
       readonly document_type: 'cv' | 'cover_letter';
       readonly file_path: CodecTypes['pg/text@1']['output'];
       readonly id: Char<36>;
-      readonly label: Varchar<150>;
+      readonly name: Varchar<150>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly original_filename: Varchar<255>;
       readonly uploaded_at: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly user_id: Char<36>;
     };
+    readonly document_has_skill: { readonly document_id: Char<36>; readonly skill_id: Char<36> };
     readonly interview_round: {
       readonly id: Char<36>;
       readonly job_application_id: Char<36>;
@@ -537,11 +543,15 @@ export type StorageColumnInputTypes = {
       readonly document_type: 'cv' | 'cover_letter';
       readonly file_path: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly label: CodecTypes['sql/varchar@1']['input'];
+      readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly original_filename: CodecTypes['sql/varchar@1']['input'];
       readonly uploaded_at: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly user_id: CodecTypes['sql/char@1']['input'];
+    };
+    readonly document_has_skill: {
+      readonly document_id: CodecTypes['sql/char@1']['input'];
+      readonly skill_id: CodecTypes['sql/char@1']['input'];
     };
     readonly interview_round: {
       readonly id: CodecTypes['sql/char@1']['input'];
@@ -646,7 +656,7 @@ export namespace Models {
   export type public_Document = {
     id: Char<36>;
     documentType: 'cv' | 'cover_letter';
-    label: Varchar<150>;
+    name: Varchar<150>;
     filePath: CodecTypes['pg/text@1']['output'];
     originalFilename: Varchar<255>;
     notes: CodecTypes['pg/text@1']['output'] | null;
@@ -655,15 +665,25 @@ export namespace Models {
     user: public_User;
     cvForJobApplications: public_JobApplication[];
     coverLetterForJobApplications: public_JobApplication[];
-    readonly [RelationKeys]?: 'user' | 'cvForJobApplications' | 'coverLetterForJobApplications';
+    skills: public_DocumentHasSkill[];
+    readonly [RelationKeys]?:
+      'user' | 'cvForJobApplications' | 'coverLetterForJobApplications' | 'skills';
+  };
+  export type public_DocumentHasSkill = {
+    documentId: Char<36>;
+    skillId: Char<36>;
+    document: public_Document;
+    skill: public_Skill;
+    readonly [RelationKeys]?: 'document' | 'skill';
   };
   export type public_Skill = {
     id: Char<36>;
     name: Varchar<100>;
     userId: Char<36>;
     user: public_User;
-    jobApplicationTags: public_JobApplicationHasSkill[];
-    readonly [RelationKeys]?: 'user' | 'jobApplicationTags';
+    jobApplicationHasSkills: public_JobApplicationHasSkill[];
+    documentHasSkills: public_DocumentHasSkill[];
+    readonly [RelationKeys]?: 'user' | 'jobApplicationHasSkills' | 'documentHasSkills';
   };
   export type public_JobApplication = {
     id: Char<36>;
@@ -689,7 +709,7 @@ export namespace Models {
     statusHistory: public_ApplicationStatusHistory[];
     contacts: public_Contact[];
     interviewRounds: public_InterviewRound[];
-    skillTags: public_JobApplicationHasSkill[];
+    skills: public_JobApplicationHasSkill[];
     readonly [RelationKeys]?:
       | 'organization'
       | 'cvDocument'
@@ -699,7 +719,7 @@ export namespace Models {
       | 'statusHistory'
       | 'contacts'
       | 'interviewRounds'
-      | 'skillTags';
+      | 'skills';
   };
   export type public_ApplicationStatusHistory = {
     id: Char<36>;
@@ -747,6 +767,7 @@ export declare const models: {
     Organization: Models.public_Organization;
     OrganizationCountry: Models.public_OrganizationCountry;
     Document: Models.public_Document;
+    DocumentHasSkill: Models.public_DocumentHasSkill;
     Skill: Models.public_Skill;
     JobApplication: Models.public_JobApplication;
     ApplicationStatusHistory: Models.public_ApplicationStatusHistory;
@@ -940,7 +961,7 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
-                readonly label: {
+                readonly name: {
                   readonly nativeType: 'character varying';
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
@@ -1004,6 +1025,66 @@ type ContractBase = Omit<
                     readonly columns: readonly ['id'];
                   };
                   readonly name: 'fk_document_user_id';
+                },
+              ];
+            };
+            readonly document_has_skill: {
+              columns: {
+                readonly document_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+                readonly skill_id: {
+                  readonly nativeType: 'character';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['document_id', 'skill_id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'document_has_skill_document_id_idx_d3d0944e';
+                  readonly prefix: 'document_has_skill_document_id_idx';
+                  readonly columns: readonly ['document_id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'document_has_skill_skill_id_idx_676c8389';
+                  readonly prefix: 'document_has_skill_skill_id_idx';
+                  readonly columns: readonly ['skill_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'document_has_skill';
+                    readonly columns: readonly ['document_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'document';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_document_has_skill_document_id';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'document_has_skill';
+                    readonly columns: readonly ['skill_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'skill';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_document_has_skill_skill_id';
                 },
               ];
             };
@@ -1643,6 +1724,10 @@ type ContractBase = Omit<
       readonly model: 'OrganizationCountry';
     };
     readonly document: { readonly namespace: 'public' & NamespaceId; readonly model: 'Document' };
+    readonly document_has_skill: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'DocumentHasSkill';
+    };
     readonly skill: { readonly namespace: 'public' & NamespaceId; readonly model: 'Skill' };
     readonly job_application: {
       readonly namespace: 'public' & NamespaceId;
@@ -1855,7 +1940,7 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
-              readonly label: {
+              readonly name: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
               };
@@ -1919,6 +2004,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['coverLetterDocumentId'];
                 };
               };
+              readonly skills: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'DocumentHasSkill';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['documentId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'document';
@@ -1926,12 +2022,66 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly id: { readonly column: 'id' };
                 readonly documentType: { readonly column: 'document_type' };
-                readonly label: { readonly column: 'label' };
+                readonly name: { readonly column: 'name' };
                 readonly filePath: { readonly column: 'file_path' };
                 readonly originalFilename: { readonly column: 'original_filename' };
                 readonly notes: { readonly column: 'notes' };
                 readonly userId: { readonly column: 'user_id' };
                 readonly uploadedAt: { readonly column: 'uploaded_at' };
+              };
+            };
+          };
+          readonly DocumentHasSkill: {
+            readonly fields: {
+              readonly documentId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
+              readonly skillId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly document: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Document';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['documentId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly skill: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Skill';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['skillId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'document_has_skill';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly documentId: { readonly column: 'document_id' };
+                readonly skillId: { readonly column: 'skill_id' };
               };
             };
           };
@@ -2180,7 +2330,7 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['jobApplicationId'];
                 };
               };
-              readonly skillTags: {
+              readonly skills: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'JobApplicationHasSkill';
@@ -2446,10 +2596,21 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
-              readonly jobApplicationTags: {
+              readonly jobApplicationHasSkills: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'JobApplicationHasSkill';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['skillId'];
+                };
+              };
+              readonly documentHasSkills: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'DocumentHasSkill';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {

@@ -83,7 +83,7 @@ flow, one library, filtered by type rather than assembled from two tables.
 |--------------------|---------------|----------------------------------------------|
 | id                 | bigserial     | PK                                             |
 | document_type      | native `ENUM` | NOT NULL — `DocumentType` (`cv`, `cover_letter`) |
-| label              | varchar(150)  | NOT NULL                                       |
+| name               | varchar(150)  | NOT NULL                                       |
 | file_path          | text          | NOT NULL                                       |
 | original_filename  | varchar(255)  | NOT NULL                                       |
 | notes              | text          | NULL                                            |
@@ -191,6 +191,13 @@ Index: `(job_application_id, scheduled_at)`.
 |--------------------|---------|--------------------------------------------|
 | job_application_id | bigint  | FK → job_application(id), PK (part 1)     |
 | skill_id           | bigint  | FK → skill(id), PK (part 2)               |
+
+### `document_has_skill` (join table)
+
+| Column      | Type    | Constraints                              |
+|-------------|---------|--------------------------------------------|
+| document_id | bigint  | FK → document(id), PK (part 1)            |
+| skill_id    | bigint  | FK → skill(id), PK (part 2)               |
 
 ## Seed data — `country`
 

@@ -70,10 +70,10 @@ rather than splitting into separate endpoints.
 | Method | Path                       | Purpose                                                     |
 |--------|----------------------------|------------------------------------------------------------------|
 | GET    | `/api/documents`            | List documents (optional `?documentType=cv\|cover_letter` filter) |
-| POST   | `/api/documents`            | Upload a new document (`multipart/form-data`: file + `documentType` + label + notes) |
+| POST   | `/api/documents`            | Upload a new document (`multipart/form-data`: file + `documentType` + name + notes) |
 | GET    | `/api/documents/:id`        | Get document metadata                                        |
 | GET    | `/api/documents/:id/file`   | Download/stream the actual file                               |
-| PATCH  | `/api/documents/:id`        | Update label/notes (not the file or its type)                 |
+| PATCH  | `/api/documents/:id`        | Update name/notes (not the file or its type)                 |
 | DELETE | `/api/documents/:id`        | Delete (only if not referenced by any application)             |
 
 `documentType` is immutable after upload — swapping a document from `cv` to
@@ -136,17 +136,13 @@ overwriting a field.
 | PATCH  | `/api/job-applications/:id/interview-rounds/:roundId`    | Update outcome/notes/date          |
 | DELETE | `/api/job-applications/:id/interview-rounds/:roundId`    | Remove a round                     |
 
-### Skill tags (sub-resource)
+### Skill tags
 
-Backed by the `job_application_has_skill` join table (see
-[02-database-schema.md](./02-database-schema.md)) — managed incrementally
-here, unlike `Organization.countryIds` above.
-
-| Method | Path                                                    | Purpose                        |
-|--------|------------------------------------------------------------|------------------------------------|
-| GET    | `/api/job-applications/:id/skills`                          | List skills tagged on an application |
-| POST   | `/api/job-applications/:id/skills`                          | Tag a skill (`{ skillId }`)          |
-| DELETE | `/api/job-applications/:id/skills/:skillId`                 | Remove a tag                        |
+Backed by the `job_application_has_skill` and `document_has_skill` join
+tables (see [02-database-schema.md](./02-database-schema.md)). There are no
+sub-resource endpoints: like `Organization.countryIds` above, `skillIds` is
+sent when creating or updating a job application or a document, and
+replaces the full set in one write.
 
 ## Conventions
 

@@ -63,7 +63,7 @@ actually use (see business rule 12).
 - `country_id` → Country
 
 ### Document
-A single uploaded file — either a CV or a cover letter — versioned/labeled
+A single uploaded file — either a CV or a cover letter — versioned/named
 by you. Documents are a **reusable library** displayed together in one grid
 in the UI, distinguished by `document_type`: the same document can be
 attached to many job applications, and a single application points at
@@ -72,13 +72,14 @@ document — whichever versions were actually sent.
 
 - `id`
 - `document_type` (`cv` | `cover_letter`)
-- `label` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
+- `name` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
   not derived
 - `file_path` (location on the local filesystem/volume)
 - `original_filename`
 - `notes` (optional)
 - `user_id` → User (each user has their own document library)
 - `uploaded_at`
+- skills — the skills this document emphasizes (see `DocumentHasSkill`)
 
 CV and cover letter started as identical, separately-modeled entities; they
 were merged into one `Document` entity specifically because the UI shows
@@ -154,14 +155,26 @@ round with Siemens next Tuesday" is a queryable fact, not buried in a note.
 
 ### JobApplicationHasSkill (join table)
 Many-to-many between JobApplication and Skill — which skills/tags were
-relevant to (or emphasized in) a given application. Unlike
-`OrganizationCountry`, this one *is* managed through its own
-sub-resource endpoints (see
-[04-api-design.md](./04-api-design.md#skill-tags-sub-resource)) — tags are
-added/removed incrementally over an application's life as you decide which
-skills to emphasize, rather than being set once at creation.
+relevant to (or emphasized in) a given application. Like
+`OrganizationCountry` and `DocumentHasSkill`, it has no endpoints of its
+own: the full set of skills is replaced in one write when the application is
+created or updated.
+
+When an application is created, the skills of the selected CV (and cover
+letter, if any) are **copied** into the form as a pre-fill; the user can
+edit them before saving. The application's tags are its own record — later
+changes to a document's skills never alter existing applications.
 
 - `job_application_id` → JobApplication
+- `skill_id` → Skill
+
+### DocumentHasSkill (join table)
+Many-to-many between Document and Skill — which skills a CV or cover letter
+emphasizes. Used to pre-fill an application's skills when the document is
+selected. Managed as part of creating/updating the document (the full set is
+replaced in one write), not through its own endpoints.
+
+- `document_id` → Document
 - `skill_id` → Skill
 
 ## Relationships
@@ -182,6 +195,7 @@ erDiagram
     JOB_APPLICATION ||--o{ CONTACT : "has"
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
     JOB_APPLICATION }o--o{ SKILL : "tagged with"
+    DOCUMENT }o--o{ SKILL : "emphasizes"
 ```
 
 `Country` is the one entity that stays global, shared reference data — it
@@ -189,9 +203,10 @@ is not owned by any `User` (see business rule 9: every `Organization`,
 `Document`, `Skill`, and `JobApplication` — unlike `Country` — belongs to
 exactly one `User` and must be scoped by `user_id` in every query).
 `ApplicationStatusHistory`, `Contact`,
-`InterviewRound`, `OrganizationCountry`, and `JobApplicationHasSkill`
-don't need their own `user_id`: they're only ever reached through their
-parent (`JobApplication` or `Organization`), which is already scoped.
+`InterviewRound`, `OrganizationCountry`, `JobApplicationHasSkill`, and
+`DocumentHasSkill` don't need their own `user_id`: they're only ever reached
+through their parent (`JobApplication`, `Organization` or `Document`), which
+is already scoped.
 
 ## Derived / computed fields (not stored)
 

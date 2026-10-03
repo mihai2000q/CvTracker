@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/b6b95e0c17c836619585cc5dbc19513db33693fccad6d2770e04ca34d60c28d4/contract';
-import endContract from '../../snapshots/b6b95e0c17c836619585cc5dbc19513db33693fccad6d2770e04ca34d60c28d4/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c/contract';
+import endContract from '../../snapshots/0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -101,7 +101,7 @@ export default class M extends Migration<never, End> {
             notNull: true,
             codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
           }),
-          col('label', 'character varying(150)', {
+          col('name', 'character varying(150)', {
             notNull: true,
             codecRef: { codecId: 'sql/varchar@1', typeParams: { length: 150 } },
           }),
@@ -127,6 +127,21 @@ export default class M extends Migration<never, End> {
             "\"document_type\" IN ('cv', 'cover_letter')",
           ),
         ],
+      }),
+      this.createTable({
+        schema: 'public',
+        table: 'document_has_skill',
+        columns: [
+          col('document_id', 'character(36)', {
+            notNull: true,
+            codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
+          }),
+          col('skill_id', 'character(36)', {
+            notNull: true,
+            codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
+          }),
+        ],
+        constraints: [primaryKey(['document_id', 'skill_id'])],
       }),
       this.createTable({
         schema: 'public',
@@ -381,6 +396,18 @@ export default class M extends Migration<never, End> {
       }),
       this.createIndex({
         schema: 'public',
+        table: 'document_has_skill',
+        index: 'document_has_skill_document_id_idx_d3d0944e',
+        columns: ['document_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
+        table: 'document_has_skill',
+        index: 'document_has_skill_skill_id_idx_676c8389',
+        columns: ['skill_id'],
+      }),
+      this.createIndex({
+        schema: 'public',
         table: 'interview_round',
         index: 'idx_job_application_id_scheduled_at_bd076d63',
         columns: ['job_application_id', 'scheduled_at'],
@@ -490,6 +517,26 @@ export default class M extends Migration<never, End> {
           name: 'fk_document_user_id',
           columns: ['user_id'],
           references: { schema: 'public', table: 'user', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'document_has_skill',
+        foreignKey: {
+          name: 'fk_document_has_skill_document_id',
+          columns: ['document_id'],
+          references: { schema: 'public', table: 'document', columns: ['id'] },
+          onDelete: 'cascade',
+        },
+      }),
+      this.addForeignKey({
+        schema: 'public',
+        table: 'document_has_skill',
+        foreignKey: {
+          name: 'fk_document_has_skill_skill_id',
+          columns: ['skill_id'],
+          references: { schema: 'public', table: 'skill', columns: ['id'] },
           onDelete: 'cascade',
         },
       }),

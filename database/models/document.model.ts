@@ -2,12 +2,12 @@ import type { ContractHelpers } from '../types.ts';
 import { DocumentType } from '../enums.ts';
 import type { SqlTypes } from '../sql-types.ts';
 
-export function documentModel({ model, field }: ContractHelpers, sqlTypes: SqlTypes) {
-  return model('Document', {
+export function documentModels({ model, field }: ContractHelpers, sqlTypes: SqlTypes) {
+  const Document = model('Document', {
     fields: {
       id: field.id.uuidv7String(),
       documentType: field.namedType(DocumentType),
-      label: field.namedType(sqlTypes.varChar150),
+      name: field.namedType(sqlTypes.varChar150),
       filePath: field.text(),
       originalFilename: field.namedType(sqlTypes.varChar255),
       notes: field.text().optional(),
@@ -21,4 +21,15 @@ export function documentModel({ model, field }: ContractHelpers, sqlTypes: SqlTy
       }),
     ],
   }));
+
+  const DocumentHasSkill = model('DocumentHasSkill', {
+    fields: {
+      documentId: field.uuidString(),
+      skillId: field.uuidString(),
+    },
+  }).attributes(({ fields, constraints }) => ({
+    id: constraints.id([fields.documentId, fields.skillId]),
+  }));
+
+  return { Document, DocumentHasSkill };
 }

@@ -4,7 +4,7 @@ import { sqlTypes } from './sql-types.ts';
 import { userModel } from './models/user.model.ts';
 import { countryModel } from './models/country.model.ts';
 import { organizationModels } from './models/organization.model.ts';
-import { documentModel } from './models/document.model.ts';
+import { documentModels } from './models/document.model.ts';
 import { skillModel } from './models/skill.model.ts';
 import { jobApplicationModels } from './models/job-application.model.ts';
 import { applicationStatusHistoryModel } from './models/application-status-history.model.ts';
@@ -31,7 +31,7 @@ export const contract = defineContract(
     const User = userModel(helpers, types);
     const Country = countryModel(helpers, types);
     const { Organization, OrganizationCountry } = organizationModels(helpers, types);
-    const Document = documentModel(helpers, types);
+    const { Document, DocumentHasSkill } = documentModels(helpers, types);
     const Skill = skillModel(helpers, types);
     const { JobApplication, JobApplicationHasSkill } = jobApplicationModels(helpers, types);
     const ApplicationStatusHistory = applicationStatusHistoryModel(helpers);
@@ -51,8 +51,14 @@ export const contract = defineContract(
           OrganizationCountry,
           JobApplication,
         }),
-        ...documentRelations(helpers, { Document, User, JobApplication }),
-        ...skillRelations(helpers, { Skill, User, JobApplicationHasSkill }),
+        ...documentRelations(helpers, {
+          Document,
+          User,
+          JobApplication,
+          Skill,
+          DocumentHasSkill,
+        }),
+        ...skillRelations(helpers, { Skill, User, JobApplicationHasSkill, DocumentHasSkill }),
         ...jobApplicationRelations(helpers, {
           JobApplication,
           Organization,
