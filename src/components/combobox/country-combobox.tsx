@@ -18,8 +18,8 @@ import { CountrySummary } from '@/features/countries/types/country.ts';
 import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { RiGlobalLine } from '@remixicon/react';
 import FlagIcon from '@/components/icon/flag-icon.tsx';
-import { fetchJson } from '@/lib/fetch-json.ts';
-import { buildSearchParams } from '@/lib/url-search-params.ts';
+import { fetchJson } from '@/lib/http/fetch-json.ts';
+import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 
 interface Props {
   value: string | null;

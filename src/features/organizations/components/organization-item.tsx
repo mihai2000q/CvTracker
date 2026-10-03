@@ -31,8 +31,8 @@ const OrganizationItem = ({ organization }: Props) => {
                 <OrganizationCountryBadge key={country.id} country={country} />
               ))}
 
-              <div className={'flex gap-2 items-center pl-3 text-gray-400'}>
-                <RiSendPlaneFill className={'size-3'}/>
+              <div className={'text-muted-foreground flex items-center gap-2 pl-3'}>
+                <RiSendPlaneFill className={'size-3'} />
                 <div className={'text-[11px]'}>
                   {organization.jobApplications.length} applications sent
                 </div>
@@ -47,7 +47,7 @@ const OrganizationItem = ({ organization }: Props) => {
           ))}
 
           {organization.jobApplications.length === 0 && (
-            <div className={'pt-4 text-center text-gray-400'}>No job applications sent</div>
+            <div className={'text-muted-foreground pt-4 text-center'}>No job applications sent</div>
           )}
         </AccordionContent>
       </AccordionItem>

@@ -10,12 +10,12 @@ const Organizations = async () => {
 
   return (
     <div className={'flex flex-1 flex-col'}>
-      <div>
+      <header>
         <h1 className={'text-2xl font-bold'}>Organizations</h1>
-        <div className={'text-xs text-gray-300/80'}>
+        <div className={'text-muted-foreground text-xs'}>
           All organizations you&#39;ve applied to, in one place
         </div>
-      </div>
+      </header>
 
       <Separator className={'mt-4 mb-3'} />
 

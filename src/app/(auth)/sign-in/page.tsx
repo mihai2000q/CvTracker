@@ -57,7 +57,7 @@ const SignIn = () => {
                   <FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
                   <a
                     href="#"
-                    className="ml-auto inline-block text-xs text-gray-400 underline-offset-4 hover:underline"
+                    className="text-muted-foreground ml-auto inline-block text-xs underline-offset-4 hover:underline"
                   >
                     Forgot your password?
                   </a>
