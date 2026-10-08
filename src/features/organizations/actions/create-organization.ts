@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { updateTag } from 'next/cache';
 import { db } from '@database/db';
 import { sized, uuid } from '@database/field-values';
 import { isForeignKeyConstraintError } from '@database/sql-error';
@@ -8,6 +8,7 @@ import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod.ts';
 import { createOrganizationSchema } from '@/features/organizations/schemas/create-organization-schema.ts';
+import { cacheTags } from '@/lib/cache-tags.ts';
 
 export async function createOrganization(_state: SubmissionResult | undefined, formData: FormData) {
   const session = await verifySession();
@@ -41,6 +42,7 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
     throw error;
   }
 
-  revalidatePath('/organizations');
+  updateTag(cacheTags.organizations(userId));
+  updateTag(cacheTags.countries(userId));
   return submission.reply({ resetForm: true });
 }
