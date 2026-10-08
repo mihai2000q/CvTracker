@@ -12,12 +12,14 @@ interface Options<Form extends Record<string, unknown>> {
   action: FormAction;
   schema: z.ZodType<Form>;
   defaultValue?: DefaultValue<Form>;
+  onSuccess?: () => void;
 }
 
 export function useFormDialog<Form extends Record<string, unknown>>({
   action,
   schema,
   defaultValue,
+  onSuccess,
 }: Options<Form>) {
   const [open, setOpen] = useState(false);
   const [lastResult, setLastResult] = useState<SubmissionResult>();
@@ -36,6 +38,7 @@ export function useFormDialog<Form extends Record<string, unknown>>({
         if (result?.initialValue === null) {
           setOpen(false);
           form.reset();
+          onSuccess?.();
         } else {
           setLastResult(result);
         }
