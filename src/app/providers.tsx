@@ -4,13 +4,14 @@ import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip.tsx';
 import { Toaster } from '@/components/ui/toast.tsx';
 import { ThemeProvider } from '@/components/theme-provider.tsx';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientConfig, QueryClientProvider } from '@tanstack/react-query';
 
 let browserQueryClient: QueryClient | undefined;
 
 function getQueryClient() {
-  if (typeof window === 'undefined') return new QueryClient();
-  browserQueryClient ??= new QueryClient();
+  const config: QueryClientConfig = { defaultOptions: { queries: { staleTime: 5 * 60 * 1000 } } };
+  if (typeof window === 'undefined') return new QueryClient(config);
+  browserQueryClient ??= new QueryClient(config);
   return browserQueryClient;
 }
 
