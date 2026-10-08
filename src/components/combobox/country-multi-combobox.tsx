@@ -1,5 +1,6 @@
 'use client';
 
+import { queryKeys } from '@/lib/query-keys.ts';
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
@@ -43,14 +44,15 @@ const CountryMultiCombobox = ({ onChange, onBlur }: Props) => {
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
-    queryKey: ['countries', debouncedSearch],
+    queryKey: queryKeys.countrySearch(debouncedSearch),
     queryFn: async ({ pageParam }) =>
       fetchJson<{ items: CountrySummary[]; nextCursor: string | null }>(
         `/api/countries/search?${buildSearchParams({ search: debouncedSearch, cursor: pageParam })}`
       ),
     initialPageParam: null as string | null,
     getNextPageParam: (last) => last.nextCursor,
-    staleTime: 5 * 60 * 1000, // countries rarely change
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
   const countries = data?.pages.flatMap((p) => p.items) ?? [];
