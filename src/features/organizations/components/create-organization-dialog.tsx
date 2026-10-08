@@ -1,6 +1,8 @@
 'use client';
 
+import { queryKeys } from '@/lib/query-keys.ts';
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { getInputProps, useInputControl } from '@conform-to/react';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import {
@@ -32,9 +34,11 @@ interface Props {
 }
 
 const CreateOrganizationDialog = ({ children }: Props) => {
+  const queryClient = useQueryClient();
   const { open, setOpen, form, fields, isPending } = useFormDialog<CreateOrganizationForm>({
     action: createOrganization,
     schema: createOrganizationSchema,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
   });
 
   const countryIds = useInputControl<string[]>({
