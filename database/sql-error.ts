@@ -16,3 +16,27 @@ export function isUniqueConstraintError(error: unknown): boolean {
 export function isForeignKeyConstraintError(error: unknown): boolean {
   return hasSqlState(error) && error.sqlState === POSTGRES_FOREIGN_KEY_VIOLATION;
 }
+
+// Call from a `catch` around any database operation. If the error is a known
+// constraint violation it logs the constraint, table and Postgres detail
+// (server-side only) and returns a form error naming the constraint (declared
+// in the model relations/indexes, e.g. `fk_job_application_country_id`), ready
+// for `submission.reply()`; otherwise it returns null so the caller can rethrow.
+export function constraintViolationReply(error: unknown) {
+  const { constraint, table, detail } = (error ?? {}) as {
+    constraint?: string;
+    table?: string;
+    detail?: string;
+  };
+  const name = constraint ?? 'unknown';
+
+  if (isForeignKeyConstraintError(error)) {
+    console.error('Foreign key violation:', { constraint, table, detail });
+    return { formErrors: [`A related record no longer exists (${name}).`] };
+  }
+  if (isUniqueConstraintError(error)) {
+    console.error('Unique violation:', { constraint, table, detail });
+    return { formErrors: [`This record already exists (${name}).`] };
+  }
+  return null;
+}
