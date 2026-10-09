@@ -14,11 +14,10 @@ import { RiDashboardLine, RiInstanceLine } from '@remixicon/react';
 import { cn } from '@/lib/utils.ts';
 import AppSidebarCore from '@/components/layout/app-sidebar-core.tsx';
 import AppSidebarUser from '@/components/layout/app-sidebar-user.tsx';
-import { getCurrentUser } from '@/lib/auth/session.ts';
+import { Suspense } from 'react';
+import AppSidebarUserSkeleton from '@/components/layout/app-sidebar-user-skeleton.tsx';
 
-const AppSidebar = async () => {
-  const user = await getCurrentUser();
-
+const AppSidebar = () => {
   return (
     <Sidebar collapsible={'icon'}>
       <SidebarHeader>
@@ -60,7 +59,9 @@ const AppSidebar = async () => {
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
-        <AppSidebarUser user={user} />
+        <Suspense fallback={<AppSidebarUserSkeleton />}>
+          <AppSidebarUser />
+        </Suspense>
       </SidebarFooter>
     </Sidebar>
   );
