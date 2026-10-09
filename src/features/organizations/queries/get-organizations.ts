@@ -3,12 +3,40 @@ import { JobApplicationStatus } from '@/features/job-applications/types/enums/jo
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
+import { cacheTag } from 'next/cache';
+import { cacheTags } from '@/lib/cache-tags.ts';
+import {
+  GetOrganizationsQueryInput,
+  getOrganizationsQuerySchema,
+  GetOrganizationsQuery,
+} from '@/features/organizations/schemas/get-organizations-schema.ts';
+import { Page } from '@/types/pagination.ts';
+import { Result } from '@/types/result.ts';
+import { paginate } from '@database/paginate.ts';
+import { zodValidate } from '@/lib/zod.ts';
 
-export async function getOrganizations(): Promise<Organization[]> {
-  const session = await verifySession();
-  const userId = getUserId(session);
+export async function getOrganizations(
+  query: GetOrganizationsQueryInput
+): Promise<Result<Page<Organization>>> {
+  const userId = getUserId(await verifySession());
 
-  const organizations = await db.Organization.where({ userId: uuid(userId) })
+  const parsed = zodValidate(query, getOrganizationsQuerySchema);
+  if (!parsed.success) {
+    return parsed;
+  }
+
+  return { success: true, data: await getOrganizationsQuery(userId, parsed.data) };
+}
+
+async function getOrganizationsQuery(
+  userId: string,
+  { page, pageSize }: GetOrganizationsQuery
+): Promise<Page<Organization>> {
+  'use cache';
+  cacheTag(cacheTags.organizations(userId));
+
+  const modelsQuery = paginate(db.Organization, { page, pageSize })
+    .where({ userId: uuid(userId) })
     .orderBy((o) => o.createdAt.desc())
     .include('organizationCountries', (oc) => oc.include('country'))
     .include('jobApplications', (jobApplications) =>
@@ -20,8 +48,14 @@ export async function getOrganizations(): Promise<Organization[]> {
       })
     )
     .all();
+  const [models, { totalCount }] = await Promise.all([
+    modelsQuery,
+    db.Organization.where({ userId: uuid(userId) }).aggregate((aggregate) => ({
+      totalCount: aggregate.count(),
+    })),
+  ]);
 
-  return organizations.map((organization) => ({
+  const organizations = models.map((organization) => ({
     id: organization.id,
     name: organization.name,
     websiteUrl: organization.websiteUrl,
@@ -34,4 +68,6 @@ export async function getOrganizations(): Promise<Organization[]> {
     })),
     lastActivityAt: organization.jobApplications.lastActivityAt ?? organization.updatedAt,
   }));
+
+  return { items: organizations, totalCount };
 }

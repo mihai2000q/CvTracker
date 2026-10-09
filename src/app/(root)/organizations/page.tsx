@@ -4,16 +4,31 @@ import { Accordion } from '@/components/ui/accordion.tsx';
 import OrganizationItem from '@/features/organizations/components/organization-item.tsx';
 import { getOrganizations } from '@/features/organizations/queries/get-organizations.ts';
 import EmptyOrganizations from '@/features/organizations/components/empty-organizations.tsx';
+import { redirect } from 'next/navigation';
+import AppPagination from '@/components/pagination/app-pagination.tsx';
+import { organizationsSearchParamsState } from '@/features/organizations/schemas/organizations-search-params.ts';
+import { readSearchParams } from '@/lib/search-params.ts';
 
-const Organizations = async () => {
-  const organizations = await getOrganizations();
+const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
+  const {
+    values: { page },
+    hrefFor,
+  } = readSearchParams(organizationsSearchParamsState, await searchParams);
+  const hrefForPage = (page: number) => hrefFor('/organizations', { page });
+
+  const result = await getOrganizations({ page });
+  if (!result.success) {
+    redirect('/organizations');
+  }
+
+  const { items: organizations, totalCount } = result.data;
 
   return (
     <div className={'flex flex-1 flex-col'}>
       <header>
         <h1 className={'text-2xl font-bold'}>Organizations</h1>
         <div className={'text-muted-foreground text-xs'}>
-          All organizations you&#39;ve applied to, in one place
+          Manage and track the organizations you&#39;ve applied to, in one place
         </div>
       </header>
 
@@ -32,6 +47,20 @@ const Organizations = async () => {
 
         {organizations.length === 0 && <EmptyOrganizations />}
       </main>
+
+      {totalCount > 0 && (
+        <div className={'flex items-center justify-between pt-4'}>
+          <div className={'text-muted-foreground text-xs'}>
+            Displaying {organizations.length} of {totalCount} organizations
+          </div>
+
+          <AppPagination
+            page={page}
+            totalCount={totalCount}
+            hrefForPage={hrefForPage}
+          />
+        </div>
+      )}
     </div>
   );
 };
