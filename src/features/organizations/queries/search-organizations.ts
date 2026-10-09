@@ -7,19 +7,36 @@ import { zodValidate } from '@/lib/zod.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import {
   SearchOrganizationsQuery,
+  SearchOrganizationsQueryInput,
   searchOrganizationsQuerySchema,
 } from '@/features/organizations/schemas/search-organizations-schema.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
+import { cacheTag } from 'next/cache';
+import { cacheTags } from '@/lib/cache-tags.ts';
+import { uuid } from '@database/field-values.ts';
 
 export async function searchOrganizations(
-  query: SearchOrganizationsQuery
+  query: SearchOrganizationsQueryInput
 ): Promise<Result<CursorPage<OrganizationSummary>>> {
+  const userId = getUserId(await verifySession());
   const parsed = zodValidate(query, searchOrganizationsQuerySchema);
   if (!parsed.success) {
     return parsed;
   }
-  const { search, cursor, limit } = parsed.data;
 
-  let dbQuery = db.Organization.orderBy((c) => c.name.asc()).limit(limit + 1);
+  return searchOrganizationsQuery(userId, parsed.data);
+}
+
+export async function searchOrganizationsQuery(
+  userId: string,
+  { search, cursor, limit }: SearchOrganizationsQuery
+): Promise<Result<CursorPage<OrganizationSummary>>> {
+  'use cache';
+  cacheTag(cacheTags.organizations(userId));
+
+  let dbQuery = db.Organization.where({ userId: uuid(userId) })
+    .orderBy((c) => c.name.asc())
+    .limit(limit + 1);
   if (cursor) {
     dbQuery = dbQuery.cursor({ name: cursor });
   }

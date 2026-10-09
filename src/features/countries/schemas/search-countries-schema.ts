@@ -5,4 +5,5 @@ export const searchCountriesQuerySchema = cursorPaginationSchema.extend({
   search: z.string().trim().optional(),
 });
 
-export type SearchCountriesQuery = z.input<typeof searchCountriesQuerySchema>;
+export type SearchCountriesQueryInput = z.input<typeof searchCountriesQuerySchema>;
+export type SearchCountriesQuery = z.output<typeof searchCountriesQuerySchema>;
