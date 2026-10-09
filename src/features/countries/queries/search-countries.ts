@@ -7,7 +7,7 @@ import {
   SearchCountriesQueryInput,
   searchCountriesQuerySchema,
 } from '@/features/countries/schemas/search-countries-schema.ts';
-import { CursorPage } from '@/types/pagination.ts';
+import { CursorPage } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { cacheLife } from 'next/cache';

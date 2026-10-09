@@ -1,7 +1,6 @@
 import 'server-only';
 import { or } from '@prisma/orm-postgres/orm-client';
 import { db } from '@database/db.ts';
-import { CursorPage } from '@/types/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
@@ -14,6 +13,7 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { uuid } from '@database/field-values.ts';
+import { CursorPage, decodeCursor, encodeCursor } from '@/lib/pagination.ts';
 
 export async function searchOrganizations(
   query: SearchOrganizationsQueryInput
@@ -34,21 +34,28 @@ export async function searchOrganizationsQuery(
   'use cache';
   cacheTag(cacheTags.organizations(userId));
 
-  let dbQuery = db.Organization.where({ userId: uuid(userId) })
-    .orderBy((c) => c.name.asc())
+  let dbQuery = db.Organization.select('id', 'name', 'updatedAt')
+    .where({ userId: uuid(userId) })
+    .orderBy([(c) => c.updatedAt.desc(), (c) => c.name.asc(), (c) => c.id.asc()])
     .limit(limit + 1);
-  if (cursor) {
-    dbQuery = dbQuery.cursor({ name: cursor });
+  const decoded = cursor ? decodeCursor(cursor, 3) : null;
+  if (decoded) {
+    const [updatedAt, name, id] = decoded;
+    dbQuery = dbQuery.cursor({ updatedAt, name, id: uuid(id) });
   }
   if (search && search !== '') {
     dbQuery = dbQuery.where((c) => or(c.name.ilike(`%${search}%`)));
   }
 
-  const countries = await dbQuery.all();
+  const organizations = await dbQuery.all();
 
-  const hasMore = countries.length > limit;
-  const items = hasMore ? countries.slice(0, limit) : countries;
-  const nextCursor = hasMore ? items[items.length - 1].name : null;
+  const hasMore = organizations.length > limit;
+  const models = hasMore ? organizations.slice(0, limit) : organizations;
+  const last = models[models.length - 1];
+  const nextCursor = hasMore ? encodeCursor(last.updatedAt, last.name, last.id) : null;
+
+  const items: OrganizationSummary[] = models.map(({ id, name }) => ({ id, name }));
+
   return {
     success: true,
     data: { items, nextCursor },
