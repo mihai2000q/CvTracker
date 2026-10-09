@@ -387,19 +387,6 @@
           },
           "Document": {
             "fields": {
-              "documentType": {
-                "nullable": false,
-                "type": {
-                  "codecId": "pg/text@1",
-                  "kind": "scalar"
-                },
-                "valueSet": {
-                  "entityKind": "enum",
-                  "entityName": "DocumentType",
-                  "namespaceId": "public",
-                  "plane": "domain"
-                }
-              },
               "filePath": {
                 "nullable": false,
                 "type": {
@@ -436,6 +423,26 @@
                 "type": {
                   "codecId": "sql/varchar@1",
                   "kind": "scalar"
+                }
+              },
+              "size": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "type": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "DocumentType",
+                  "namespaceId": "public",
+                  "plane": "domain"
                 }
               },
               "uploadedAt": {
@@ -521,9 +528,6 @@
             },
             "storage": {
               "fields": {
-                "documentType": {
-                  "column": "document_type"
-                },
                 "filePath": {
                   "column": "file_path"
                 },
@@ -538,6 +542,12 @@
                 },
                 "originalFilename": {
                   "column": "original_filename"
+                },
+                "size": {
+                  "column": "size"
+                },
+                "type": {
+                  "column": "type"
                 },
                 "uploadedAt": {
                   "column": "uploaded_at"
@@ -1762,23 +1772,12 @@
             "document": {
               "checks": [
                 {
-                  "expression": "\"document_type\" IN ('cv', 'cover_letter')",
-                  "name": "document_document_type_check_3f540265",
-                  "prefix": "document_document_type_check"
+                  "expression": "\"type\" IN ('cv', 'cover_letter')",
+                  "name": "document_type_check_ef497ccd",
+                  "prefix": "document_type_check"
                 }
               ],
               "columns": {
-                "document_type": {
-                  "codecId": "pg/text@1",
-                  "nativeType": "text",
-                  "nullable": false,
-                  "valueSet": {
-                    "entityKind": "valueSet",
-                    "entityName": "DocumentType",
-                    "namespaceId": "public",
-                    "plane": "storage"
-                  }
-                },
                 "file_path": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -1808,6 +1807,22 @@
                   "nativeType": "character varying",
                   "nullable": false,
                   "typeRef": "varChar255"
+                },
+                "size": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "type": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "DocumentType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "uploaded_at": {
                   "codecId": "pg/timestamptz-string@1",
@@ -1859,9 +1874,9 @@
                 {
                   "columns": [
                     "user_id",
-                    "document_type"
+                    "type"
                   ],
-                  "name": "idx_user_id_document_type_58783512",
+                  "name": "idx_user_id_document_type_e8650bed",
                   "prefix": "idx_user_id_document_type",
                   "unique": false
                 }
@@ -2738,7 +2753,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c",
+    "storageHash": "1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e",
     "types": {
       "email": {
         "codecId": "sql/varchar@1",

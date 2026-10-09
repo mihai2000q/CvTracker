@@ -64,19 +64,19 @@ for why it's modeled this way instead of dedicated add/remove endpoints.
 ## Documents
 
 CVs and cover letters share one library and one grid in the UI, so they
-share one resource here too — `documentType` filters/selects between them
+share one resource here too — `type` filters/selects between them
 rather than splitting into separate endpoints.
 
 | Method | Path                       | Purpose                                                     |
 |--------|----------------------------|------------------------------------------------------------------|
-| GET    | `/api/documents`            | List documents (optional `?documentType=cv\|cover_letter` filter) |
-| POST   | `/api/documents`            | Upload a new document (`multipart/form-data`: file + `documentType` + name + notes) |
+| GET    | `/api/documents`            | List documents (optional `?type=cv\|cover_letter` filter) |
+| POST   | `/api/documents`            | Upload a new document (`multipart/form-data`: file + `type` + name + notes) |
 | GET    | `/api/documents/:id`        | Get document metadata                                        |
 | GET    | `/api/documents/:id/file`   | Download/stream the actual file                               |
 | PATCH  | `/api/documents/:id`        | Update name/notes (not the file or its type)                 |
 | DELETE | `/api/documents/:id`        | Delete (only if not referenced by any application)             |
 
-`documentType` is immutable after upload — swapping a document from `cv` to
+`type` is immutable after upload — swapping a document from `cv` to
 `cover_letter` isn't an update, it's a new upload.
 
 ## Skills

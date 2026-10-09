@@ -158,7 +158,7 @@
     "execute": [
       {
         "description": "create table \"document\"",
-        "sql": "CREATE TABLE \"public\".\"document\" (\n  \"document_type\" text NOT NULL,\n  \"file_path\" text NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"name\" character varying(150) NOT NULL,\n  \"notes\" text,\n  \"original_filename\" character varying(255) NOT NULL,\n  \"uploaded_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"user_id\" character(36) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"document_document_type_check_3f540265\" CHECK (\"document_type\" IN ('cv', 'cover_letter'))\n)",
+        "sql": "CREATE TABLE \"public\".\"document\" (\n  \"file_path\" text NOT NULL,\n  \"id\" character(36) NOT NULL,\n  \"name\" character varying(150) NOT NULL,\n  \"notes\" text,\n  \"original_filename\" character varying(255) NOT NULL,\n  \"size\" int4 NOT NULL,\n  \"type\" text NOT NULL,\n  \"uploaded_at\" timestamptz DEFAULT (now()) NOT NULL,\n  \"user_id\" character(36) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"document_type_check_ef497ccd\" CHECK (\"type\" IN ('cv', 'cover_letter'))\n)",
         "params": []
       }
     ],
@@ -767,40 +767,40 @@
     ]
   },
   {
-    "id": "index.document.idx_user_id_document_type_58783512",
-    "label": "Create index \"idx_user_id_document_type_58783512\" on \"document\"",
+    "id": "index.document.idx_user_id_document_type_e8650bed",
+    "label": "Create index \"idx_user_id_document_type_e8650bed\" on \"document\"",
     "operationClass": "additive",
     "target": {
       "id": "postgres",
       "details": {
         "schema": "public",
         "objectType": "index",
-        "name": "idx_user_id_document_type_58783512",
+        "name": "idx_user_id_document_type_e8650bed",
         "table": "document"
       }
     },
     "precheck": [
       {
-        "description": "ensure index \"idx_user_id_document_type_58783512\" does not exist",
+        "description": "ensure index \"idx_user_id_document_type_e8650bed\" does not exist",
         "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
         "params": [
-          "\"public\".\"idx_user_id_document_type_58783512\""
+          "\"public\".\"idx_user_id_document_type_e8650bed\""
         ]
       }
     ],
     "execute": [
       {
-        "description": "create index \"idx_user_id_document_type_58783512\"",
-        "sql": "CREATE INDEX \"idx_user_id_document_type_58783512\" ON \"public\".\"document\" (\"user_id\", \"document_type\")",
+        "description": "create index \"idx_user_id_document_type_e8650bed\"",
+        "sql": "CREATE INDEX \"idx_user_id_document_type_e8650bed\" ON \"public\".\"document\" (\"user_id\", \"type\")",
         "params": []
       }
     ],
     "postcheck": [
       {
-        "description": "verify index \"idx_user_id_document_type_58783512\" exists",
+        "description": "verify index \"idx_user_id_document_type_e8650bed\" exists",
         "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
         "params": [
-          "\"public\".\"idx_user_id_document_type_58783512\""
+          "\"public\".\"idx_user_id_document_type_e8650bed\""
         ]
       }
     ]

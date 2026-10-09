@@ -75,29 +75,30 @@ endpoints (full replace), never via a dedicated add/remove endpoint.
 
 ### `document`
 
-Holds both CVs and cover letters, distinguished by `document_type`. Merged
+Holds both CVs and cover letters, distinguished by `type`. Merged
 into one table because the UI displays both in a single grid — one upload
 flow, one library, filtered by type rather than assembled from two tables.
 
 | Column             | Type          | Constraints                              |
 |--------------------|---------------|----------------------------------------------|
 | id                 | bigserial     | PK                                             |
-| document_type      | native `ENUM` | NOT NULL — `DocumentType` (`cv`, `cover_letter`) |
+| type               | native `ENUM` | NOT NULL — `DocumentType` (`cv`, `cover_letter`) |
 | name               | varchar(150)  | NOT NULL                                       |
 | file_path          | text          | NOT NULL                                       |
 | original_filename  | varchar(255)  | NOT NULL                                       |
+| size               | integer       | NOT NULL — file size in bytes                  |
 | notes              | text          | NULL                                            |
 | user_id            | bigint        | FK → user(id), NOT NULL                       |
 | uploaded_at        | timestamptz   | NOT NULL DEFAULT now()                         |
 
-Index: `(user_id, document_type)` — the grid's primary filter dimensions.
+Index: `(user_id, type)` — the grid's primary filter dimensions.
 
 **Type safety tradeoff:** `job_application.cv_document_id` and
 `cover_letter_document_id` are both plain FKs into this one table. Postgres
-cannot itself guarantee that `cv_document_id` points at a `document_type =
+cannot itself guarantee that `cv_document_id` points at a `type =
 'cv'` row rather than a `cover_letter` one — that check is the application
 layer's responsibility (see domain model rule 1a). A composite-FK approach
-(`UNIQUE(id, document_type)` + a two-column FK per reference) could enforce
+(`UNIQUE(id, type)` + a two-column FK per reference) could enforce
 it at the DB level, but adds enough schema complexity that it isn't worth it
 for a small local tool with no external API consumers to defend against.
 
@@ -121,8 +122,8 @@ for a small local tool with no external API consumers to defend against.
 | applied_at        | date          | NOT NULL                                         |
 | notes             | text          | NULL                                             |
 | organization_id           | bigint        | FK → organization(id), NOT NULL                 |
-| cv_document_id            | bigint        | FK → document(id), NOT NULL (app-enforced: `document_type = 'cv'`) |
-| cover_letter_document_id  | bigint        | FK → document(id), NULL (app-enforced: `document_type = 'cover_letter'`) |
+| cv_document_id            | bigint        | FK → document(id), NOT NULL (app-enforced: `type = 'cv'`) |
+| cover_letter_document_id  | bigint        | FK → document(id), NULL (app-enforced: `type = 'cover_letter'`) |
 | country_id                | bigint        | FK → country(id), NOT NULL                     |
 | user_id                   | bigint        | FK → user(id), NOT NULL                         |
 | created_at        | timestamptz   | NOT NULL DEFAULT now()                           |

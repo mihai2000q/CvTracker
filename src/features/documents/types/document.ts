@@ -1,16 +1,16 @@
-import { Skill } from '@/features/documents/types/skill.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 
 export interface Document extends DocumentSummary {
-  documentType: DocumentType;
   filePath: string;
-  originalFilename: string;
-  notes?: string;
-  uploadedAt: string;
-  skills: Skill[];
+  notes?: string | null;
+  jobApplicationsCount: number;
 }
 
 export interface DocumentSummary {
   id: string;
-  label: string;
+  name: string;
+  originalFilename: string;
+  type: DocumentType;
+  size: number; // bytes
+  uploadedAt: string;
 }

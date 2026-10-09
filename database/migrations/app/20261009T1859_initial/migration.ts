@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c/contract';
-import endContract from '../../snapshots/0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e/contract';
+import endContract from '../../snapshots/1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -95,7 +95,6 @@ export default class M extends Migration<never, End> {
         schema: 'public',
         table: 'document',
         columns: [
-          col('document_type', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('file_path', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('id', 'character(36)', {
             notNull: true,
@@ -110,6 +109,8 @@ export default class M extends Migration<never, End> {
             notNull: true,
             codecRef: { codecId: 'sql/varchar@1', typeParams: { length: 255 } },
           }),
+          col('size', 'int4', { notNull: true, codecRef: { codecId: 'pg/int4@1' } }),
+          col('type', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('uploaded_at', 'timestamptz', {
             notNull: true,
             default: fn('now()'),
@@ -122,10 +123,7 @@ export default class M extends Migration<never, End> {
         ],
         constraints: [
           primaryKey(['id']),
-          checkExpression(
-            'document_document_type_check_3f540265',
-            "\"document_type\" IN ('cv', 'cover_letter')",
-          ),
+          checkExpression('document_type_check_ef497ccd', "\"type\" IN ('cv', 'cover_letter')"),
         ],
       }),
       this.createTable({
@@ -391,8 +389,8 @@ export default class M extends Migration<never, End> {
       this.createIndex({
         schema: 'public',
         table: 'document',
-        index: 'idx_user_id_document_type_58783512',
-        columns: ['user_id', 'document_type'],
+        index: 'idx_user_id_document_type_e8650bed',
+        columns: ['user_id', 'type'],
       }),
       this.createIndex({
         schema: 'public',

@@ -65,17 +65,18 @@ actually use (see business rule 12).
 ### Document
 A single uploaded file — either a CV or a cover letter — versioned/named
 by you. Documents are a **reusable library** displayed together in one grid
-in the UI, distinguished by `document_type`: the same document can be
+in the UI, distinguished by `type`: the same document can be
 attached to many job applications, and a single application points at
 exactly one CV-type document (required) and optionally one cover-letter-type
 document — whichever versions were actually sent.
 
 - `id`
-- `document_type` (`cv` | `cover_letter`)
+- `type` (`cv` | `cover_letter`)
 - `name` (e.g. "v3 - backend focus", "2026-01 general") — your own naming,
   not derived
 - `file_path` (location on the local filesystem/volume)
 - `original_filename`
+- `size` (file size in bytes)
 - `notes` (optional)
 - `user_id` → User (each user has their own document library)
 - `uploaded_at`
@@ -236,9 +237,9 @@ and become user-adjustable later without any migration.
    required. A cover-letter `Document` is optional — not every application
    gets one.
    1a. The application layer must enforce that `cv_document_id` references
-       a `Document` with `document_type = 'cv'`, and
+       a `Document` with `type = 'cv'`, and
        `cover_letter_document_id` (when set) references one with
-       `document_type = 'cover_letter'`. The database does not enforce this
+       `type = 'cover_letter'`. The database does not enforce this
        distinction — it's the accepted tradeoff of merging CV and cover
        letter into one `Document` entity for a unified UI grid.
 2. A `Document` can be reused by any number of `JobApplication` rows (as

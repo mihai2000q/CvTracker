@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'0941ce5362ede06030a9745a73f0bad3b2d3c19ced693bcafcd5519ce21c4d3c'>;
+  StorageHashBase<'1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e'>;
 export type ExecutionHash =
   ExecutionHashBase<'bd711fb2ab037f61ad8ee7e8e8ba98448e25ade18b67169c151fee2674ed9f6b'>;
 export type ProfileHash =
@@ -265,10 +265,11 @@ export type FieldOutputTypes = {
     };
     readonly Document: {
       readonly id: Char<36>;
-      readonly documentType: 'cv' | 'cover_letter';
+      readonly type: 'cv' | 'cover_letter';
       readonly name: Varchar<150>;
       readonly filePath: CodecTypes['pg/text@1']['output'];
       readonly originalFilename: Varchar<255>;
+      readonly size: CodecTypes['pg/int4@1']['output'];
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly userId: Char<36>;
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -356,10 +357,11 @@ export type FieldInputTypes = {
     };
     readonly Document: {
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly documentType: 'cv' | 'cover_letter';
+      readonly type: 'cv' | 'cover_letter';
       readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly filePath: CodecTypes['pg/text@1']['input'];
       readonly originalFilename: CodecTypes['sql/varchar@1']['input'];
+      readonly size: CodecTypes['pg/int4@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly userId: CodecTypes['sql/char@1']['input'];
       readonly uploadedAt: CodecTypes['pg/timestamptz-string@1']['input'];
@@ -449,12 +451,13 @@ export type StorageColumnTypes = {
       readonly name: Varchar<100>;
     };
     readonly document: {
-      readonly document_type: 'cv' | 'cover_letter';
       readonly file_path: CodecTypes['pg/text@1']['output'];
       readonly id: Char<36>;
       readonly name: Varchar<150>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly original_filename: Varchar<255>;
+      readonly size: CodecTypes['pg/int4@1']['output'];
+      readonly type: 'cv' | 'cover_letter';
       readonly uploaded_at: CodecTypes['pg/timestamptz-string@1']['output'];
       readonly user_id: Char<36>;
     };
@@ -540,12 +543,13 @@ export type StorageColumnInputTypes = {
       readonly name: CodecTypes['sql/varchar@1']['input'];
     };
     readonly document: {
-      readonly document_type: 'cv' | 'cover_letter';
       readonly file_path: CodecTypes['pg/text@1']['input'];
       readonly id: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly original_filename: CodecTypes['sql/varchar@1']['input'];
+      readonly size: CodecTypes['pg/int4@1']['input'];
+      readonly type: 'cv' | 'cover_letter';
       readonly uploaded_at: CodecTypes['pg/timestamptz-string@1']['input'];
       readonly user_id: CodecTypes['sql/char@1']['input'];
     };
@@ -655,10 +659,11 @@ export namespace Models {
   };
   export type public_Document = {
     id: Char<36>;
-    documentType: 'cv' | 'cover_letter';
+    type: 'cv' | 'cover_letter';
     name: Varchar<150>;
     filePath: CodecTypes['pg/text@1']['output'];
     originalFilename: Varchar<255>;
+    size: CodecTypes['pg/int4@1']['output'];
     notes: CodecTypes['pg/text@1']['output'] | null;
     userId: Char<36>;
     uploadedAt: CodecTypes['pg/timestamptz-string@1']['output'];
@@ -956,7 +961,7 @@ type ContractBase = Omit<
                   readonly nullable: false;
                   readonly typeParams: { readonly length: 36 };
                 };
-                readonly document_type: {
+                readonly type: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
@@ -977,6 +982,11 @@ type ContractBase = Omit<
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
                   readonly typeRef: 'varChar255';
+                };
+                readonly size: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
                 };
                 readonly notes: {
                   readonly nativeType: 'text';
@@ -1000,9 +1010,9 @@ type ContractBase = Omit<
               uniques: readonly [];
               indexes: readonly [
                 {
-                  readonly name: 'idx_user_id_document_type_58783512';
+                  readonly name: 'idx_user_id_document_type_e8650bed';
                   readonly prefix: 'idx_user_id_document_type';
-                  readonly columns: readonly ['user_id', 'document_type'];
+                  readonly columns: readonly ['user_id', 'type'];
                   readonly unique: false;
                 },
                 {
@@ -1936,7 +1946,7 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
-              readonly documentType: {
+              readonly type: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
@@ -1951,6 +1961,10 @@ type ContractBase = Omit<
               readonly originalFilename: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'sql/varchar@1' };
+              };
+              readonly size: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
               };
               readonly notes: {
                 readonly nullable: true;
@@ -2021,10 +2035,11 @@ type ContractBase = Omit<
               readonly namespaceId: 'public';
               readonly fields: {
                 readonly id: { readonly column: 'id' };
-                readonly documentType: { readonly column: 'document_type' };
+                readonly type: { readonly column: 'type' };
                 readonly name: { readonly column: 'name' };
                 readonly filePath: { readonly column: 'file_path' };
                 readonly originalFilename: { readonly column: 'original_filename' };
+                readonly size: { readonly column: 'size' };
                 readonly notes: { readonly column: 'notes' };
                 readonly userId: { readonly column: 'user_id' };
                 readonly uploadedAt: { readonly column: 'uploaded_at' };
