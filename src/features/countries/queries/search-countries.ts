@@ -9,7 +9,7 @@ import {
 } from '@/features/countries/schemas/search-countries-schema.ts';
 import { CursorPage } from '@/types/pagination.ts';
 import { Result } from '@/types/result.ts';
-import { zodValidate } from '@/lib/zod.ts';
+import { zodValidate } from '@/lib/zod/parse.ts';
 import { cacheLife } from 'next/cache';
 import { verifySession } from '@/lib/auth/session.ts';
 

@@ -8,7 +8,7 @@ import { createAuthToken } from '@/lib/auth/jwt';
 import { verifyPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
 import { signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
-import { zodValidateForm } from '@/lib/zod.ts';
+import { zodValidateForm } from '@/lib/zod/parse.ts';
 
 const INVALID_CREDENTIALS_MESSAGE = 'Invalid credentials.';
 

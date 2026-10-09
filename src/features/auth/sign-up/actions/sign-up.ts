@@ -9,7 +9,7 @@ import { createAuthToken } from '@/lib/auth/jwt';
 import { hashPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
 import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
-import { zodValidateForm } from '@/lib/zod.ts';
+import { zodValidateForm } from '@/lib/zod/parse.ts';
 
 export async function signUp(
   _lastResult: SubmissionResult | undefined,

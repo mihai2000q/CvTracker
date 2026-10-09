@@ -13,7 +13,7 @@ import {
 import { Page } from '@/types/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
-import { zodValidate } from '@/lib/zod.ts';
+import { zodValidate } from '@/lib/zod/parse.ts';
 
 export async function getOrganizations(
   query: GetOrganizationsQueryInput

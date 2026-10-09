@@ -3,7 +3,7 @@ import { or } from '@prisma/orm-postgres/orm-client';
 import { db } from '@database/db.ts';
 import { CursorPage } from '@/types/pagination.ts';
 import { Result } from '@/types/result.ts';
-import { zodValidate } from '@/lib/zod.ts';
+import { zodValidate } from '@/lib/zod/parse.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import {
   SearchOrganizationsQuery,
