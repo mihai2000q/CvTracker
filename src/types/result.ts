@@ -4,5 +4,4 @@
 // generalized). `E` defaults to a zod-flattened field-errors shape, since
 // that's the common case, but isn't fixed to it.
 export type Result<T, E = Record<string, string[] | undefined>> =
-  | { success: true; data: T }
-  | { success: false; errors: E };
+  { success: true; data: T } | { success: false; errors: E };

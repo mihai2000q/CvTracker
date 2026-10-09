@@ -54,11 +54,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
             Displaying {organizations.length} of {totalCount} organizations
           </div>
 
-          <AppPagination
-            page={page}
-            totalCount={totalCount}
-            hrefForPage={hrefForPage}
-          />
+          <AppPagination page={page} totalCount={totalCount} hrefForPage={hrefForPage} />
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 import React from 'react';
 import {
   SidebarGroup,
-  SidebarGroupLabel, SidebarMenu,
+  SidebarGroupLabel,
+  SidebarMenu,
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,

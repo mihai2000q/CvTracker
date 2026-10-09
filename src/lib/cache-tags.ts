@@ -3,6 +3,4 @@ export const cacheTags = {
   documents: (userId: string) => `documents:${userId}`,
   jobApplications: (userId: string) => `jobApplications:${userId}`,
   organizations: (userId: string) => `organizations:${userId}`,
-}
-
-
+};
