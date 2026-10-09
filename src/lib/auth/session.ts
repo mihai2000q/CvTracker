@@ -5,6 +5,7 @@ import { db } from '@database/db';
 import { uuid } from '@database/field-values';
 import { verifyAuthToken } from '@/lib/auth/jwt';
 import { User } from '@/features/user/types/user.ts';
+import { cache } from 'react';
 
 export const SESSION_COOKIE_NAME = 'session';
 
@@ -23,8 +24,8 @@ export async function deleteSession() {
   (await cookies()).delete(SESSION_COOKIE_NAME);
 }
 
-// Authoritative check
-export async function verifySession(): Promise<JWTPayload> {
+// Authoritative check; `cache` shares one verification between every caller in the same render
+export const verifySession = cache(async (): Promise<JWTPayload> => {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   const result = token ? await verifyAuthToken(token) : ({ status: 'invalid' } as const);
@@ -34,7 +35,7 @@ export async function verifySession(): Promise<JWTPayload> {
   }
 
   redirect('/sign-in');
-}
+});
 
 // A valid session with no `sub` means a malformed/foreign token
 export function getUserId(session: JWTPayload): string {
@@ -44,17 +45,12 @@ export function getUserId(session: JWTPayload): string {
   return session.sub;
 }
 
-export async function getCurrentUser(): Promise<User> {
-  const session = await verifySession()
-  if (!session.sub) {
-    throw new Error('Session is missing a user id');
-  }
-  const user = await db.User
-    .select('id', 'email', 'name')
-    .first({ id: uuid(session.sub) });
+export const getCurrentUser = cache(async (): Promise<User> => {
+  const userId = getUserId(await verifySession());
+  const user = await db.User.select('id', 'email', 'name').first({ id: uuid(userId) });
   if (!user) {
     // Valid token, deleted user: clear the stale cookie, then sign in again.
     redirect('/api/session/clear');
   }
   return { ...user };
-}
+});
