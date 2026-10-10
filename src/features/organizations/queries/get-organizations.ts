@@ -10,7 +10,7 @@ import {
   getOrganizationsQuerySchema,
   GetOrganizationsQuery,
 } from '@/features/organizations/schemas/get-organizations-schema.ts';
-import { Page } from '@/types/pagination.ts';
+import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
@@ -33,7 +33,7 @@ async function getOrganizationsQuery(
   { page, pageSize }: GetOrganizationsQuery
 ): Promise<Page<Organization>> {
   'use cache';
-  cacheTag(cacheTags.organizations(userId));
+  cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
   const modelsQuery = paginate(db.Organization, { page, pageSize })
     .where({ userId: uuid(userId) })
