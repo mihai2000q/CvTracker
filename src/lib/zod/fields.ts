@@ -7,11 +7,12 @@ export const ALLOWED_FILE_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-export const zFile = z
-  .file('File is required')
-  .min(1, 'File cannot be empty')
-  .max(MAX_FILE_SIZE, 'File must be 10 MB or smaller')
-  .mime(ALLOWED_FILE_TYPES, 'File must be a PDF or Word document');
+export const zFile = (name: string = 'File') =>
+  z
+    .file(`${name} is required`)
+    .min(1, `${name} cannot be empty`)
+    .max(MAX_FILE_SIZE, `${name} must be 10 MB or smaller`)
+    .mime(ALLOWED_FILE_TYPES, `${name} must be a PDF or Word document`);
 
 // Conform strips an empty form field to `undefined` before validation —
 // that's what makes `.optional()` fields work correctly over FormData
@@ -20,8 +21,16 @@ export const zFile = z
 // generic Zod type error — so we disable that globally (parseWithZod's
 // disableAutoCoercion) and restore the same "empty counts as absent"
 // behavior explicitly, only on the fields that actually want it.
+// A file input nobody picked a file for is submitted as an empty File (no name,
+// no bytes) rather than an empty string, so that counts as absent too.
 export function zEmptyToUndefined<Schema extends z.ZodType>(schema: Schema) {
-  return z.preprocess((value) => (value === '' ? undefined : value), schema);
+  return z.preprocess(
+    (value) =>
+      value === '' || (value instanceof File && !value.name && value.size === 0)
+        ? undefined
+        : value,
+    schema
+  );
 }
 
 // With auto-coercion disabled (see `zodValidateForm` below), a multi-value
