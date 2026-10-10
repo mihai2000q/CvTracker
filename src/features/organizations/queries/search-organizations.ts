@@ -37,6 +37,9 @@ export async function searchOrganizationsQuery(
   let dbQuery = db.Organization.select('id', 'name', 'updatedAt')
     .where({ userId: uuid(userId) })
     .orderBy([(c) => c.updatedAt.desc(), (c) => c.name.asc(), (c) => c.id.asc()])
+    .include('organizationCountries', (oc) =>
+      oc.include('country').orderBy((c) => c.country.name.asc())
+    )
     .limit(limit + 1);
   const decoded = cursor ? decodeCursor(cursor, 3) : null;
   if (decoded) {
@@ -54,7 +57,11 @@ export async function searchOrganizationsQuery(
   const last = models[models.length - 1];
   const nextCursor = hasMore ? encodeCursor(last.updatedAt, last.name, last.id) : null;
 
-  const items: OrganizationSummary[] = models.map(({ id, name }) => ({ id, name }));
+  const items: OrganizationSummary[] = models.map(({ id, name, organizationCountries }) => ({
+    id,
+    name,
+    countries: organizationCountries.map((c) => c.country),
+  }));
 
   return {
     success: true,

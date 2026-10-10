@@ -6,9 +6,9 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import {
+  GetOrganizationsQuery,
   GetOrganizationsQueryInput,
   getOrganizationsQuerySchema,
-  GetOrganizationsQuery,
 } from '@/features/organizations/schemas/get-organizations-schema.ts';
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
@@ -38,7 +38,9 @@ async function getOrganizationsQuery(
   const modelsQuery = paginate(db.Organization, { page, pageSize })
     .where({ userId: uuid(userId) })
     .orderBy((o) => o.createdAt.desc())
-    .include('organizationCountries', (oc) => oc.include('country'))
+    .include('organizationCountries', (oc) =>
+      oc.include('country').orderBy((c) => c.country.name.asc())
+    )
     .include('jobApplications', (jobApplications) =>
       jobApplications.combine({
         items: jobApplications
@@ -60,7 +62,7 @@ async function getOrganizationsQuery(
     name: organization.name,
     websiteUrl: organization.websiteUrl,
     notes: organization.notes,
-    countries: organization.organizationCountries.map(({ country }) => ({ ...country })),
+    countries: organization.organizationCountries.map((c) => c.country),
     jobApplications: organization.jobApplications.items.map((jobApplication) => ({
       ...jobApplication,
       currentStatus: jobApplication.currentStatus as JobApplicationStatus,
