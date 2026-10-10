@@ -28,6 +28,7 @@ import { Textarea } from '@/components/ui/textarea.tsx';
 import CountryMultiCombobox from '@/components/combobox/country-multi-combobox.tsx';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import { RiLink } from '@remixicon/react';
+import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 
 interface Props {
   children: React.ReactElement;
@@ -59,50 +60,52 @@ const CreateOrganizationDialog = ({ children }: Props) => {
             </DialogDescription>
           </DialogHeader>
 
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor={fields.name.id} required>
-                Name
-              </FieldLabel>
-              <Input
-                placeholder={'Example'}
-                {...getInputProps(fields.name, { type: 'text' })}
-                maxLength={200}
-              />
-              <FieldError errors={fields.name.errors} />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor={fields.websiteUrl.id}>Website</FieldLabel>
-              <InputGroup className={'w-auto'}>
-                <InputGroupAddon>
-                  <RiLink />
-                </InputGroupAddon>
-                <InputGroupInput
-                  placeholder={'https://example.com'}
-                  {...getInputProps(fields.websiteUrl, { type: 'text' })}
+          <ScrollArea>
+            <FieldGroup className={'max-h-[55vh]'}>
+              <Field>
+                <FieldLabel htmlFor={fields.name.id} required>
+                  Name
+                </FieldLabel>
+                <Input
+                  placeholder={'Example'}
+                  {...getInputProps(fields.name, { type: 'text' })}
+                  maxLength={200}
                 />
-              </InputGroup>
-              <FieldError errors={fields.websiteUrl.errors} />
-            </Field>
+                <FieldError errors={fields.name.errors} />
+              </Field>
 
-            <Field>
-              <FieldLabel htmlFor={fields.countryIds.id} required>
-                Countries
-              </FieldLabel>
-              <CountryMultiCombobox onChange={countryIds.change} onBlur={countryIds.blur} />
-              <FieldError errors={fields.countryIds.errors} />
-            </Field>
+              <Field>
+                <FieldLabel htmlFor={fields.websiteUrl.id}>Website</FieldLabel>
+                <InputGroup className={'w-auto'}>
+                  <InputGroupAddon>
+                    <RiLink />
+                  </InputGroupAddon>
+                  <InputGroupInput
+                    placeholder={'https://example.com'}
+                    {...getInputProps(fields.websiteUrl, { type: 'text' })}
+                  />
+                </InputGroup>
+                <FieldError errors={fields.websiteUrl.errors} />
+              </Field>
 
-            <Field>
-              <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
-              <Textarea
-                placeholder={'Add any extra content...'}
-                {...getInputProps(fields.notes, { type: 'text' })}
-                className={'max-h-32'}
-              />
-            </Field>
-          </FieldGroup>
+              <Field>
+                <FieldLabel htmlFor={fields.countryIds.id} required>
+                  Countries
+                </FieldLabel>
+                <CountryMultiCombobox onChange={countryIds.change} onBlur={countryIds.blur} />
+                <FieldError errors={fields.countryIds.errors} />
+              </Field>
+
+              <Field>
+                <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
+                <Textarea
+                  placeholder={'Add any extra content...'}
+                  {...getInputProps(fields.notes, { type: 'text' })}
+                  className={'max-h-32'}
+                />
+              </Field>
+            </FieldGroup>
+          </ScrollArea>
 
           <DialogFooter className={'sm:flex-col'}>
             <Separator />
