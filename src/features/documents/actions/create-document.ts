@@ -1,0 +1,50 @@
+'use server';
+
+import { updateTag } from 'next/cache';
+import { db } from '@database/db';
+import { sized, uuid } from '@database/field-values';
+import { DocumentType as DbDocumentType } from '@database/enums';
+import { constraintViolationReply } from '@database/sql-error';
+import { getUserId, verifySession } from '@/lib/auth/session';
+import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
+import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+import { storeDocument } from '@/features/documents/services/store-document.ts';
+import type { SubmissionResult } from '@conform-to/react';
+import { zodValidateForm } from '@/lib/zod/parse.ts';
+import { cacheTags } from '@/lib/cache-tags.ts';
+
+export async function createDocument(_state: SubmissionResult | undefined, formData: FormData) {
+  const session = await verifySession();
+  const userId = getUserId(session);
+
+  const submission = zodValidateForm({ formData, schema: createDocumentSchema });
+  if (submission.status !== 'success') {
+    return submission.reply();
+  }
+
+  const { type, name, file, notes, skillIds } = submission.value;
+
+  const { discard, ...storedFile } = await storeDocument(userId, file);
+
+  try {
+    await db.Document.create({
+      type:
+        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
+      name: sized<150>(name),
+      originalFilename: sized<255>(storedFile.originalFilename),
+      filePath: storedFile.filePath,
+      size: storedFile.size,
+      notes,
+      skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
+      userId: uuid(userId),
+    });
+  } catch (error) {
+    await discard();
+    const reply = constraintViolationReply(error);
+    if (reply) return submission.reply(reply);
+    throw error;
+  }
+
+  updateTag(cacheTags.documents(userId));
+  return submission.reply({ resetForm: true });
+}
