@@ -1,12 +1,11 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e/contract';
-import endContract from '../../snapshots/1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/1c21712dd20711ef6d92d26207a5f6dbda2e87c859845625c4975bd7293eab98/contract';
+import endContract from '../../snapshots/1c21712dd20711ef6d92d26207a5f6dbda2e87c859845625c4975bd7293eab98/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
   checkExpression,
   col,
-  fn,
   lit,
   primaryKey,
 } from '@prisma/orm-postgres/migration';
@@ -40,7 +39,7 @@ export default class M extends Migration<never, End> {
           primaryKey(['id']),
           checkExpression(
             'application_status_history_status_check_989b4fe8',
-            "\"status\" IN ('applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn', 'no_response')",
+            `"status" IN ('applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn', 'no_response')`,
           ),
         ],
       }),
@@ -113,7 +112,6 @@ export default class M extends Migration<never, End> {
           col('type', 'text', { notNull: true, codecRef: { codecId: 'pg/text@1' } }),
           col('uploaded_at', 'timestamptz', {
             notNull: true,
-            default: fn('now()'),
             codecRef: { codecId: 'pg/timestamptz-string@1' },
           }),
           col('user_id', 'character(36)', {
@@ -123,7 +121,7 @@ export default class M extends Migration<never, End> {
         ],
         constraints: [
           primaryKey(['id']),
-          checkExpression('document_type_check_ef497ccd', "\"type\" IN ('cv', 'cover_letter')"),
+          checkExpression('document_type_check_ef497ccd', `"type" IN ('cv', 'cover_letter')`),
         ],
       }),
       this.createTable({
@@ -172,7 +170,7 @@ export default class M extends Migration<never, End> {
           primaryKey(['id']),
           checkExpression(
             'interview_round_outcome_check_c5b0c77b',
-            "\"outcome\" IN ('scheduled', 'passed', 'failed', 'cancelled')",
+            `"outcome" IN ('scheduled', 'passed', 'failed', 'cancelled')`,
           ),
         ],
       }),
@@ -190,7 +188,6 @@ export default class M extends Migration<never, End> {
           }),
           col('created_at', 'timestamptz', {
             notNull: true,
-            default: fn('now()'),
             codecRef: { codecId: 'pg/timestamptz-string@1' },
           }),
           col('current_status', 'text', {
@@ -232,7 +229,7 @@ export default class M extends Migration<never, End> {
           primaryKey(['id']),
           checkExpression(
             'job_application_current_status_check_df490497',
-            "\"current_status\" IN ('applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn', 'no_response')",
+            `"current_status" IN ('applied', 'screening', 'interview', 'offer', 'rejected', 'withdrawn', 'no_response')`,
           ),
         ],
       }),
@@ -257,7 +254,6 @@ export default class M extends Migration<never, End> {
         columns: [
           col('created_at', 'timestamptz', {
             notNull: true,
-            default: fn('now()'),
             codecRef: { codecId: 'pg/timestamptz-string@1' },
           }),
           col('id', 'character(36)', {
@@ -321,7 +317,6 @@ export default class M extends Migration<never, End> {
         columns: [
           col('created_at', 'timestamptz', {
             notNull: true,
-            default: fn('now()'),
             codecRef: { codecId: 'pg/timestamptz-string@1' },
           }),
           col('email', 'character varying(255)', {

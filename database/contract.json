@@ -222,7 +222,10 @@
                 "nullable": true,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
                 }
               },
               "id": {
@@ -249,21 +252,30 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 150
+                  }
                 }
               },
               "phone": {
                 "nullable": true,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 50
+                  }
                 }
               },
               "role": {
                 "nullable": true,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
                 }
               }
             },
@@ -326,14 +338,20 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 2
+                  }
                 }
               },
               "name": {
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
                 }
               }
             },
@@ -408,7 +426,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 150
+                  }
                 }
               },
               "notes": {
@@ -422,7 +443,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
                 }
               },
               "size": {
@@ -676,7 +700,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
                 }
               },
               "scheduledAt": {
@@ -827,14 +854,20 @@
                 "nullable": true,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
                 }
               },
               "title": {
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 200
+                  }
                 }
               },
               "updatedAt": {
@@ -1139,7 +1172,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 200
+                  }
                 }
               },
               "notes": {
@@ -1336,7 +1372,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 100
+                  }
                 }
               },
               "userId": {
@@ -1427,7 +1466,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 255
+                  }
                 }
               },
               "id": {
@@ -1444,7 +1486,10 @@
                 "nullable": false,
                 "type": {
                   "codecId": "sql/varchar@1",
-                  "kind": "scalar"
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 150
+                  }
                 }
               },
               "passwordHash": {
@@ -1569,12 +1614,12 @@
               "columns": {
                 "changed_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1582,7 +1627,7 @@
                 },
                 "job_application_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1590,12 +1635,12 @@
                 },
                 "note": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "status": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -1607,6 +1652,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "application_status_history_job_application_id_idx_6988889c"
+                  },
                   "name": "fk_application_status_history_job_application_id",
                   "onDelete": "cascade",
                   "source": {
@@ -1655,13 +1703,13 @@
               "columns": {
                 "email": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": true,
                   "typeRef": "email"
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1669,7 +1717,7 @@
                 },
                 "job_application_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1677,25 +1725,28 @@
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar150"
                 },
                 "phone": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": true,
                   "typeRef": "varChar50"
                 },
                 "role": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": true,
                   "typeRef": "varChar100"
                 }
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "contact_job_application_id_idx_6988889c"
+                  },
                   "name": "fk_contact_job_application_id",
                   "onDelete": "cascade",
                   "source": {
@@ -1735,7 +1786,7 @@
               "columns": {
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1743,13 +1794,13 @@
                 },
                 "iso_code": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "isoCode"
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar100"
                 }
@@ -1780,12 +1831,12 @@
               "columns": {
                 "file_path": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": false
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1793,29 +1844,29 @@
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar150"
                 },
                 "notes": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "original_filename": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar255"
                 },
                 "size": {
                   "codecId": "pg/int4@1",
-                  "nativeType": "int4",
+                  "dataType": "pg/int4",
                   "nullable": false
                 },
                 "type": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -1826,16 +1877,12 @@
                 },
                 "uploaded_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "user_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1844,6 +1891,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "document_user_id_idx_6c952402"
+                  },
                   "name": "fk_document_user_id",
                   "onDelete": "cascade",
                   "source": {
@@ -1892,7 +1942,7 @@
               "columns": {
                 "document_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1900,7 +1950,7 @@
                 },
                 "skill_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1909,6 +1959,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "document_has_skill_document_id_idx_d3d0944e"
+                  },
                   "name": "fk_document_has_skill_document_id",
                   "onDelete": "cascade",
                   "source": {
@@ -1927,6 +1980,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "document_has_skill_skill_id_idx_676c8389"
+                  },
                   "name": "fk_document_has_skill_skill_id",
                   "onDelete": "cascade",
                   "source": {
@@ -1982,7 +2038,7 @@
               "columns": {
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1990,7 +2046,7 @@
                 },
                 "job_application_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -1998,16 +2054,16 @@
                 },
                 "notes": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "outcome": {
                   "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "default": {
                     "kind": "literal",
                     "value": "scheduled"
                   },
-                  "nativeType": "text",
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -2018,18 +2074,21 @@
                 },
                 "round_type": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar100"
                 },
                 "scheduled_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 }
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "interview_round_job_application_id_idx_6988889c"
+                  },
                   "name": "fk_interview_round_job_application_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2085,12 +2144,12 @@
               "columns": {
                 "applied_at": {
                   "codecId": "pg/date-temporal@1",
-                  "nativeType": "date",
+                  "dataType": "pg/date",
                   "nullable": false
                 },
                 "country_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2098,7 +2157,7 @@
                 },
                 "cover_letter_document_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": true,
                   "typeParams": {
                     "length": 36
@@ -2106,20 +2165,16 @@
                 },
                 "created_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "current_status": {
                   "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "default": {
                     "kind": "literal",
                     "value": "applied"
                   },
-                  "nativeType": "text",
                   "nullable": false,
                   "valueSet": {
                     "entityKind": "valueSet",
@@ -2130,7 +2185,7 @@
                 },
                 "cv_document_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2138,7 +2193,7 @@
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2146,12 +2201,12 @@
                 },
                 "notes": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "organization_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2159,29 +2214,29 @@
                 },
                 "posting_url": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "source": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": true,
                   "typeRef": "varChar100"
                 },
                 "title": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar200"
                 },
                 "updated_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "user_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2190,6 +2245,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "job_application_organization_id_idx_1a5cd3f5"
+                  },
                   "name": "fk_job_application_organization_id",
                   "onDelete": "restrict",
                   "source": {
@@ -2208,6 +2266,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "job_application_cv_document_id_idx_86f7b915"
+                  },
                   "name": "fk_job_application_cv_document_id",
                   "onDelete": "restrict",
                   "source": {
@@ -2226,6 +2287,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "job_application_cover_letter_document_id_idx_502843a7"
+                  },
                   "name": "fk_job_application_cover_letter_document_id",
                   "onDelete": "restrict",
                   "source": {
@@ -2244,6 +2308,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "job_application_country_id_idx_30642658"
+                  },
                   "name": "fk_job_application_country_id",
                   "onDelete": "restrict",
                   "source": {
@@ -2262,6 +2329,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "idx_user_id_6c952402"
+                  },
                   "name": "fk_job_application_user_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2333,7 +2403,7 @@
               "columns": {
                 "job_application_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2341,7 +2411,7 @@
                 },
                 "skill_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2350,6 +2420,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "job_application_has_skill_job_application_id_idx_6988889c"
+                  },
                   "name": "fk_job_application_has_skill_job_application_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2368,6 +2441,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "job_application_has_skill_skill_id_idx_676c8389"
+                  },
                   "name": "fk_job_application_has_skill_skill_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2416,16 +2492,12 @@
               "columns": {
                 "created_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2433,23 +2505,23 @@
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar200"
                 },
                 "notes": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 },
                 "updated_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "user_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2457,12 +2529,15 @@
                 },
                 "website_url": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": true
                 }
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "organization_user_id_idx_6c952402"
+                  },
                   "name": "fk_organization_user_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2511,7 +2586,7 @@
               "columns": {
                 "country_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2519,7 +2594,7 @@
                 },
                 "organization_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2528,6 +2603,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "organization_in_country_organization_id_idx_1a5cd3f5"
+                  },
                   "name": "fk_organization_in_country_organization_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2546,6 +2624,9 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "organization_in_country_country_id_idx_30642658"
+                  },
                   "name": "fk_organization_in_country_country_id",
                   "onDelete": "restrict",
                   "source": {
@@ -2594,7 +2675,7 @@
               "columns": {
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2602,13 +2683,13 @@
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar100"
                 },
                 "user_id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2617,6 +2698,9 @@
               },
               "foreignKeys": [
                 {
+                  "index": {
+                    "name": "skill_user_id_idx_6c952402"
+                  },
                   "name": "fk_skill_user_id",
                   "onDelete": "cascade",
                   "source": {
@@ -2664,22 +2748,18 @@
               "columns": {
                 "created_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "default": {
-                    "expression": "now()",
-                    "kind": "function"
-                  },
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 },
                 "email": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "email"
                 },
                 "id": {
                   "codecId": "sql/char@1",
-                  "nativeType": "character",
+                  "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
@@ -2687,18 +2767,18 @@
                 },
                 "name": {
                   "codecId": "sql/varchar@1",
-                  "nativeType": "character varying",
+                  "dataType": "pg/varchar",
                   "nullable": false,
                   "typeRef": "varChar150"
                 },
                 "password_hash": {
                   "codecId": "pg/text@1",
-                  "nativeType": "text",
+                  "dataType": "pg/text",
                   "nullable": false
                 },
                 "updated_at": {
                   "codecId": "pg/timestamptz-string@1",
-                  "nativeType": "timestamptz",
+                  "dataType": "pg/timestamptz",
                   "nullable": false
                 }
               },
@@ -2753,60 +2833,60 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1ff9caebdeea4b3516b1e91de4806950aef5040e51748a0dbc89c7970204bd2e",
+    "storageHash": "1c21712dd20711ef6d92d26207a5f6dbda2e87c859845625c4975bd7293eab98",
     "types": {
       "email": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 255
         }
       },
       "isoCode": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 2
         }
       },
       "varChar100": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 100
         }
       },
       "varChar150": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 150
         }
       },
       "varChar200": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 200
         }
       },
       "varChar255": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 255
         }
       },
       "varChar50": {
         "codecId": "sql/varchar@1",
+        "dataType": "pg/varchar",
         "kind": "codec-instance",
-        "nativeType": "character varying",
         "typeParams": {
           "length": 50
         }
@@ -2814,7 +2894,7 @@
     }
   },
   "execution": {
-    "executionHash": "bd711fb2ab037f61ad8ee7e8e8ba98448e25ade18b67169c151fee2674ed9f6b",
+    "executionHash": "1a0062aaee514b3ceaa35b5892d8f05774fe2071d409e00222b51a53865a83c8",
     "mutations": {
       "defaults": [
         {
@@ -2823,9 +2903,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "application_status_history"
+            "entry": "application_status_history",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2834,9 +2914,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "contact"
+            "entry": "contact",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2845,9 +2925,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "country"
+            "entry": "country",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2856,9 +2936,20 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "document"
+            "entry": "document",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "document",
+            "field": "uploaded_at",
+            "namespace": "public"
           }
         },
         {
@@ -2867,9 +2958,20 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "interview_round"
+            "entry": "interview_round",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "job_application",
+            "field": "created_at",
+            "namespace": "public"
           }
         },
         {
@@ -2878,9 +2980,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "job_application"
+            "entry": "job_application",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2893,9 +2995,20 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "updated_at",
-            "namespace": "public",
-            "table": "job_application"
+            "entry": "job_application",
+            "field": "updated_at",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "organization",
+            "field": "created_at",
+            "namespace": "public"
           }
         },
         {
@@ -2904,9 +3017,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "organization"
+            "entry": "organization",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2919,9 +3032,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "updated_at",
-            "namespace": "public",
-            "table": "organization"
+            "entry": "organization",
+            "field": "updated_at",
+            "namespace": "public"
           }
         },
         {
@@ -2930,9 +3043,20 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "skill"
+            "entry": "skill",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "user",
+            "field": "created_at",
+            "namespace": "public"
           }
         },
         {
@@ -2941,9 +3065,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "id",
-            "namespace": "public",
-            "table": "user"
+            "entry": "user",
+            "field": "id",
+            "namespace": "public"
           }
         },
         {
@@ -2956,9 +3080,9 @@
             "kind": "generator"
           },
           "ref": {
-            "column": "updated_at",
-            "namespace": "public",
-            "table": "user"
+            "entry": "user",
+            "field": "updated_at",
+            "namespace": "public"
           }
         }
       ]
@@ -2967,6 +3091,8 @@
   "capabilities": {
     "postgres": {
       "distinctOn": true,
+      "forKeyShare": true,
+      "forNoKeyUpdate": true,
       "jsonAgg": true,
       "lateral": true,
       "limit": true,
@@ -2977,7 +3103,14 @@
       "checkConstraint": true,
       "defaultInInsert": true,
       "enums": true,
+      "forShare": true,
+      "forUpdate": true,
+      "insertOnConflictSkip": true,
+      "insertOnConflictWithoutTarget": true,
       "lateral": true,
+      "lockNowait": true,
+      "lockOf": true,
+      "lockSkipLocked": true,
       "returning": true,
       "scalarList": true
     }
