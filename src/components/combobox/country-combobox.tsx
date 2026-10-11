@@ -12,6 +12,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  useComboboxAnchor,
 } from '@/components/ui/combobox.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
@@ -23,12 +24,24 @@ import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 
 interface Props {
-  value: string | null;
-  onChange: (id: string | null) => void;
+  value: CountrySummary | null;
+  change: (country: CountrySummary | null) => void;
+  blur?: () => void;
+  id?: string;
+  invalid?: boolean;
 }
 
-const CountryCombobox = ({ value, onChange }: Props) => {
+const CountryCombobox = ({ value, change, blur, id, invalid }: Props) => {
+  const anchor = useComboboxAnchor();
   const [search, setSearch] = useState('');
+
+  // When set from outside
+  const [internalValue, setInternalValue] = useState(value);
+  if (value !== internalValue) {
+    setInternalValue(value);
+    setSearch(value?.name ?? '');
+  }
+
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
@@ -58,22 +71,29 @@ const CountryCombobox = ({ value, onChange }: Props) => {
     <Combobox
       disabled={!hasLoaded}
       value={value}
-      onValueChange={onChange}
+      onValueChange={change}
+      itemToStringLabel={(country) => country.name}
+      isItemEqualToValue={(a, b) => a.id === b.id}
       inputValue={search}
       onInputValueChange={setSearch}
     >
-      <ComboboxInput placeholder={'Select country...'} disabled={!hasLoaded}>
-        <InputGroupAddon className={'p-0'}>
-          {!hasLoaded ? <Spinner /> : <RiGlobalLine />}
-        </InputGroupAddon>
+      <ComboboxInput
+        anchorRef={anchor}
+        id={id}
+        aria-invalid={invalid || undefined}
+        placeholder={'Select country...'}
+        onBlur={blur}
+        disabled={!hasLoaded}
+      >
+        <InputGroupAddon>{!hasLoaded ? <Spinner /> : <RiGlobalLine />}</InputGroupAddon>
       </ComboboxInput>
 
-      <ComboboxContent>
+      <ComboboxContent anchor={anchor}>
         <ScrollArea viewportProps={{ onScroll: handleScroll, className: 'max-h-63' }}>
           {hasLoaded && countries.length === 0 && <ComboboxEmpty>No countries found</ComboboxEmpty>}
           <ComboboxList className="max-h-none overflow-visible">
             {countries.map((country) => (
-              <ComboboxItem key={country.id} value={country.id}>
+              <ComboboxItem key={country.id} value={country}>
                 <FlagIcon isoCode={country.isoCode} />
                 {country.name}
               </ComboboxItem>
