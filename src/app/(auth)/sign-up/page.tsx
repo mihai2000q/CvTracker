@@ -34,12 +34,7 @@ const SignUp = () => {
 
   return (
     <div className={'flex min-h-screen flex-col items-center justify-center'}>
-      <form
-        id={form.id}
-        onSubmit={form.onSubmit}
-        noValidate
-        className="w-full max-w-sm"
-      >
+      <form id={form.id} onSubmit={form.onSubmit} noValidate className="w-full max-w-sm">
         <Card>
           <CardHeader>
             <CardTitle>Create a new account</CardTitle>

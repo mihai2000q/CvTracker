@@ -49,10 +49,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
         {totalCount > 0 && <DocumentsToolbar />}
 
         {totalCount > 0 && (
-          <ul
-            role="list"
-            className={'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'}
-          >
+          <ul role="list" className={'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'}>
             {documents.map((document) => (
               <li key={document.id}>
                 <DocumentItem document={document} />

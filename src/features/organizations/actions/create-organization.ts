@@ -6,7 +6,7 @@ import { sized, uuid } from '@database/field-values';
 import { isForeignKeyConstraintError } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
-import { zodValidateForm } from '@/lib/zod.ts';
+import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { createOrganizationSchema } from '@/features/organizations/schemas/create-organization-schema.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 
@@ -33,9 +33,6 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
       userId: uuid(userId),
     });
   } catch (error) {
-    // The only DB constraint that can actually fire here - Organization has
-    // no unique constraint on name, just an index, so there's nothing else
-    // to catch.
     if (isForeignKeyConstraintError(error)) {
       return submission.reply({ formErrors: ['One of the selected countries no longer exists.'] });
     }
@@ -43,6 +40,5 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
   }
 
   updateTag(cacheTags.organizations(userId));
-  updateTag(cacheTags.countries(userId));
   return submission.reply({ resetForm: true });
 }

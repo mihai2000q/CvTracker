@@ -8,10 +8,7 @@ type NextSearchParams = Record<string, string | string[] | undefined>;
 
 // The parsed values of a page's search params plus a link builder that
 // keeps the other params.
-export function readSearchParams<T>(
-  state: SearchParamsState<T>,
-  searchParams: NextSearchParams
-) {
+export function readSearchParams<T>(state: SearchParamsState<T>, searchParams: NextSearchParams) {
   const params = toURLSearchParams(searchParams);
   const values = state.deserialize(params);
 
