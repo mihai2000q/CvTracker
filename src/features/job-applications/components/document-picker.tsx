@@ -1,4 +1,4 @@
-import React, { type ComponentProps, useEffect, useRef, useState } from 'react';
+import React, { type ComponentProps, useRef, useState } from 'react';
 import {
   Attachment,
   AttachmentAction,
@@ -37,14 +37,6 @@ const DocumentPicker = ({
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    const form = inputRef.current?.form;
-    if (!form) return;
-    const handleReset = () => setFile(null);
-    form.addEventListener('reset', handleReset);
-    return () => form.removeEventListener('reset', handleReset);
-  }, []);
 
   const setInputFile = (next: File | null) => {
     const input = inputRef.current;

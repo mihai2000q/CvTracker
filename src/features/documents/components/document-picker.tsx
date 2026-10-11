@@ -1,6 +1,6 @@
 'use client';
 
-import { type ComponentProps, useEffect, useRef, useState } from 'react';
+import { type ComponentProps, useRef, useState } from 'react';
 import { RiCloseLine, RiFileTextLine } from '@remixicon/react';
 import FileDropzone from '@/components/form/file-dropzone.tsx';
 import FileSize from '@/components/file-size.tsx';
@@ -27,14 +27,6 @@ const DocumentPicker = ({
 }: Props) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    const form = inputRef.current?.form;
-    if (!form) return;
-    const handleReset = () => setFile(null);
-    form.addEventListener('reset', handleReset);
-    return () => form.removeEventListener('reset', handleReset);
-  }, []);
 
   const setInputFile = (next: File | null) => {
     const input = inputRef.current;
