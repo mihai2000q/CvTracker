@@ -1,6 +1,8 @@
 'use client';
 
 import * as React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
@@ -459,7 +461,11 @@ const sidebarMenuButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+        default: cn(
+          'hover:bg-primary/10 hover:text-[oklch(from_var(--primary)_calc(l+0.50)_c_h)]/70',
+          'data-active:text-[oklch(from_var(--primary)_calc(l+0.25)_c_h)] data-active:bg-primary/20',
+          'data-active:hover:bg-primary/25 data-active:hover:text-[oklch(from_var(--primary)_calc(l+0.50)_c_h)]/70'
+        ),
         outline:
           'bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]',
       },
@@ -567,7 +573,11 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<'div'>) 
       data-sidebar="menu-badge"
       className={cn(
         'text-sidebar-foreground peer-hover/menu-button:text-sidebar-accent-foreground peer-data-active/menu-button:text-sidebar-accent-foreground pointer-events-none absolute flex items-center justify-center tabular-nums select-none group-data-[collapsible=icon]:hidden peer-data-[size=default]/menu-button:top-2 peer-data-[size=lg]/menu-button:top-3 peer-data-[size=sm]/menu-button:top-0.5',
-        'bg-primary right-2 h-5 min-w-5 rounded-md px-1.5 py-2.5 text-xs text-gray-200',
+        'right-2 h-5 min-w-5 rounded-md px-1.5 py-2.5 text-xs transition-colors duration-100',
+        'bg-primary/30 text-[oklch(from_var(--primary)_calc(l+0.20)_c_h)]',
+        'peer-hover/menu-button:bg-primary/60 peer-hover/menu-button:text-primary-foreground/80',
+        'peer-data-active/menu-button:bg-primary peer-data-active/menu-button:text-primary-foreground',
+        'peer-data-active/menu-button:peer-hover/menu-button:bg-[oklch(from_var(--primary)_calc(l+0.05)_c_h)] peer-data-active/menu-button:peer-hover/menu-button:text-[oklch(from_var(--primary-foreground)_calc(l+0.05)_c_h)]',
         className
       )}
       {...props}
@@ -665,6 +675,40 @@ function SidebarMenuSubButton({
   });
 }
 
+// A menu button that links to a page and shows as selected while that page, or one under it,
+// is open. The selected one can swap its icon for another (an outline for a filled one).
+function SidebarLink({
+  href,
+  icon,
+  activeIcon = icon,
+  className,
+  children,
+  ...props
+}: Omit<React.ComponentProps<typeof SidebarMenuButton>, 'render' | 'isActive'> & {
+  href: string;
+  icon: React.ReactNode;
+  activeIcon?: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+
+  return (
+    <SidebarMenuButton
+      isActive={isActive}
+      render={<Link href={href} aria-current={isActive ? 'page' : undefined} />}
+      className={className}
+      {...props}
+    >
+      <span
+        className={'pb-0.5'}
+      >
+        {isActive ? activeIcon : icon}
+      </span>
+      <span>{children}</span>
+    </SidebarMenuButton>
+  );
+}
+
 export {
   Sidebar,
   SidebarContent,
@@ -676,6 +720,7 @@ export {
   SidebarHeader,
   SidebarInput,
   SidebarInset,
+  SidebarLink,
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuBadge,

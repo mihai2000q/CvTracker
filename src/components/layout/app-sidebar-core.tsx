@@ -2,13 +2,21 @@ import React from 'react';
 import {
   SidebarGroup,
   SidebarGroupLabel,
+  SidebarLink,
   SidebarMenu,
   SidebarMenuBadge,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar.tsx';
-import { RiBriefcaseLine, RiBuilding2Line, RiFileTextLine, RiGlobalLine } from '@remixicon/react';
-import Link from 'next/link';
+import {
+  RiBriefcaseFill,
+  RiBriefcaseLine,
+  RiBuilding2Fill,
+  RiBuilding2Line,
+  RiEarthFill,
+  RiEarthLine,
+  RiFileTextFill,
+  RiFileTextLine,
+} from '@remixicon/react';
 import { countJobApplications } from '@/features/job-applications/queries/count-job-applications.ts';
 import { countOrganizations } from '@/features/organizations/queries/count-organizations.ts';
 import { countCountries } from '@/features/countries/queries/count-countries.ts';
@@ -25,14 +33,39 @@ interface MenuItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+  activeIcon: React.ReactNode;
   count: keyof SidebarCounts;
 }
 
 const menuItems: MenuItem[] = [
-  { href: '/jobs', label: 'Jobs', icon: <RiBriefcaseLine />, count: 'jobs' },
-  { href: '/organizations', label: 'Organizations', icon: <RiBuilding2Line />, count: 'organizations' },
-  { href: '/countries', label: 'Countries', icon: <RiGlobalLine />, count: 'countries' },
-  { href: '/documents', label: 'Documents', icon: <RiFileTextLine />, count: 'documents' },
+  {
+    href: '/jobs',
+    label: 'Jobs',
+    icon: <RiBriefcaseLine />,
+    activeIcon: <RiBriefcaseFill />,
+    count: 'jobs',
+  },
+  {
+    href: '/organizations',
+    label: 'Organizations',
+    icon: <RiBuilding2Line />,
+    activeIcon: <RiBuilding2Fill />,
+    count: 'organizations',
+  },
+  {
+    href: '/countries',
+    label: 'Countries',
+    icon: <RiEarthLine />,
+    activeIcon: <RiEarthFill />,
+    count: 'countries',
+  },
+  {
+    href: '/documents',
+    label: 'Documents',
+    icon: <RiFileTextLine />,
+    activeIcon: <RiFileTextFill />,
+    count: 'documents',
+  },
 ];
 
 const AppSidebarCore = ({ counts }: { counts?: SidebarCounts }) => {
@@ -42,10 +75,9 @@ const AppSidebarCore = ({ counts }: { counts?: SidebarCounts }) => {
       <SidebarMenu>
         {menuItems.map((item) => (
           <SidebarMenuItem key={item.label}>
-            <SidebarMenuButton render={<Link href={item.href} />}>
-              {item.icon}
-              <span>{item.label}</span>
-            </SidebarMenuButton>
+            <SidebarLink href={item.href} icon={item.icon} activeIcon={item.activeIcon}>
+              {item.label}
+            </SidebarLink>
             {counts ? (
               counts[item.count] > 0 && <SidebarMenuBadge>{counts[item.count]}</SidebarMenuBadge>
             ) : (
