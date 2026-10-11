@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '@/components/ui/sidebar.tsx';
-import { RiDashboardLine, RiInstanceLine } from '@remixicon/react';
+import { RiBriefcase4Fill, RiDashboardLine } from '@remixicon/react';
 import { cn } from '@/lib/utils.ts';
 import AppSidebarCore from '@/components/layout/app-sidebar-core.tsx';
 import AppSidebarUser from '@/components/layout/app-sidebar-user.tsx';
@@ -28,11 +28,11 @@ const AppSidebar = () => {
         >
           <div
             className={cn(
-              'flex aspect-square size-7.5 items-center justify-center',
+              'flex aspect-square size-8 items-center justify-center',
               'bg-sidebar-primary text-sidebar-primary-foreground rounded-lg'
             )}
           >
-            <RiInstanceLine className={'size-5 fill-white'} />
+            <RiBriefcase4Fill className={'size-4.5 fill-white'} />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-medium">CV Tracker</span>
