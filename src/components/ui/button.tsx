@@ -10,7 +10,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-primary text-primary-foreground hover:bg-primary/80',
         outline:
-          'border-border bg-background shadow-xs hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+          'border-border bg-background shadow-xs hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-field dark:hover:bg-input/50',
         secondary:
           'bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
         ghost:
@@ -64,7 +64,7 @@ function Button({
         <span
           className={cn(
             'col-start-1 row-start-1 flex items-center justify-center gap-1.5 px-0.75 transition-transform duration-300 ease-out',
-            loading ? '-translate-y-full' : 'translate-y-0'
+            loading ? '-translate-y-20' : 'translate-y-0'
           )}
         >
           {children}
@@ -72,7 +72,7 @@ function Button({
         <span
           className={cn(
             'col-start-1 row-start-1 flex items-center justify-center transition-transform duration-300 ease-out',
-            loading ? 'translate-y-0' : 'translate-y-full'
+            loading ? 'translate-y-0' : 'translate-y-20'
           )}
         >
           <Spinner />

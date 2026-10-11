@@ -25,6 +25,7 @@
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
+  --color-field: var(--field);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
@@ -66,6 +67,7 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
+  --field: transparent;
   --ring: oklch(0.705 0.015 286.067);
   --chart-1: oklch(0.865 0.127 207.078);
   --chart-2: oklch(0.715 0.143 215.221);
@@ -84,37 +86,54 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
+  /* Deep navy surfaces with slate text and a teal accent */
+  --background: oklch(0.163 0.014 264);
+  --foreground: oklch(0.985 0.003 250);
+  --card: oklch(0.21 0.032 265);
+  --card-foreground: oklch(0.985 0.003 250);
+  --popover: oklch(0.21 0.032 265);
+  --popover-foreground: oklch(0.985 0.003 250);
   --primary: oklch(0.437 0.078 188.216);
   --primary-foreground: oklch(0.984 0.014 180.72);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.25 0.03 262);
+  --secondary-foreground: oklch(0.985 0.003 250);
+  --muted: oklch(0.25 0.03 262);
+  --muted-foreground: oklch(0.704 0.04 257);
+  --accent: oklch(0.25 0.03 262);
+  --accent-foreground: oklch(0.985 0.003 250);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --border: oklch(0.3 0.03 262);
+  --input: oklch(0.32 0.035 262);
+  --field: color-mix(in oklab, var(--input) 30%, transparent);
+  --ring: oklch(0.55 0.09 186);
   --chart-1: oklch(0.865 0.127 207.078);
   --chart-2: oklch(0.715 0.143 215.221);
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.704 0.14 182.503);
-  --sidebar-primary-foreground: oklch(0.277 0.046 192.524);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar: oklch(0.18 0.02 262);
+  --sidebar-foreground: oklch(0.985 0.003 250);
+  --sidebar-primary: oklch(0.437 0.078 188.216);
+  --sidebar-primary-foreground: oklch(0.984 0.014 180.72);
+  --sidebar-accent: oklch(0.245 0.03 262);
+  --sidebar-accent-foreground: oklch(0.985 0.003 250);
+  --sidebar-border: oklch(0.28 0.03 262);
+  --sidebar-ring: oklch(0.55 0.09 186);
+}
+
+/* Dialogs sit on the card color, so their fields and chips would read as stacked bright
+   boxes. Soften them here, for every dialog at once. */
+.dark [data-slot='dialog-content'] {
+  /* Darker than the cards: between the page and a card */
+  --popover: oklch(0.185 0.03 264);
+  --field: color-mix(in oklab, var(--input) 20%, transparent);
+  --secondary: oklch(0.225 0.03 262);
+  --muted: oklch(0.225 0.03 262);
+}
+
+/* The default overlay barely dims the page, so a navy dialog on a navy page reads as bright */
+.dark [data-slot='dialog-overlay'] {
+  background-color: oklch(0 0 0 / 40%);
 }
 
 @layer base {
