@@ -20,6 +20,20 @@ interface Props<Form extends Record<string, unknown>> {
   deps?: Partial<Record<keyof Form & string, Array<keyof Form & string>>>;
 }
 
+type ConformForm<Form extends Record<string, unknown>> = ReturnType<typeof useForm<Form>>;
+
+interface FormDialog<Form extends Record<string, unknown>> {
+  dialogProps: { open: boolean; onOpenChange: (open: boolean) => void };
+  contentProps: { keepMounted: boolean };
+  reset: () => void;
+  // Key for the container of the fields: it changes on every reset, so fields that keep their
+  // own state start over
+  resetKey: number;
+  form: ConformForm<Form>[0];
+  fields: ConformForm<Form>[1];
+  isPending: boolean;
+}
+
 export function useFormDialog<Form extends Record<string, unknown>>({
   action,
   schema,
@@ -27,10 +41,13 @@ export function useFormDialog<Form extends Record<string, unknown>>({
   onSuccess,
   onReset,
   deps,
-}: Props<Form>) {
+}: Props<Form>): FormDialog<Form> {
   const [open, setOpen] = useState(false);
   const [lastResult, setLastResult] = useState<SubmissionResult>();
   const [isPending, startTransition] = useTransition();
+  // Bumped on every reset: the dialog stays mounted, so fields that keep their own state
+  // (a picked organization, a date, a chosen file) only start over when remounted with this key
+  const [resetKey, setResetKey] = useState(0);
 
   const [form, fields] = useForm<Form>({
     lastResult,
@@ -66,6 +83,7 @@ export function useFormDialog<Form extends Record<string, unknown>>({
 
   function reset() {
     form.reset();
+    setResetKey((key) => key + 1);
     onReset?.();
   }
 
@@ -77,6 +95,7 @@ export function useFormDialog<Form extends Record<string, unknown>>({
     dialogProps: { open, onOpenChange: setOpen },
     contentProps: { keepMounted: hasOpened },
     reset,
+    resetKey,
     form,
     fields,
     isPending,
