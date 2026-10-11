@@ -45,6 +45,12 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
   );
 }
 
+export interface ComboboxInputProps extends ComboboxPrimitive.Input.Props {
+  showTrigger?: boolean;
+  showClear?: boolean;
+  anchorRef?: React.Ref<HTMLDivElement>;
+}
+
 function ComboboxInput({
   className,
   children,
@@ -53,11 +59,7 @@ function ComboboxInput({
   showClear = false,
   anchorRef,
   ...props
-}: ComboboxPrimitive.Input.Props & {
-  showTrigger?: boolean;
-  showClear?: boolean;
-  anchorRef?: React.Ref<HTMLDivElement>;
-}) {
+}: ComboboxInputProps) {
   return (
     <InputGroup
       ref={anchorRef}
@@ -208,7 +210,7 @@ function ComboboxChips({
     <ComboboxPrimitive.Chips
       data-slot="combobox-chips"
       className={cn(
-        'border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 dark:bg-input/30 dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40 flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border bg-transparent bg-clip-padding px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] focus-within:ring-3 has-aria-invalid:ring-3 has-data-[slot=combobox-chip]:px-1.5',
+        'border-input focus-within:border-ring focus-within:ring-ring/50 has-aria-invalid:border-destructive has-aria-invalid:ring-destructive/20 dark:bg-field dark:has-aria-invalid:border-destructive/50 dark:has-aria-invalid:ring-destructive/40 flex min-h-9 flex-wrap items-center gap-1.5 rounded-md border bg-transparent bg-clip-padding px-2.5 py-1.5 text-sm shadow-xs transition-[color,box-shadow] focus-within:ring-3 has-aria-invalid:ring-3 has-data-[slot=combobox-chip]:px-1.5',
         'data-disabled:cursor-not-allowed',
         className
       )}
