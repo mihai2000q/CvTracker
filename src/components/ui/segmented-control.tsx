@@ -1,0 +1,55 @@
+import Link from 'next/link';
+import { cn } from 'cn';
+import React from 'react';
+
+interface SegmentedControlItem {
+  label: string;
+  href: string;
+  active?: boolean;
+  count?: number;
+}
+
+interface Props extends React.ComponentProps<'nav'> {
+  items: SegmentedControlItem[];
+}
+
+// A pill of links, one per view of the same list: each has its own URL, so it renders on the
+// server and the active one comes from the page
+function SegmentedControl({ items, className, ...props }: Props) {
+  return (
+    <nav
+      data-slot="segmented-control"
+      className={cn('bg-card inline-flex w-fit items-center gap-1 rounded-full border p-1', className)}
+      {...props}
+    >
+      {items.map(({ label, href, active, count }) => (
+        <Link
+          key={href}
+          href={href}
+          aria-current={active ? 'page' : undefined}
+          className={cn(
+            'focus-visible:ring-ring/50 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-3',
+            active
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:text-foreground'
+          )}
+        >
+          {label}
+          {count !== undefined && (
+            <span
+              className={cn(
+                'text-xs font-medium tabular-nums',
+                active ? 'text-primary-foreground/70' : 'text-muted-foreground/60'
+              )}
+            >
+              {count}
+            </span>
+          )}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+export { SegmentedControl };
+export type { SegmentedControlItem };
