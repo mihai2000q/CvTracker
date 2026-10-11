@@ -5,6 +5,7 @@ export const ALLOWED_FILE_TYPES = [
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.oasis.opendocument.text',
 ];
 
 export const zFile = (name: string = 'File') =>
@@ -12,7 +13,7 @@ export const zFile = (name: string = 'File') =>
     .file(`${name} is required`)
     .min(1, `${name} cannot be empty`)
     .max(MAX_FILE_SIZE, `${name} must be 10 MB or smaller`)
-    .mime(ALLOWED_FILE_TYPES, `${name} must be a PDF or Word document`);
+    .mime(ALLOWED_FILE_TYPES, `${name} must be a PDF, Word or OpenDocument (.odt) file`);
 
 // Conform strips an empty form field to `undefined` before validation —
 // that's what makes `.optional()` fields work correctly over FormData
