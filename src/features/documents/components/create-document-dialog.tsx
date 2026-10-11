@@ -11,10 +11,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { FieldGroup } from '@/components/ui/field.tsx';
+import FormField from '@/components/form/form-field.tsx';
 import { Input } from '@/components/ui/input';
 import React from 'react';
-import { getInputProps, useInputControl } from '@conform-to/react';
+import { getInputProps } from '@conform-to/react';
+import { useFieldControl } from '@/hooks/use-field-control.ts';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import { Separator } from '@/components/ui/separator.tsx';
 import { createDocument } from '@/features/documents/actions/create-document.ts';
@@ -36,7 +38,7 @@ interface Props {
 
 const CreateDocumentDialog = ({ children }: Props) => {
   const queryClient = useQueryClient();
-  const { dialogProps, contentProps, reset, form, fields, isPending } =
+  const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateDocumentForm>({
     action: createDocument,
     schema: createDocumentSchema,
@@ -44,12 +46,7 @@ const CreateDocumentDialog = ({ children }: Props) => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.documents }),
   });
 
-  const type = useInputControl<DocumentType>({
-    key: fields.type.key,
-    name: fields.type.name,
-    formId: form.id,
-    initialValue: fields.type.initialValue as DocumentType,
-  });
+  const type = useFieldControl<DocumentType>(form, fields.type);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
@@ -73,23 +70,16 @@ const CreateDocumentDialog = ({ children }: Props) => {
           </DialogHeader>
 
           <ScrollArea>
-            <FieldGroup className={'max-h-[60vh] px-6'}>
-              <Field>
-                <FieldLabel htmlFor={fields.name.id} required>
-                  Name
-                </FieldLabel>
+            <FieldGroup key={resetKey} className={'max-h-[60vh] px-6'}>
+              <FormField field={fields.name} label="Name" required>
                 <Input
                   {...getInputProps(fields.name, { type: 'text' })}
                   placeholder="Cover Letter"
                   maxLength={150}
                 />
-                <FieldError errors={fields.name.errors} />
-              </Field>
+              </FormField>
 
-              <Field>
-                <FieldLabel htmlFor={fields.type.id} required>
-                  Type
-                </FieldLabel>
+              <FormField field={fields.type} label="Type" required>
                 <ToggleGroup
                   size={'sm'}
                   spacing={0}
@@ -115,27 +105,22 @@ const CreateDocumentDialog = ({ children }: Props) => {
                     Cover Letter
                   </ToggleGroupItem>
                 </ToggleGroup>
-              </Field>
+              </FormField>
 
-              <Field>
-                <FieldLabel htmlFor={fields.file.id} required>
-                  File
-                </FieldLabel>
+              <FormField field={fields.file} label="File" required>
                 <DocumentPicker
                   {...getInputProps(fields.file, { type: 'file' })}
                   onChange={handleFileChange}
                 />
-                <FieldError errors={fields.file.errors} />
-              </Field>
+              </FormField>
 
-              <Field className={'pb-4'}>
-                <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
+              <FormField field={fields.notes} className={'pb-4'} label="Notes">
                 <Textarea
                   placeholder={'Add any extra content...'}
                   {...getInputProps(fields.notes, { type: 'text' })}
                   className={'max-h-32'}
                 />
-              </Field>
+              </FormField>
             </FieldGroup>
           </ScrollArea>
 

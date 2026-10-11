@@ -3,7 +3,8 @@
 import { queryKeys } from '@/lib/query-keys.ts';
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getInputProps, useInputControl } from '@conform-to/react';
+import { getInputProps } from '@conform-to/react';
+import { useFieldControl } from '@/hooks/use-field-control.ts';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import {
   Dialog,
@@ -15,9 +16,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog.tsx';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
+import { FieldGroup } from '@/components/ui/field.tsx';
+import FormField from '@/components/form/form-field.tsx';
 import { Input } from '@/components/ui/input.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { createOrganization } from '@/features/organizations/actions/create-organization.ts';
 import {
@@ -36,18 +37,14 @@ interface Props {
 
 const CreateOrganizationDialog = ({ children }: Props) => {
   const queryClient = useQueryClient();
-  const { dialogProps, contentProps, reset, form, fields, isPending } =
+  const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateOrganizationForm>({
-    action: createOrganization,
-    schema: createOrganizationSchema,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
-  });
+      action: createOrganization,
+      schema: createOrganizationSchema,
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
+    });
 
-  const countryIds = useInputControl<string[]>({
-    key: fields.countryIds.key,
-    name: fields.countryIds.name,
-    formId: form.id,
-  });
+  const countryIds = useFieldControl<string[]>(form, fields.countryIds);
 
   return (
     <Dialog {...dialogProps}>
@@ -62,21 +59,16 @@ const CreateOrganizationDialog = ({ children }: Props) => {
           </DialogHeader>
 
           <ScrollArea>
-            <FieldGroup className={'max-h-[55vh]'}>
-              <Field>
-                <FieldLabel htmlFor={fields.name.id} required>
-                  Name
-                </FieldLabel>
+            <FieldGroup key={resetKey} className={'max-h-[55vh]'}>
+              <FormField field={fields.name} label="Name" required>
                 <Input
                   placeholder={'Example'}
                   {...getInputProps(fields.name, { type: 'text' })}
                   maxLength={200}
                 />
-                <FieldError errors={fields.name.errors} />
-              </Field>
+              </FormField>
 
-              <Field>
-                <FieldLabel htmlFor={fields.websiteUrl.id}>Website</FieldLabel>
+              <FormField field={fields.websiteUrl} label="Website">
                 <InputGroup className={'w-auto'}>
                   <InputGroupAddon>
                     <RiLink />
@@ -86,33 +78,27 @@ const CreateOrganizationDialog = ({ children }: Props) => {
                     {...getInputProps(fields.websiteUrl, { type: 'text' })}
                   />
                 </InputGroup>
-                <FieldError errors={fields.websiteUrl.errors} />
-              </Field>
+              </FormField>
 
-              <Field>
-                <FieldLabel htmlFor={fields.countryIds.id} required>
-                  Countries
-                </FieldLabel>
+              <FormField field={fields.countryIds} label="Countries" required>
                 <CountryMultiCombobox onChange={countryIds.change} onBlur={countryIds.blur} />
-                <FieldError errors={fields.countryIds.errors} />
-              </Field>
+              </FormField>
 
-              <Field className={'pb-4'}>
-                <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
+              <FormField field={fields.notes} className={'pb-4'} label="Notes">
                 <Textarea
                   placeholder={'Add any extra content...'}
                   {...getInputProps(fields.notes, { type: 'text' })}
                   className={'max-h-32'}
                 />
-              </Field>
+              </FormField>
             </FieldGroup>
           </ScrollArea>
 
-          <DialogFooter className={'sm:justify-center pt-2'}>
-              <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
-              <Button type="submit" loading={isPending}>
-                Create
-              </Button>
+          <DialogFooter className={'pt-2 sm:justify-center'}>
+            <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
+            <Button type="submit" loading={isPending}>
+              Create
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
