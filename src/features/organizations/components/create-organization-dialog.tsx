@@ -36,7 +36,8 @@ interface Props {
 
 const CreateOrganizationDialog = ({ children }: Props) => {
   const queryClient = useQueryClient();
-  const { open, setOpen, form, fields, isPending } = useFormDialog<CreateOrganizationForm>({
+  const { dialogProps, contentProps, reset, form, fields, isPending } =
+    useFormDialog<CreateOrganizationForm>({
     action: createOrganization,
     schema: createOrganizationSchema,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
@@ -49,9 +50,9 @@ const CreateOrganizationDialog = ({ children }: Props) => {
   });
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog {...dialogProps}>
       <DialogTrigger render={children} />
-      <DialogContent className="md:max-w-md">
+      <DialogContent {...contentProps} className="md:max-w-md">
         <form id={form.id} onSubmit={form.onSubmit} noValidate>
           <DialogHeader className={'mb-6'}>
             <DialogTitle>New Organization</DialogTitle>
@@ -96,7 +97,7 @@ const CreateOrganizationDialog = ({ children }: Props) => {
                 <FieldError errors={fields.countryIds.errors} />
               </Field>
 
-              <Field>
+              <Field className={'pb-4'}>
                 <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
                 <Textarea
                   placeholder={'Add any extra content...'}
@@ -107,14 +108,11 @@ const CreateOrganizationDialog = ({ children }: Props) => {
             </FieldGroup>
           </ScrollArea>
 
-          <DialogFooter className={'sm:flex-col'}>
-            <Separator />
-            <div className={'flex justify-end gap-2'}>
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+          <DialogFooter className={'sm:justify-center pt-2'}>
+              <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
               <Button type="submit" loading={isPending}>
                 Create
               </Button>
-            </div>
           </DialogFooter>
         </form>
       </DialogContent>
