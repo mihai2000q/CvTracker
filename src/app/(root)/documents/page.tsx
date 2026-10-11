@@ -1,7 +1,8 @@
-import { Separator } from '@/components/ui/separator.tsx';
 import { readSearchParams } from '@/lib/search-params.ts';
 import { redirect } from 'next/navigation';
 import { getDocuments } from '@/features/documents/queries/get-documents.ts';
+import { countDocuments } from '@/features/documents/queries/count-documents.ts';
+import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import AppPagination from '@/components/pagination/app-pagination.tsx';
 import DocumentItem from '@/features/documents/components/document-item.tsx';
 import { documentsSearchParamsState } from '@/features/documents/schemas/documents-search-params.ts';
@@ -16,7 +17,13 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   } = readSearchParams(documentsSearchParamsState, await searchParams);
   const hrefForPage = (page: number) => hrefFor('/documents', { page });
 
-  const result = await getDocuments({ page });
+  const [result, allCount, cvCount] = await Promise.all([
+    getDocuments({ page }),
+    countDocuments(),
+    countDocuments(DocumentType.CV),
+  ]);
+  // A document is either a CV or a cover letter, so the rest are cover letters
+  const coverLetterCount = allCount - cvCount;
   if (!result.success) {
     redirect('/documents');
   }
@@ -24,7 +31,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   const { items: documents, totalCount } = result.data;
 
   return (
-    <div className={'flex flex-1 flex-col'}>
+    <div className={'flex flex-1 flex-col gap-6'}>
       <header className={'flex flex-wrap items-center justify-between gap-3'}>
         <div className={'flex flex-col'}>
           <h1 className={'text-2xl font-bold'}>Documents</h1>
@@ -35,17 +42,19 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
           <SegmentedControl
             aria-label="Document type"
             items={[
-              { label: 'All', href: '/documents', active: true, count: totalCount },
-              { label: 'CVs', href: '/documents?type=cv', count: 2 },
-              { label: 'Cover Letters', href: '/documents?type=cover-letter', count: 3 },
+              { label: 'All', href: '/documents', active: true, count: allCount },
+              { label: 'CVs', href: '/documents?type=cv', count: cvCount },
+              {
+                label: 'Cover Letters',
+                href: '/documents?type=cover-letter',
+                count: coverLetterCount,
+              },
             ]}
           />
         )}
       </header>
 
-      <Separator className={'mt-4 mb-3'} />
-
-      <main className={'flex flex-1 flex-col gap-4'}>
+      <main className={'flex flex-1 flex-col gap-6'}>
         {totalCount > 0 && <DocumentsToolbar />}
 
         {totalCount > 0 && (
