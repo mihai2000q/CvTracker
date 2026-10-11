@@ -1,6 +1,7 @@
 import { readSearchParams } from '@/lib/search-params.ts';
 import { countriesSearchParamsState } from '@/features/countries/schemas/countries-search-params.ts';
 import { getCountries } from '@/features/countries/queries/get-countries.ts';
+import { countCountries } from '@/features/countries/queries/count-countries.ts';
 import { redirect } from 'next/navigation';
 import CountriesToolbar from '@/features/countries/components/countries-toolbar.tsx';
 import CountryItem from '@/features/countries/components/country-item.tsx';
@@ -15,7 +16,11 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
   } = readSearchParams(countriesSearchParamsState, await searchParams);
   const hrefForPage = (page: number) => hrefFor('/countries', { page });
 
-  const result = await getCountries({ page });
+  const [result, allCount, appliedCount] = await Promise.all([
+    getCountries({ page }),
+    countCountries('all'),
+    countCountries('applied'),
+  ]);
   if (!result.success) {
     redirect('/countries');
   }
@@ -34,14 +39,14 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
 
         {totalCount > 0 && (
           <SegmentedControl
-            aria-label="All countries or just applied"
+            aria-label="Country filter"
             items={[
-              { label: 'All', href: '/countries', count: 250 },
+              { label: 'All', href: '/countries', count: allCount },
               {
                 label: 'Applied',
                 href: '/countries?type=applied',
                 active: true,
-                count: totalCount,
+                count: appliedCount,
               },
             ]}
           />
