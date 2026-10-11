@@ -27,16 +27,21 @@ import DocumentPicker from '@/features/documents/components/document-picker.tsx'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
+import { queryKeys } from '@/lib/query-keys.ts';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface Props {
   children: React.ReactElement;
 }
 
 const CreateDocumentDialog = ({ children }: Props) => {
-  const { open, setOpen, form, fields, isPending } = useFormDialog<CreateDocumentForm>({
+  const queryClient = useQueryClient();
+  const { dialogProps, contentProps, reset, form, fields, isPending } =
+    useFormDialog<CreateDocumentForm>({
     action: createDocument,
     schema: createDocumentSchema,
     defaultValue: { type: DocumentType.CV },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.documents }),
   });
 
   const type = useInputControl<DocumentType>({
@@ -56,11 +61,11 @@ const CreateDocumentDialog = ({ children }: Props) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog {...dialogProps}>
       <DialogTrigger render={children} />
-      <DialogContent className="md:max-w-sm">
+      <DialogContent {...contentProps} className="px-0 md:max-w-sm">
         <form id={form.id} onSubmit={form.onSubmit} noValidate>
-          <DialogHeader className={'mb-4'}>
+          <DialogHeader className={'mb-4 px-6'}>
             <DialogTitle>New Document</DialogTitle>
             <DialogDescription>
               Archive a document you want to use later. Fill in the details, save and edit later.
@@ -68,7 +73,7 @@ const CreateDocumentDialog = ({ children }: Props) => {
           </DialogHeader>
 
           <ScrollArea>
-            <FieldGroup className={'max-h-[60vh]'}>
+            <FieldGroup className={'max-h-[60vh] px-6'}>
               <Field>
                 <FieldLabel htmlFor={fields.name.id} required>
                   Name
@@ -87,13 +92,28 @@ const CreateDocumentDialog = ({ children }: Props) => {
                 </FieldLabel>
                 <ToggleGroup
                   size={'sm'}
-                  variant={'outline'}
+                  spacing={0}
+                  className={'bg-secondary/80 rounded-lg'}
                   value={type.value ? [type.value] : []}
                   onValueChange={(next) => next[0] && type.change(next[0] as DocumentType)}
                   onBlur={type.blur}
                 >
-                  <ToggleGroupItem value={DocumentType.CV}>CV</ToggleGroupItem>
-                  <ToggleGroupItem value={DocumentType.CoverLetter}>Cover Letter</ToggleGroupItem>
+                  <ToggleGroupItem
+                    value={DocumentType.CV}
+                    className={
+                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-amber-600/90 aria-pressed:text-amber-50'
+                    }
+                  >
+                    CV / Resume
+                  </ToggleGroupItem>
+                  <ToggleGroupItem
+                    value={DocumentType.CoverLetter}
+                    className={
+                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-cyan-700 aria-pressed:text-cyan-50'
+                    }
+                  >
+                    Cover Letter
+                  </ToggleGroupItem>
                 </ToggleGroup>
               </Field>
 
@@ -108,7 +128,7 @@ const CreateDocumentDialog = ({ children }: Props) => {
                 <FieldError errors={fields.file.errors} />
               </Field>
 
-              <Field>
+              <Field className={'pb-4'}>
                 <FieldLabel htmlFor={fields.notes.id}>Notes</FieldLabel>
                 <Textarea
                   placeholder={'Add any extra content...'}
@@ -121,10 +141,10 @@ const CreateDocumentDialog = ({ children }: Props) => {
 
           <DialogFooter className={'sm:flex-col'}>
             <Separator />
-            <div className={'flex justify-end gap-2'}>
-              <DialogClose render={<Button variant="outline">Cancel</Button>} />
+            <div className={'pt-2 flex gap-2'}>
+              <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
               <Button type="submit" loading={isPending}>
-                Create
+                Save Changes
               </Button>
             </div>
           </DialogFooter>
