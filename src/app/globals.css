@@ -95,7 +95,7 @@
   --popover-foreground: oklch(0.985 0.003 250);
   --primary: oklch(0.437 0.078 188.216);
   --primary-foreground: oklch(0.984 0.014 180.72);
-  --secondary: oklch(0.25 0.03 262);
+  --secondary: oklch(0.29 0.03 262);
   --secondary-foreground: oklch(0.985 0.003 250);
   --muted: oklch(0.25 0.03 262);
   --muted-foreground: oklch(0.704 0.04 257);
@@ -127,7 +127,7 @@
   /* Darker than the cards: between the page and a card */
   --popover: oklch(0.185 0.03 264);
   --field: color-mix(in oklab, var(--input) 20%, transparent);
-  --secondary: oklch(0.225 0.03 262);
+  --secondary: oklch(0.26 0.03 262);
   --muted: oklch(0.225 0.03 262);
 }
 
