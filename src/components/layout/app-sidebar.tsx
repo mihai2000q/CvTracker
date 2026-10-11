@@ -12,10 +12,11 @@ import {
 } from '@/components/ui/sidebar.tsx';
 import { RiBriefcase4Fill, RiDashboardLine } from '@remixicon/react';
 import { cn } from '@/lib/utils.ts';
-import AppSidebarCore from '@/components/layout/app-sidebar-core.tsx';
+import AppSidebarCore, { AppSidebarCoreWithCounts } from '@/components/layout/app-sidebar-core.tsx';
 import AppSidebarUser from '@/components/layout/app-sidebar-user.tsx';
 import { Suspense } from 'react';
 import AppSidebarUserSkeleton from '@/components/layout/app-sidebar-user-skeleton.tsx';
+import Link from 'next/link';
 
 const AppSidebar = () => {
   return (
@@ -47,7 +48,7 @@ const AppSidebar = () => {
           <SidebarGroupLabel>Overview</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton render={<a href={'/dashboard'} />}>
+              <SidebarMenuButton render={<Link href={'/dashboard'} />}>
                 <RiDashboardLine />
                 <span>Dashboard</span>
               </SidebarMenuButton>
@@ -55,7 +56,9 @@ const AppSidebar = () => {
           </SidebarMenu>
         </SidebarGroup>
 
-        <AppSidebarCore />
+        <Suspense fallback={<AppSidebarCore />}>
+          <AppSidebarCoreWithCounts />
+        </Suspense>
       </SidebarContent>
       <SidebarSeparator />
       <SidebarFooter>
