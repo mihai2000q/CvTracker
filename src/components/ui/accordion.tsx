@@ -29,7 +29,7 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
         data-slot="accordion-trigger"
         className={cn(
           'group/accordion-trigger focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:after:border-ring **: **:data-[slot=accordion-trigger-icon]:text-muted-foreground relative flex flex-1 items-center rounded-md border border-transparent py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-3 aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:size-4',
-          'hover:bg-accent',
+          'hover:bg-muted',
           className
         )}
         {...props}
