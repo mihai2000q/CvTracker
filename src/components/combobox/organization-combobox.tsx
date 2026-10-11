@@ -12,6 +12,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  useComboboxAnchor,
 } from '@/components/ui/combobox.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
@@ -23,12 +24,33 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 
 interface Props {
-  value: string | null;
-  onChange: (id: string | null) => void;
+  // Name of the hidden field that carries a picked organization's id
+  idName: string;
+  // A picked organization, or the name typed for a new one
+  change: (organization: OrganizationSummary | string) => void;
+  blur?: () => void;
+  id?: string;
+  invalid?: boolean;
 }
 
-const OrganizationCombobox = ({ value, onChange }: Props) => {
+const OrganizationCombobox = ({ idName, change, blur, id, invalid }: Props) => {
+  const [selected, setSelected] = useState<OrganizationSummary | null>(null);
+  const anchor = useComboboxAnchor();
   const [search, setSearch] = useState('');
+
+  const handleValueChange = (organization: OrganizationSummary | null) => {
+    if (!organization) return;
+    setSearch(organization.name);
+    setSelected(organization);
+    change(organization);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+    setSelected(null);
+    change(event.target.value.trim());
+  };
+
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
@@ -55,27 +77,36 @@ const OrganizationCombobox = ({ value, onChange }: Props) => {
   return (
     <Combobox
       disabled={!hasLoaded}
-      value={value}
-      onValueChange={onChange}
+      name={idName}
+      value={selected}
+      onValueChange={handleValueChange}
+      itemToStringLabel={(option) => option.name}
+      itemToStringValue={(option) => option.id}
+      isItemEqualToValue={(a, b) => a.id === b.id}
       inputValue={search}
-      onInputValueChange={setSearch}
     >
-      <ComboboxInput placeholder={'Select organization...'} disabled={!hasLoaded}>
-        <InputGroupAddon className={'p-0'}>
-          {!hasLoaded ? <Spinner /> : <RiBuilding2Line />}
-        </InputGroupAddon>
+      <ComboboxInput
+        anchorRef={anchor}
+        id={id}
+        aria-invalid={invalid || undefined}
+        placeholder={'Enter organization...'}
+        onChange={handleInputChange}
+        onBlur={blur}
+        disabled={!hasLoaded}
+      >
+        <InputGroupAddon>{!hasLoaded ? <Spinner /> : <RiBuilding2Line />}</InputGroupAddon>
       </ComboboxInput>
 
-      <ComboboxContent>
+      <ComboboxContent anchor={anchor}>
         <ScrollArea viewportProps={{ onScroll: handleScroll, className: 'max-h-63' }}>
           {hasLoaded && organizations.length === 0 && (
             <ComboboxEmpty>No organizations found</ComboboxEmpty>
           )}
           <ComboboxList className="max-h-none overflow-visible">
             {organizations.map((organization) => (
-              <ComboboxItem key={organization.id} value={organization.id}>
-                <Avatar size={'sm'}>
-                  <AvatarFallback>
+              <ComboboxItem key={organization.id} value={organization}>
+                <Avatar size={'sm'} className={'rounded-lg after:rounded-lg'}>
+                  <AvatarFallback className={'rounded-lg'}>
                     <span>{organization.name[0]}</span>
                   </AvatarFallback>
                 </Avatar>

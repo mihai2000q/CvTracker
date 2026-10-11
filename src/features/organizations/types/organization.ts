@@ -4,7 +4,6 @@ import { JobApplicationSummary } from '@/features/job-applications/types/job-app
 export interface Organization extends OrganizationSummary {
   websiteUrl: string | null;
   notes: string | null;
-  countries: CountrySummary[];
   jobApplications: JobApplicationSummary[];
   lastActivityAt: string;
 }
@@ -12,4 +11,5 @@ export interface Organization extends OrganizationSummary {
 export interface OrganizationSummary {
   id: string;
   name: string;
+  countries: CountrySummary[];
 }
