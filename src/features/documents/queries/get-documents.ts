@@ -33,15 +33,16 @@ async function getDocumentsQuery(
   'use cache';
   cacheTag(cacheTags.documents(userId), cacheTags.jobApplications(userId));
 
-  const modelsQuery = paginate(db.Document, { page, pageSize })
-    .where({ userId: uuid(userId) })
+  const filteredQuery = db.Document.where({ userId: uuid(userId) });
+
+  const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy((c) => c.uploadedAt.desc())
     .include('coverLetterForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
     .include('cvForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
     .all();
   const [models, { totalCount }] = await Promise.all([
     modelsQuery,
-    db.Document.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
+    filteredQuery.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
   ]);
 
   const documents = models.map((document) => ({

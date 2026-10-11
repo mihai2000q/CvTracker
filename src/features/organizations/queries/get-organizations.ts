@@ -35,8 +35,9 @@ async function getOrganizationsQuery(
   'use cache';
   cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
-  const modelsQuery = paginate(db.Organization, { page, pageSize })
-    .where({ userId: uuid(userId) })
+  const filteredQuery = db.Organization.where({ userId: uuid(userId) });
+
+  const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy((o) => o.createdAt.desc())
     .include('organizationCountries', (oc) =>
       oc.include('country').orderBy((c) => c.country.name.asc())
@@ -52,9 +53,7 @@ async function getOrganizationsQuery(
     .all();
   const [models, { totalCount }] = await Promise.all([
     modelsQuery,
-    db.Organization.where({ userId: uuid(userId) }).aggregate((aggregate) => ({
-      totalCount: aggregate.count(),
-    })),
+    filteredQuery.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
   ]);
 
   const organizations = models.map((organization) => ({
