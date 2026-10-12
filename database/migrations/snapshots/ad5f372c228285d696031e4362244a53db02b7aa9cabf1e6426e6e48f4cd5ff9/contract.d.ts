@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1c21712dd20711ef6d92d26207a5f6dbda2e87c859845625c4975bd7293eab98'>;
+  StorageHashBase<'ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9'>;
 export type ExecutionHash =
   ExecutionHashBase<'1a0062aaee514b3ceaa35b5892d8f05774fe2071d409e00222b51a53865a83c8'>;
 export type ProfileHash =
@@ -272,8 +272,12 @@ export type FieldOutputTypes = {
       readonly jobApplicationId: Char<36>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
-      readonly roundType: Varchar<100>;
+      readonly roundType: 'intro_call' | 'technical' | 'coding' | 'take_home' | 'behavioral';
       readonly scheduledAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly InterviewRoundHasContact: {
+      readonly contactId: Char<36>;
+      readonly interviewRoundId: Char<36>;
     };
     readonly JobApplication: {
       readonly appliedAt: CodecTypes['pg/date-temporal@1']['output'];
@@ -367,8 +371,12 @@ export type FieldInputTypes = {
       readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
-      readonly roundType: CodecTypes['sql/varchar@1']['input'];
+      readonly roundType: 'intro_call' | 'technical' | 'coding' | 'take_home' | 'behavioral';
       readonly scheduledAt: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly InterviewRoundHasContact: {
+      readonly contactId: CodecTypes['sql/char@1']['input'];
+      readonly interviewRoundId: CodecTypes['sql/char@1']['input'];
     };
     readonly JobApplication: {
       readonly appliedAt: CodecTypes['pg/date-temporal@1']['input'];
@@ -459,8 +467,12 @@ export type StorageColumnTypes = {
       readonly job_application_id: Char<36>;
       readonly notes: CodecTypes['pg/text@1']['output'] | null;
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
-      readonly round_type: Varchar<100>;
+      readonly round_type: 'intro_call' | 'technical' | 'coding' | 'take_home' | 'behavioral';
       readonly scheduled_at: CodecTypes['pg/timestamptz-string@1']['output'];
+    };
+    readonly interview_round_has_contact: {
+      readonly contact_id: Char<36>;
+      readonly interview_round_id: Char<36>;
     };
     readonly job_application: {
       readonly applied_at: CodecTypes['pg/date-temporal@1']['output'];
@@ -554,8 +566,12 @@ export type StorageColumnInputTypes = {
       readonly job_application_id: CodecTypes['sql/char@1']['input'];
       readonly notes: CodecTypes['pg/text@1']['input'] | null;
       readonly outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
-      readonly round_type: CodecTypes['sql/varchar@1']['input'];
+      readonly round_type: 'intro_call' | 'technical' | 'coding' | 'take_home' | 'behavioral';
       readonly scheduled_at: CodecTypes['pg/timestamptz-string@1']['input'];
+    };
+    readonly interview_round_has_contact: {
+      readonly contact_id: CodecTypes['sql/char@1']['input'];
+      readonly interview_round_id: CodecTypes['sql/char@1']['input'];
     };
     readonly job_application: {
       readonly applied_at: CodecTypes['pg/date-temporal@1']['input'];
@@ -625,8 +641,9 @@ export namespace Models {
     name: Varchar<150>;
     phone: Varchar<50> | null;
     role: Varchar<100> | null;
+    interviewRounds: public_InterviewRoundHasContact[];
     jobApplication: public_JobApplication;
-    readonly [RelationKeys]?: 'jobApplication';
+    readonly [RelationKeys]?: 'interviewRounds' | 'jobApplication';
   };
   export type public_Country = {
     id: Char<36>;
@@ -665,10 +682,18 @@ export namespace Models {
     jobApplicationId: Char<36>;
     notes: CodecTypes['pg/text@1']['output'] | null;
     outcome: 'scheduled' | 'passed' | 'failed' | 'cancelled';
-    roundType: Varchar<100>;
+    roundType: 'intro_call' | 'technical' | 'coding' | 'take_home' | 'behavioral';
     scheduledAt: CodecTypes['pg/timestamptz-string@1']['output'];
+    contacts: public_InterviewRoundHasContact[];
     jobApplication: public_JobApplication;
-    readonly [RelationKeys]?: 'jobApplication';
+    readonly [RelationKeys]?: 'contacts' | 'jobApplication';
+  };
+  export type public_InterviewRoundHasContact = {
+    contactId: Char<36>;
+    interviewRoundId: Char<36>;
+    contact: public_Contact;
+    interviewRound: public_InterviewRound;
+    readonly [RelationKeys]?: 'contact' | 'interviewRound';
   };
   export type public_JobApplication = {
     appliedAt: CodecTypes['pg/date-temporal@1']['output'];
@@ -765,6 +790,7 @@ export declare const models: {
     Document: Models.public_Document;
     DocumentHasSkill: Models.public_DocumentHasSkill;
     InterviewRound: Models.public_InterviewRound;
+    InterviewRoundHasContact: Models.public_InterviewRoundHasContact;
     JobApplication: Models.public_JobApplication;
     JobApplicationHasSkill: Models.public_JobApplicationHasSkill;
     Organization: Models.public_Organization;
@@ -1147,10 +1173,9 @@ type ContractBase = Omit<
                   readonly many: false;
                 };
                 readonly round_type: {
-                  readonly dataType: 'pg/varchar';
-                  readonly codecId: 'sql/varchar@1';
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
                   readonly nullable: false;
-                  readonly typeRef: 'varChar100';
                   readonly many: false;
                 };
                 readonly scheduled_at: {
@@ -1189,6 +1214,68 @@ type ContractBase = Omit<
                     readonly columns: readonly ['id'];
                   };
                   readonly name: 'fk_interview_round_job_application_id';
+                },
+              ];
+            };
+            readonly interview_round_has_contact: {
+              columns: {
+                readonly contact_id: {
+                  readonly dataType: 'pg/char';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                  readonly many: false;
+                };
+                readonly interview_round_id: {
+                  readonly dataType: 'pg/char';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['interview_round_id', 'contact_id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'interview_round_has_contact_contact_id_idx_f6f6ad79';
+                  readonly prefix: 'interview_round_has_contact_contact_id_idx';
+                  readonly columns: readonly ['contact_id'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'interview_round_has_contact_interview_round_id_idx_c3a0afad';
+                  readonly prefix: 'interview_round_has_contact_interview_round_id_idx';
+                  readonly columns: readonly ['interview_round_id'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'interview_round_has_contact';
+                    readonly columns: readonly ['interview_round_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'interview_round';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_interview_round_has_contact_interview_round_id';
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'interview_round_has_contact';
+                    readonly columns: readonly ['contact_id'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'contact';
+                    readonly columns: readonly ['id'];
+                  };
+                  readonly name: 'fk_interview_round_has_contact_contact_id';
                 },
               ];
             };
@@ -1721,6 +1808,16 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['scheduled', 'passed', 'failed', 'cancelled'];
             };
+            readonly RoundType: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'intro_call',
+                'technical',
+                'coding',
+                'take_home',
+                'behavioral',
+              ];
+            };
           };
         };
       };
@@ -1790,6 +1887,10 @@ type ContractBase = Omit<
     readonly interview_round: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'InterviewRound';
+    };
+    readonly interview_round_has_contact: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'InterviewRoundHasContact';
     };
     readonly job_application: {
       readonly namespace: 'public' & NamespaceId;
@@ -1926,6 +2027,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly interviewRounds: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'InterviewRoundHasContact';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['contactId'];
+                };
+              };
               readonly jobApplication: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2213,11 +2325,7 @@ type ContractBase = Omit<
               };
               readonly roundType: {
                 readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/varchar@1';
-                  readonly typeParams: { readonly length: 100 };
-                };
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly scheduledAt: {
                 readonly nullable: false;
@@ -2228,6 +2336,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly contacts: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'InterviewRoundHasContact';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['interviewRoundId'];
+                };
+              };
               readonly jobApplication: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2251,6 +2370,60 @@ type ContractBase = Omit<
                 readonly outcome: { readonly column: 'outcome' };
                 readonly roundType: { readonly column: 'round_type' };
                 readonly scheduledAt: { readonly column: 'scheduled_at' };
+              };
+            };
+          };
+          readonly InterviewRoundHasContact: {
+            readonly fields: {
+              readonly contactId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
+              readonly interviewRoundId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly contact: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Contact';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['contactId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly interviewRound: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'InterviewRound';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['interviewRoundId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'interview_round_has_contact';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly contactId: { readonly column: 'contact_id' };
+                readonly interviewRoundId: { readonly column: 'interview_round_id' };
               };
             };
           };
@@ -2883,6 +3056,16 @@ type ContractBase = Omit<
               { readonly name: 'Cancelled'; readonly value: 'cancelled' },
             ];
           };
+          readonly RoundType: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'IntroCall'; readonly value: 'intro_call' },
+              { readonly name: 'Technical'; readonly value: 'technical' },
+              { readonly name: 'Coding'; readonly value: 'coding' },
+              { readonly name: 'TakeHome'; readonly value: 'take_home' },
+              { readonly name: 'Behavioral'; readonly value: 'behavioral' },
+            ];
+          };
         };
         readonly enumMemberTypes?: {
           readonly ApplicationStatus: readonly [
@@ -2903,6 +3086,13 @@ type ContractBase = Omit<
             { readonly name: 'Passed'; readonly value: 'passed' },
             { readonly name: 'Failed'; readonly value: 'failed' },
             { readonly name: 'Cancelled'; readonly value: 'cancelled' },
+          ];
+          readonly RoundType: readonly [
+            { readonly name: 'IntroCall'; readonly value: 'intro_call' },
+            { readonly name: 'Technical'; readonly value: 'technical' },
+            { readonly name: 'Coding'; readonly value: 'coding' },
+            { readonly name: 'TakeHome'; readonly value: 'take_home' },
+            { readonly name: 'Behavioral'; readonly value: 'behavioral' },
           ];
         };
       };

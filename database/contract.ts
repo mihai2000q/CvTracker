@@ -1,5 +1,5 @@
 import { defineContract } from '@prisma/orm-postgres/contract-builder';
-import { DocumentType, ApplicationStatus, InterviewOutcome } from './enums.ts';
+import { DocumentType, ApplicationStatus, InterviewOutcome, RoundType } from './enums.ts';
 import { sqlTypes } from './sql-types.ts';
 import { userModel } from './models/user.model.ts';
 import { countryModel } from './models/country.model.ts';
@@ -9,7 +9,7 @@ import { skillModel } from './models/skill.model.ts';
 import { jobApplicationModels } from './models/job-application.model.ts';
 import { applicationStatusHistoryModel } from './models/application-status-history.model.ts';
 import { contactModel } from './models/contact.model.ts';
-import { interviewRoundModel } from './models/interview-round.model.ts';
+import { interviewRoundModels } from './models/interview-round.model.ts';
 
 import { organizationRelations } from './models/organization.relations.ts';
 import { countryRelations } from './models/country.relations.ts';
@@ -36,10 +36,10 @@ export const contract = defineContract(
     const { JobApplication, JobApplicationHasSkill } = jobApplicationModels(helpers, types);
     const ApplicationStatusHistory = applicationStatusHistoryModel(helpers);
     const Contact = contactModel(helpers, types);
-    const InterviewRound = interviewRoundModel(helpers, types);
+    const { InterviewRound, InterviewRoundHasContact } = interviewRoundModels(helpers, types);
 
     return {
-      enums: { DocumentType, ApplicationStatus, InterviewOutcome },
+      enums: { DocumentType, ApplicationStatus, InterviewOutcome, RoundType },
       types,
       models: {
         ...countryRelations(helpers, { Country, JobApplication, OrganizationCountry }),
@@ -69,6 +69,7 @@ export const contract = defineContract(
           ApplicationStatusHistory,
           Contact,
           InterviewRound,
+          InterviewRoundHasContact,
           JobApplicationHasSkill,
         }),
       },

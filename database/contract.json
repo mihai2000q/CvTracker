@@ -28,6 +28,10 @@
       "model": "InterviewRound",
       "namespace": "public"
     },
+    "interview_round_has_contact": {
+      "model": "InterviewRoundHasContact",
+      "namespace": "public"
+    },
     "job_application": {
       "model": "JobApplication",
       "namespace": "public"
@@ -121,6 +125,31 @@
               {
                 "name": "Cancelled",
                 "value": "cancelled"
+              }
+            ]
+          },
+          "RoundType": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "IntroCall",
+                "value": "intro_call"
+              },
+              {
+                "name": "Technical",
+                "value": "technical"
+              },
+              {
+                "name": "Coding",
+                "value": "coding"
+              },
+              {
+                "name": "TakeHome",
+                "value": "take_home"
+              },
+              {
+                "name": "Behavioral",
+                "value": "behavioral"
               }
             ]
           }
@@ -280,6 +309,21 @@
               }
             },
             "relations": {
+              "interviewRounds": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "contactId"
+                  ]
+                },
+                "to": {
+                  "model": "InterviewRoundHasContact",
+                  "namespace": "public"
+                }
+              },
               "jobApplication": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -699,11 +743,14 @@
               "roundType": {
                 "nullable": false,
                 "type": {
-                  "codecId": "sql/varchar@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 100
-                  }
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "RoundType",
+                  "namespaceId": "public",
+                  "plane": "domain"
                 }
               },
               "scheduledAt": {
@@ -715,6 +762,21 @@
               }
             },
             "relations": {
+              "contacts": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "interviewRoundId"
+                  ]
+                },
+                "to": {
+                  "model": "InterviewRoundHasContact",
+                  "namespace": "public"
+                }
+              },
               "jobApplication": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -755,6 +817,76 @@
               },
               "namespaceId": "public",
               "table": "interview_round"
+            }
+          },
+          "InterviewRoundHasContact": {
+            "fields": {
+              "contactId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/char@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              },
+              "interviewRoundId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/char@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              }
+            },
+            "relations": {
+              "contact": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "contactId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Contact",
+                  "namespace": "public"
+                }
+              },
+              "interviewRound": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "interviewRoundId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "InterviewRound",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "contactId": {
+                  "column": "contact_id"
+                },
+                "interviewRoundId": {
+                  "column": "interview_round_id"
+                }
+              },
+              "namespaceId": "public",
+              "table": "interview_round_has_contact"
             }
           },
           "JobApplication": {
@@ -2033,6 +2165,11 @@
                   "expression": "\"outcome\" IN ('scheduled', 'passed', 'failed', 'cancelled')",
                   "name": "interview_round_outcome_check_c5b0c77b",
                   "prefix": "interview_round_outcome_check"
+                },
+                {
+                  "expression": "\"round_type\" IN ('intro_call', 'technical', 'coding', 'take_home', 'behavioral')",
+                  "name": "interview_round_round_type_check_9f82b167",
+                  "prefix": "interview_round_round_type_check"
                 }
               ],
               "columns": {
@@ -2073,10 +2210,15 @@
                   }
                 },
                 "round_type": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
                   "nullable": false,
-                  "typeRef": "varChar100"
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RoundType",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
                 },
                 "scheduled_at": {
                   "codecId": "pg/timestamptz-string@1",
@@ -2129,6 +2271,95 @@
               "primaryKey": {
                 "columns": [
                   "id"
+                ]
+              },
+              "uniques": []
+            },
+            "interview_round_has_contact": {
+              "columns": {
+                "contact_id": {
+                  "codecId": "sql/char@1",
+                  "dataType": "pg/char",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 36
+                  }
+                },
+                "interview_round_id": {
+                  "codecId": "sql/char@1",
+                  "dataType": "pg/char",
+                  "nullable": false,
+                  "typeParams": {
+                    "length": 36
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "interview_round_has_contact_interview_round_id_idx_c3a0afad"
+                  },
+                  "name": "fk_interview_round_has_contact_interview_round_id",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "interview_round_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "interview_round_has_contact"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "interview_round"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "interview_round_has_contact_contact_id_idx_f6f6ad79"
+                  },
+                  "name": "fk_interview_round_has_contact_contact_id",
+                  "onDelete": "cascade",
+                  "source": {
+                    "columns": [
+                      "contact_id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "interview_round_has_contact"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "contact"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "contact_id"
+                  ],
+                  "name": "interview_round_has_contact_contact_id_idx_f6f6ad79",
+                  "prefix": "interview_round_has_contact_contact_id_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "interview_round_id"
+                  ],
+                  "name": "interview_round_has_contact_interview_round_id_idx_c3a0afad",
+                  "prefix": "interview_round_has_contact_interview_round_id_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "interview_round_id",
+                  "contact_id"
                 ]
               },
               "uniques": []
@@ -2826,6 +3057,16 @@
                 "failed",
                 "cancelled"
               ]
+            },
+            "RoundType": {
+              "kind": "valueSet",
+              "values": [
+                "intro_call",
+                "technical",
+                "coding",
+                "take_home",
+                "behavioral"
+              ]
             }
           }
         },
@@ -2833,7 +3074,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1c21712dd20711ef6d92d26207a5f6dbda2e87c859845625c4975bd7293eab98",
+    "storageHash": "ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9",
     "types": {
       "email": {
         "codecId": "sql/varchar@1",
