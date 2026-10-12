@@ -110,7 +110,7 @@ const DocumentCombobox = ({ documentType, change, blur, id, invalid, inputProps 
                   <span className="truncate" title={document.name}>
                     {document.name}
                   </span>
-                  <span className={'text-muted-foreground truncate text-[10px]'}>
+                  <span className={'text-muted-foreground truncate text-[0.625rem]'}>
                     {document.originalFilename}
                   </span>
                 </span>

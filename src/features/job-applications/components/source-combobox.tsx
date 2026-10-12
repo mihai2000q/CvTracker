@@ -10,7 +10,7 @@ import {
   ComboboxList,
   useComboboxAnchor,
 } from '@/components/ui/combobox.tsx';
-import JobApplicationSourceIcon from '@/components/icon/job-application-source-icon.tsx';
+import JobApplicationSourceIcon from '@/features/job-applications/components/icon/job-application-source-icon.tsx';
 import { JOB_SOURCES, OTHER_SOURCE } from '@/features/job-applications/constants/job-sources.ts';
 import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { RiLink } from '@remixicon/react';

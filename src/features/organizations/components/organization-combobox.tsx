@@ -36,7 +36,7 @@ const OrganizationHoverCard = ({ organization }: { organization: OrganizationSum
         </Avatar>
       }
     />
-    <HoverCardContent className="flex w-fit max-w-64 flex-row items-center gap-3">
+    <HoverCardContent className="flex max-w-64 flex-row items-center gap-3">
       <Avatar className={'size-15 shrink-0 rounded-lg after:rounded-lg'}>
         <AvatarFallback className={'rounded-lg'}>
           <span className={'text-xl'}>{organization.name[0]}</span>

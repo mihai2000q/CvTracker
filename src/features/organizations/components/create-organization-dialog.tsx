@@ -26,7 +26,7 @@ import {
   createOrganizationSchema,
 } from '@/features/organizations/schemas/create-organization-schema.ts';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import CountryMultiCombobox from '@/components/combobox/country-multi-combobox.tsx';
+import CountryMultiCombobox from '@/features/countries/components/country-multi-combobox.tsx';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
 import { RiLink } from '@remixicon/react';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';

@@ -20,7 +20,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { CountrySummary } from '@/features/countries/types/country.ts';
-import FlagIcon from '@/components/icon/flag-icon.tsx';
+import FlagIcon from '@/features/countries/components/flag-icon.tsx';
 import { RiGlobalLine } from '@remixicon/react';
 import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { fetchJson } from '@/lib/http/fetch-json.ts';

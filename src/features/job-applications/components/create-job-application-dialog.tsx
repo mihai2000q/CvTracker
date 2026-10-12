@@ -25,8 +25,8 @@ import {
 import { useQueryClient } from '@tanstack/react-query';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import { queryKeys } from '@/lib/query-keys.ts';
-import OrganizationCombobox from '@/components/combobox/organization-combobox.tsx';
-import CountryCombobox from '@/components/combobox/country-combobox.tsx';
+import OrganizationCombobox from '@/features/organizations/components/organization-combobox.tsx';
+import CountryCombobox from '@/features/countries/components/country-combobox.tsx';
 import { CountrySummary } from '@/features/countries/types/country.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';

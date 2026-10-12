@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
 import { Country } from '@/features/countries/types/country.ts';
 import { cn } from '@/lib/utils.ts';
-import FlagIcon from '@/components/icon/flag-icon.tsx';
+import FlagIcon from '@/features/countries/components/flag-icon.tsx';
 
 interface Props {
   country: Country;
