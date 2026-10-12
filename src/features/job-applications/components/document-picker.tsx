@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/attachment.tsx';
 import { RiCloseLine, RiFileTextLine } from '@remixicon/react';
 import FileDropzone from '@/components/form/file-dropzone.tsx';
-import DocumentCombobox from '@/components/combobox/document-combobox.tsx';
+import DocumentCombobox from '@/features/documents/components/document-combobox.tsx';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { ALLOWED_FILE_TYPES } from '@/lib/zod/fields.ts';
 import FileSize from '@/components/file-size.tsx';
