@@ -22,6 +22,39 @@ import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card.tsx';
+
+const OrganizationHoverCard = ({ organization }: { organization: OrganizationSummary }) => (
+  <HoverCard>
+    <HoverCardTrigger
+      closeDelay={100}
+      render={
+        <Avatar className={'size-6 rounded-md after:rounded-md'}>
+          <AvatarFallback className={'rounded-md'}>
+            <span className={'text-xs'}>{organization.name[0]}</span>
+          </AvatarFallback>
+        </Avatar>
+      }
+    />
+    <HoverCardContent className="flex w-fit max-w-64 flex-row items-center gap-3">
+      <Avatar className={'size-15 shrink-0 rounded-lg after:rounded-lg'}>
+        <AvatarFallback className={'rounded-lg'}>
+          <span className={'text-xl'}>{organization.name[0]}</span>
+        </AvatarFallback>
+      </Avatar>
+      <div className={'flex min-w-0 flex-col gap-px'}>
+        <div className={'truncate text-[1rem] font-bold'} title={organization.name}>
+          {organization.name}
+        </div>
+        <span
+          className={'text-muted-foreground line-clamp-2 text-[0.70rem] leading-none font-medium'}
+        >
+          {organization.countries.map((country) => country.name).join(', ')}
+        </span>
+      </div>
+    </HoverCardContent>
+  </HoverCard>
+);
 
 interface Props {
   // Name of the hidden field that carries a picked organization's id
@@ -94,7 +127,15 @@ const OrganizationCombobox = ({ idName, change, blur, id, invalid }: Props) => {
         onBlur={blur}
         disabled={!hasLoaded}
       >
-        <InputGroupAddon>{!hasLoaded ? <Spinner /> : <RiBuilding2Line />}</InputGroupAddon>
+        <InputGroupAddon>
+          {selected ? (
+            <OrganizationHoverCard organization={selected} />
+          ) : !hasLoaded ? (
+            <Spinner />
+          ) : (
+            <RiBuilding2Line />
+          )}
+        </InputGroupAddon>
       </ComboboxInput>
 
       <ComboboxContent anchor={anchor}>
