@@ -22,7 +22,7 @@ interface Props extends Omit<ComponentProps<'input'>, 'type' | 'value' | 'defaul
     blur?: () => void;
     id?: string;
     invalid?: boolean;
-    inputProps?: ComboboxInputProps
+    inputProps?: ComboboxInputProps;
   };
   hint?: string;
 }

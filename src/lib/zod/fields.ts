@@ -28,8 +28,7 @@ export const zFile = (name: string = 'File') =>
 // with no bytes isn't one anybody meant to upload.
 export function zEmptyToUndefined<Schema extends z.ZodType>(schema: Schema) {
   return z.preprocess(
-    (value) =>
-      value === '' || (value instanceof File && value.size === 0) ? undefined : value,
+    (value) => (value === '' || (value instanceof File && value.size === 0) ? undefined : value),
     schema
   );
 }

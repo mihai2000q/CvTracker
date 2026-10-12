@@ -19,7 +19,10 @@ function SegmentedControl({ items, className, ...props }: Props) {
   return (
     <nav
       data-slot="segmented-control"
-      className={cn('bg-card inline-flex w-fit items-center gap-1 rounded-full border p-1', className)}
+      className={cn(
+        'bg-card inline-flex w-fit items-center gap-1 rounded-full border p-1',
+        className
+      )}
       {...props}
     >
       {items.map(({ label, href, active, count }) => (
@@ -28,7 +31,7 @@ function SegmentedControl({ items, className, ...props }: Props) {
           href={href}
           aria-current={active ? 'page' : undefined}
           className={cn(
-            'focus-visible:ring-ring/50 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[13px] font-semibold transition-colors outline-none focus-visible:ring-3',
+            'focus-visible:ring-ring/50 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[0.8125rem] font-semibold transition-colors outline-none focus-visible:ring-3',
             active
               ? 'bg-primary text-primary-foreground'
               : 'text-muted-foreground hover:text-foreground'

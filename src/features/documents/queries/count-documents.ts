@@ -19,7 +19,8 @@ async function countDocumentsQuery(userId: string, type?: DocumentType): Promise
   const { total } = await db.Document.where({
     userId: uuid(userId),
     ...(type && {
-      type: type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
+      type:
+        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
     }),
   }).aggregate((aggregate) => ({ total: aggregate.count() }));
   return total;

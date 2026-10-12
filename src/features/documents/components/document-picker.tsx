@@ -59,7 +59,9 @@ const DocumentPicker = ({
           </AttachmentMedia>
           <AttachmentContent>
             <AttachmentTitle>{file.name}</AttachmentTitle>
-            <AttachmentDescription><FileSize bytes={file.size} /></AttachmentDescription>
+            <AttachmentDescription>
+              <FileSize bytes={file.size} />
+            </AttachmentDescription>
           </AttachmentContent>
           <AttachmentActions>
             <AttachmentAction aria-label="Remove file" onClick={() => setInputFile(null)}>

@@ -58,7 +58,11 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       data-variant={variant}
-      className={cn(tabsListVariants({ variant }), variant === 'line' && 'flex justify-start', className)}
+      className={cn(
+        tabsListVariants({ variant }),
+        variant === 'line' && 'flex justify-start',
+        className
+      )}
       {...props}
     />
   );

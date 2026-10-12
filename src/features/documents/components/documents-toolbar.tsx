@@ -16,16 +16,16 @@ const DocumentsToolbar = () => {
         </Button>
       </CreateDocumentDialog>
 
-      <InputGroup className={'min-w-48 flex-1 dark:bg-background'}>
+      <InputGroup className={'dark:bg-background min-w-48 flex-1'}>
         <InputGroupAddon>
           <RiSearchLine />
         </InputGroupAddon>
-        <InputGroupInput placeholder="Search by name or filename..." />
+        <InputGroupInput placeholder="Search by name..." />
       </InputGroup>
 
       <Combobox>
         <ComboboxInput
-          className={'w-full sm:w-75 dark:bg-background'}
+          className={'dark:bg-background w-full sm:w-75'}
           placeholder={'Sort: Newest'}
         />
 

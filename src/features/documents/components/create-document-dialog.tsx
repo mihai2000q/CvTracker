@@ -40,11 +40,11 @@ const CreateDocumentDialog = ({ children }: Props) => {
   const queryClient = useQueryClient();
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateDocumentForm>({
-    action: createDocument,
-    schema: createDocumentSchema,
-    defaultValue: { type: DocumentType.CV },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.documents }),
-  });
+      action: createDocument,
+      schema: createDocumentSchema,
+      defaultValue: { type: DocumentType.CV },
+      onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.documents }),
+    });
 
   const type = useFieldControl<DocumentType>(form, fields.type);
 
@@ -126,7 +126,7 @@ const CreateDocumentDialog = ({ children }: Props) => {
 
           <DialogFooter className={'sm:flex-col'}>
             <Separator />
-            <div className={'pt-2 flex gap-2'}>
+            <div className={'flex gap-2 pt-2'}>
               <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
               <Button type="submit" loading={isPending}>
                 Save Changes

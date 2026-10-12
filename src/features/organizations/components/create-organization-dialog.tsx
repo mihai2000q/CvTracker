@@ -94,7 +94,7 @@ const CreateOrganizationDialog = ({ children }: Props) => {
             </FieldGroup>
           </ScrollArea>
 
-          <DialogFooter className={'pt-2 sm:justify-center'}>
+          <DialogFooter className={'pt-2'}>
             <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
             <Button type="submit" loading={isPending}>
               Create

@@ -699,11 +699,7 @@ function SidebarLink({
       className={className}
       {...props}
     >
-      <span
-        className={'pb-0.5'}
-      >
-        {isActive ? activeIcon : icon}
-      </span>
+      <span className={'pb-0.5'}>{isActive ? activeIcon : icon}</span>
       <span>{children}</span>
     </SidebarMenuButton>
   );
