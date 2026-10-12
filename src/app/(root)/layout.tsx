@@ -6,7 +6,7 @@ import AppTopbar from '@/components/layout/app-topbar.tsx';
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <div className={'flex w-full'}>
+      <div className={'flex w-full min-w-0'}>
         <AppSidebar />
         <div className={'flex w-full min-w-0 flex-col'}>
           <AppTopbar />
