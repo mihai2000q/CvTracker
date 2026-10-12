@@ -85,7 +85,15 @@ const CountryCombobox = ({ value, change, blur, id, invalid }: Props) => {
         onBlur={blur}
         disabled={!hasLoaded}
       >
-        <InputGroupAddon>{!hasLoaded ? <Spinner /> : <RiGlobalLine />}</InputGroupAddon>
+        <InputGroupAddon>
+          {value ? (
+            <FlagIcon isoCode={value.isoCode} circle />
+          ) : !hasLoaded ? (
+            <Spinner />
+          ) : (
+            <RiGlobalLine />
+          )}
+        </InputGroupAddon>
       </ComboboxInput>
 
       <ComboboxContent anchor={anchor}>
