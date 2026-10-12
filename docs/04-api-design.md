@@ -92,9 +92,9 @@ rather than splitting into separate endpoints.
 |--------|-----------------------------------------|---------------------------------------------------------|
 | GET    | `/api/job-applications`                 | List, with filters: `organizationId`, `countryId`, `status`, date range, `needsFollowUp`, `isGhosted` |
 | POST   | `/api/job-applications`                 | Create an application (`countryId` may be any country — see note below; also creates its first status-history row, "applied") |
-| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv document, cover letter document, country, contacts, skills, interview rounds, status history |
+| GET    | `/api/job-applications/:id`             | Get full detail: organization, cv document, cover letter document, country, skills, interview rounds (with their contacts), status history |
 | PATCH  | `/api/job-applications/:id`             | Update title/URL/source/notes/cv document/cover letter document/country (not status — see below) |
-| DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, contacts, interview rounds, skill tags) |
+| DELETE | `/api/job-applications/:id`             | Delete (cascades to its history, interview rounds, skill tags; the organization's contacts stay) |
 
 List responses for `/api/job-applications` include the computed fields
 `daysSinceLastUpdate`, `needsFollowUp`, and `isGhosted` per row (see
@@ -123,9 +123,9 @@ overwriting a field.
 
 | Method | Path                                              | Purpose                  |
 |--------|-----------------------------------------------------|-----------------------------|
-| GET    | `/api/job-applications/:id/contacts`                 | List contacts for an application |
-| POST   | `/api/job-applications/:id/contacts`                 | Add a contact               |
-| DELETE | `/api/job-applications/:id/contacts/:contactId`      | Remove a contact            |
+| GET    | `/api/organizations/:id/contacts`                    | List contacts of an organization |
+| POST   | `/api/organizations/:id/contacts`                    | Add a contact               |
+| DELETE | `/api/organizations/:id/contacts/:contactId`         | Remove a contact            |
 
 ### Interview rounds (sub-resource)
 

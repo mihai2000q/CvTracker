@@ -171,7 +171,7 @@ Index: `(job_application_id, changed_at)`.
 | email              | varchar(255)  | NULL                                        |
 | phone              | varchar(50)   | NULL                                        |
 | role               | varchar(100)  | NULL                                        |
-| job_application_id | bigint        | FK → job_application(id), NOT NULL         |
+| organization_id    | bigint        | FK → organization(id) ON DELETE CASCADE, NOT NULL |
 
 ### `interview_round`
 
@@ -259,10 +259,12 @@ future Node/ICU version resolves a name differently.
 - `job_application.organization_id`: `ON DELETE RESTRICT` — an
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
-  `contact.job_application_id`, `interview_round.job_application_id`,
+  `interview_round.job_application_id`,
   `job_application_has_skill.*`, `interview_round_has_contact.*`: `ON DELETE CASCADE` — these are owned by
   the job application; deleting an application should clean up its
-  timeline, contact, interview rounds, and tags.
+  timeline, interview rounds, and tags. A contact is owned by its
+  organization instead (`contact.organization_id`: `ON DELETE CASCADE`), so it
+  outlives any one application.
 - `organization_in_country.organization_id`: `ON DELETE CASCADE` —
   owned by the organization; deleting an organization clears its country
   set with it.

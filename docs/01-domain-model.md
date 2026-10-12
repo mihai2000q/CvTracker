@@ -132,14 +132,18 @@ what answers "when did they call me, and what did I say happened next".
 - `changed_at` (date/timestamp)
 
 ### Contact
-A recruiter or hiring contact associated with a job application.
+A person at an organization — a recruiter, a hiring manager, an engineer you
+interviewed with. A contact belongs to the organization, not to one application, so
+the same person is one record across every application at that company. Which
+applications and rounds they were part of is recorded by the rounds
+(`InterviewRoundHasContact`).
 
 - `id`
 - `name`
 - `email` (optional)
 - `phone` (optional)
 - `role` (optional, e.g. "Recruiter", "Hiring Manager")
-- `job_application_id` → JobApplication
+- `organization_id` → Organization
 
 ### InterviewRound
 A structured step in an application's interview process — distinct from
@@ -202,7 +206,7 @@ erDiagram
     DOCUMENT ||--o{ JOB_APPLICATION : "sent as cv"
     DOCUMENT ||--o{ JOB_APPLICATION : "sent as cover letter (optional)"
     JOB_APPLICATION ||--o{ APPLICATION_STATUS_HISTORY : "has timeline"
-    JOB_APPLICATION ||--o{ CONTACT : "has"
+    ORGANIZATION ||--o{ CONTACT : "has"
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
     INTERVIEW_ROUND }o--o{ CONTACT : "has in the round"
     JOB_APPLICATION }o--o{ SKILL : "tagged with"
@@ -217,7 +221,7 @@ exactly one `User` and must be scoped by `user_id` in every query).
 `InterviewRound`, `InterviewRoundHasContact`, `OrganizationCountry`,
 `JobApplicationHasSkill`, and `DocumentHasSkill` don't need their own `user_id`: they're only ever reached
 through their parent (`JobApplication`, `Organization` or `Document`), which
-is already scoped.
+is already scoped. A `Contact` is reached through its `Organization`.
 
 ## Derived / computed fields (not stored)
 
@@ -274,8 +278,9 @@ and become user-adjustable later without any migration.
    an edge case, it's the normal case the tool is built around.
 8. `InterviewRound` rows belong to exactly one `JobApplication` and are
    deleted along with it. A round can have several of that application's
-   `Contact`s (and a new one can be created together with the round); one
-   contact can be in several rounds. A round's `outcome` is independent of the
+   `Contact`s of that application's organization (and a new one can be created
+   together with the round, on that organization); one contact can be in several
+   rounds, across applications. A round's `outcome` is independent of the
    application's `current_status` — passing a technical round doesn't by
    itself change the application's status; you still log that via
    `ApplicationStatusHistory` (e.g. moving to `offer`). The one exception is
