@@ -14,10 +14,14 @@ interface Props<Form extends Record<string, unknown>> {
   defaultValue?: DefaultValue<Form>;
   onReset?: () => void;
   onSuccess?: (formData: FormData) => void;
+  // For a dialog opened from somewhere else, whose state lives there
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   // Fields to revalidate when a field changes, for rules that span several of them. Conform
   // only revalidates the field that changed, so a dependent field's error would stay stale.
   // e.g. { cvDocumentFile: ['cvDocumentId'] }
-  deps?: Partial<Record<keyof Form & string, Array<keyof Form & string>>>;
+  // Names are the form's field names, so a nested one reads 'newContact.name'
+  deps?: Partial<Record<string, string[]>>;
 }
 
 type ConformForm<Form extends Record<string, unknown>> = ReturnType<typeof useForm<Form>>;
@@ -41,8 +45,12 @@ export function useFormDialog<Form extends Record<string, unknown>>({
   onSuccess,
   onReset,
   deps,
+  open: controlledOpen,
+  onOpenChange,
 }: Props<Form>): FormDialog<Form> {
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  const setOpen = onOpenChange ?? setInternalOpen;
   const [lastResult, setLastResult] = useState<SubmissionResult>();
   const [isPending, startTransition] = useTransition();
   // Bumped on every reset: the dialog stays mounted, so fields that keep their own state
