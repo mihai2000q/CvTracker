@@ -9,7 +9,7 @@ export function contactModel({ model, field }: ContractHelpers, sqlTypes: SqlTyp
       email: field.namedType(sqlTypes.email).optional(),
       phone: field.namedType(sqlTypes.varChar50).optional(),
       role: field.namedType(sqlTypes.varChar100).optional(),
-      jobApplicationId: field.uuidString(),
+      organizationId: field.uuidString(),
     },
   });
 }

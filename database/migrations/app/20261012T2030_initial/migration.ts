@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node
-import type { Contract as End } from '../../snapshots/ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9/contract';
-import endContract from '../../snapshots/ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9/contract.json' with { type: 'json' };
+import type { Contract as End } from '../../snapshots/34483dac6db044c39d4b46c5312a482339d07382b8abc5430358a9956d676af8/contract';
+import endContract from '../../snapshots/34483dac6db044c39d4b46c5312a482339d07382b8abc5430358a9956d676af8/contract.json' with { type: 'json' };
 import {
   Migration,
   MigrationCLI,
@@ -54,13 +54,13 @@ export default class M extends Migration<never, End> {
             notNull: true,
             codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
           }),
-          col('job_application_id', 'character(36)', {
-            notNull: true,
-            codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
-          }),
           col('name', 'character varying(150)', {
             notNull: true,
             codecRef: { codecId: 'sql/varchar@1', typeParams: { length: 150 } },
+          }),
+          col('organization_id', 'character(36)', {
+            notNull: true,
+            codecRef: { codecId: 'sql/char@1', typeParams: { length: 36 } },
           }),
           col('phone', 'character varying(50)', {
             codecRef: { codecId: 'sql/varchar@1', typeParams: { length: 50 } },
@@ -388,8 +388,8 @@ export default class M extends Migration<never, End> {
       this.createIndex({
         schema: 'public',
         table: 'contact',
-        index: 'contact_job_application_id_idx_6988889c',
-        columns: ['job_application_id'],
+        index: 'contact_organization_id_idx_1a5cd3f5',
+        columns: ['organization_id'],
       }),
       this.createIndex({
         schema: 'public',
@@ -525,9 +525,9 @@ export default class M extends Migration<never, End> {
         schema: 'public',
         table: 'contact',
         foreignKey: {
-          name: 'fk_contact_job_application_id',
-          columns: ['job_application_id'],
-          references: { schema: 'public', table: 'job_application', columns: ['id'] },
+          name: 'fk_contact_organization_id',
+          columns: ['organization_id'],
+          references: { schema: 'public', table: 'organization', columns: ['id'] },
           onDelete: 'cascade',
         },
       }),

@@ -18,7 +18,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9'>;
+  StorageHashBase<'34483dac6db044c39d4b46c5312a482339d07382b8abc5430358a9956d676af8'>;
 export type ExecutionHash =
   ExecutionHashBase<'1a0062aaee514b3ceaa35b5892d8f05774fe2071d409e00222b51a53865a83c8'>;
 export type ProfileHash =
@@ -245,8 +245,8 @@ export type FieldOutputTypes = {
     readonly Contact: {
       readonly email: Varchar<255> | null;
       readonly id: Char<36>;
-      readonly jobApplicationId: Char<36>;
       readonly name: Varchar<150>;
+      readonly organizationId: Char<36>;
       readonly phone: Varchar<50> | null;
       readonly role: Varchar<100> | null;
     };
@@ -341,8 +341,8 @@ export type FieldInputTypes = {
     readonly Contact: {
       readonly email: CodecTypes['sql/varchar@1']['input'] | null;
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly jobApplicationId: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
+      readonly organizationId: CodecTypes['sql/char@1']['input'];
       readonly phone: CodecTypes['sql/varchar@1']['input'] | null;
       readonly role: CodecTypes['sql/varchar@1']['input'] | null;
     };
@@ -440,8 +440,8 @@ export type StorageColumnTypes = {
     readonly contact: {
       readonly email: Varchar<255> | null;
       readonly id: Char<36>;
-      readonly job_application_id: Char<36>;
       readonly name: Varchar<150>;
+      readonly organization_id: Char<36>;
       readonly phone: Varchar<50> | null;
       readonly role: Varchar<100> | null;
     };
@@ -536,8 +536,8 @@ export type StorageColumnInputTypes = {
     readonly contact: {
       readonly email: CodecTypes['sql/varchar@1']['input'] | null;
       readonly id: CodecTypes['sql/char@1']['input'];
-      readonly job_application_id: CodecTypes['sql/char@1']['input'];
       readonly name: CodecTypes['sql/varchar@1']['input'];
+      readonly organization_id: CodecTypes['sql/char@1']['input'];
       readonly phone: CodecTypes['sql/varchar@1']['input'] | null;
       readonly role: CodecTypes['sql/varchar@1']['input'] | null;
     };
@@ -637,13 +637,13 @@ export namespace Models {
   export type public_Contact = {
     email: Varchar<255> | null;
     id: Char<36>;
-    jobApplicationId: Char<36>;
     name: Varchar<150>;
+    organizationId: Char<36>;
     phone: Varchar<50> | null;
     role: Varchar<100> | null;
     interviewRounds: public_InterviewRoundHasContact[];
-    jobApplication: public_JobApplication;
-    readonly [RelationKeys]?: 'interviewRounds' | 'jobApplication';
+    organization: public_Organization;
+    readonly [RelationKeys]?: 'interviewRounds' | 'organization';
   };
   export type public_Country = {
     id: Char<36>;
@@ -711,7 +711,6 @@ export namespace Models {
     title: Varchar<200>;
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     userId: Char<36>;
-    contacts: public_Contact[];
     country: public_Country;
     coverLetterDocument: public_Document | null;
     cvDocument: public_Document;
@@ -721,7 +720,6 @@ export namespace Models {
     statusHistory: public_ApplicationStatusHistory[];
     user: public_User;
     readonly [RelationKeys]?:
-      | 'contacts'
       | 'country'
       | 'coverLetterDocument'
       | 'cvDocument'
@@ -746,10 +744,11 @@ export namespace Models {
     updatedAt: CodecTypes['pg/timestamptz-string@1']['output'];
     userId: Char<36>;
     websiteUrl: CodecTypes['pg/text@1']['output'] | null;
+    contacts: public_Contact[];
     jobApplications: public_JobApplication[];
     organizationCountries: public_OrganizationCountry[];
     user: public_User;
-    readonly [RelationKeys]?: 'jobApplications' | 'organizationCountries' | 'user';
+    readonly [RelationKeys]?: 'contacts' | 'jobApplications' | 'organizationCountries' | 'user';
   };
   export type public_OrganizationCountry = {
     countryId: Char<36>;
@@ -901,18 +900,18 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                   readonly many: false;
                 };
-                readonly job_application_id: {
-                  readonly dataType: 'pg/char';
-                  readonly codecId: 'sql/char@1';
-                  readonly nullable: false;
-                  readonly typeParams: { readonly length: 36 };
-                  readonly many: false;
-                };
                 readonly name: {
                   readonly dataType: 'pg/varchar';
                   readonly codecId: 'sql/varchar@1';
                   readonly nullable: false;
                   readonly typeRef: 'varChar150';
+                  readonly many: false;
+                };
+                readonly organization_id: {
+                  readonly dataType: 'pg/char';
+                  readonly codecId: 'sql/char@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly length: 36 };
                   readonly many: false;
                 };
                 readonly phone: {
@@ -934,9 +933,9 @@ type ContractBase = Omit<
               uniques: readonly [];
               indexes: readonly [
                 {
-                  readonly name: 'contact_job_application_id_idx_6988889c';
-                  readonly prefix: 'contact_job_application_id_idx';
-                  readonly columns: readonly ['job_application_id'];
+                  readonly name: 'contact_organization_id_idx_1a5cd3f5';
+                  readonly prefix: 'contact_organization_id_idx';
+                  readonly columns: readonly ['organization_id'];
                   readonly unique: false;
                 },
               ];
@@ -945,14 +944,14 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'contact';
-                    readonly columns: readonly ['job_application_id'];
+                    readonly columns: readonly ['organization_id'];
                   };
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'job_application';
+                    readonly tableName: 'organization';
                     readonly columns: readonly ['id'];
                   };
-                  readonly name: 'fk_contact_job_application_id';
+                  readonly name: 'fk_contact_organization_id';
                 },
               ];
             };
@@ -1993,20 +1992,20 @@ type ContractBase = Omit<
                   readonly typeParams: { readonly length: 36 };
                 };
               };
-              readonly jobApplicationId: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'sql/char@1';
-                  readonly typeParams: { readonly length: 36 };
-                };
-              };
               readonly name: {
                 readonly nullable: false;
                 readonly type: {
                   readonly kind: 'scalar';
                   readonly codecId: 'sql/varchar@1';
                   readonly typeParams: { readonly length: 150 };
+                };
+              };
+              readonly organizationId: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'sql/char@1';
+                  readonly typeParams: { readonly length: 36 };
                 };
               };
               readonly phone: {
@@ -2038,15 +2037,15 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['contactId'];
                 };
               };
-              readonly jobApplication: {
+              readonly organization: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'JobApplication';
+                  readonly model: 'Organization';
                 };
                 readonly cardinality: 'N:1';
                 readonly nullable: false;
                 readonly on: {
-                  readonly localFields: readonly ['jobApplicationId'];
+                  readonly localFields: readonly ['organizationId'];
                   readonly targetFields: readonly ['id'];
                 };
               };
@@ -2057,8 +2056,8 @@ type ContractBase = Omit<
               readonly fields: {
                 readonly email: { readonly column: 'email' };
                 readonly id: { readonly column: 'id' };
-                readonly jobApplicationId: { readonly column: 'job_application_id' };
                 readonly name: { readonly column: 'name' };
+                readonly organizationId: { readonly column: 'organization_id' };
                 readonly phone: { readonly column: 'phone' };
                 readonly role: { readonly column: 'role' };
               };
@@ -2525,17 +2524,6 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
-              readonly contacts: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Contact';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['jobApplicationId'];
-                };
-              };
               readonly country: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2752,6 +2740,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly contacts: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Contact';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['organizationId'];
+                };
+              };
               readonly jobApplications: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;

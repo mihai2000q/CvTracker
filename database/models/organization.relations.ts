@@ -6,16 +6,18 @@ type OrganizationModels = {
   Country: Model;
   OrganizationCountry: Model;
   JobApplication: Model;
+  Contact: Model;
 };
 
 export function organizationRelations(
   { rel }: ContractHelpers,
-  { Organization, User, Country, OrganizationCountry, JobApplication }: OrganizationModels
+  { Organization, User, Country, OrganizationCountry, JobApplication, Contact }: OrganizationModels
 ) {
   return {
     Organization: Organization.relations({
       organizationCountries: rel.hasMany(OrganizationCountry, { by: 'organizationId' }),
       jobApplications: rel.hasMany(JobApplication, { by: 'organizationId' }),
+      contacts: rel.hasMany(Contact, { by: 'organizationId' }),
       user: rel
         .belongsTo(User, { from: 'userId', to: 'id' })
         .sql({ fk: { name: 'fk_organization_user_id', onDelete: 'cascade' } }),

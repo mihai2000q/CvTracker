@@ -80,7 +80,7 @@
     "execute": [
       {
         "description": "create table \"contact\"",
-        "sql": "CREATE TABLE \"public\".\"contact\" (\n  \"email\" character varying(255),\n  \"id\" character(36) NOT NULL,\n  \"job_application_id\" character(36) NOT NULL,\n  \"name\" character varying(150) NOT NULL,\n  \"phone\" character varying(50),\n  \"role\" character varying(100),\n  PRIMARY KEY (\"id\")\n)",
+        "sql": "CREATE TABLE \"public\".\"contact\" (\n  \"email\" character varying(255),\n  \"id\" character(36) NOT NULL,\n  \"name\" character varying(150) NOT NULL,\n  \"organization_id\" character(36) NOT NULL,\n  \"phone\" character varying(50),\n  \"role\" character varying(100),\n  PRIMARY KEY (\"id\")\n)",
         "params": []
       }
     ],
@@ -728,40 +728,40 @@
     ]
   },
   {
-    "id": "index.contact.contact_job_application_id_idx_6988889c",
-    "label": "Create index \"contact_job_application_id_idx_6988889c\" on \"contact\"",
+    "id": "index.contact.contact_organization_id_idx_1a5cd3f5",
+    "label": "Create index \"contact_organization_id_idx_1a5cd3f5\" on \"contact\"",
     "operationClass": "additive",
     "target": {
       "id": "postgres",
       "details": {
         "schema": "public",
         "objectType": "index",
-        "name": "contact_job_application_id_idx_6988889c",
+        "name": "contact_organization_id_idx_1a5cd3f5",
         "table": "contact"
       }
     },
     "precheck": [
       {
-        "description": "ensure index \"contact_job_application_id_idx_6988889c\" does not exist",
+        "description": "ensure index \"contact_organization_id_idx_1a5cd3f5\" does not exist",
         "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
         "params": [
-          "\"public\".\"contact_job_application_id_idx_6988889c\""
+          "\"public\".\"contact_organization_id_idx_1a5cd3f5\""
         ]
       }
     ],
     "execute": [
       {
-        "description": "create index \"contact_job_application_id_idx_6988889c\"",
-        "sql": "CREATE INDEX \"contact_job_application_id_idx_6988889c\" ON \"public\".\"contact\" (\"job_application_id\")",
+        "description": "create index \"contact_organization_id_idx_1a5cd3f5\"",
+        "sql": "CREATE INDEX \"contact_organization_id_idx_1a5cd3f5\" ON \"public\".\"contact\" (\"organization_id\")",
         "params": []
       }
     ],
     "postcheck": [
       {
-        "description": "verify index \"contact_job_application_id_idx_6988889c\" exists",
+        "description": "verify index \"contact_organization_id_idx_1a5cd3f5\" exists",
         "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
         "params": [
-          "\"public\".\"contact_job_application_id_idx_6988889c\""
+          "\"public\".\"contact_organization_id_idx_1a5cd3f5\""
         ]
       }
     ]
@@ -1589,24 +1589,24 @@
     ]
   },
   {
-    "id": "foreignKey.contact.fk_contact_job_application_id",
-    "label": "Add foreign key \"fk_contact_job_application_id\" on \"contact\"",
+    "id": "foreignKey.contact.fk_contact_organization_id",
+    "label": "Add foreign key \"fk_contact_organization_id\" on \"contact\"",
     "operationClass": "additive",
     "target": {
       "id": "postgres",
       "details": {
         "schema": "public",
         "objectType": "foreignKey",
-        "name": "fk_contact_job_application_id",
+        "name": "fk_contact_organization_id",
         "table": "contact"
       }
     },
     "precheck": [
       {
-        "description": "ensure FK \"fk_contact_job_application_id\" does not exist",
+        "description": "ensure FK \"fk_contact_organization_id\" does not exist",
         "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
         "params": [
-          "fk_contact_job_application_id",
+          "fk_contact_organization_id",
           "public",
           "\"public\".\"contact\""
         ]
@@ -1614,16 +1614,16 @@
     ],
     "execute": [
       {
-        "description": "add FK \"fk_contact_job_application_id\"",
-        "sql": "ALTER TABLE \"public\".\"contact\"\nADD CONSTRAINT \"fk_contact_job_application_id\"\nFOREIGN KEY (\"job_application_id\")\nREFERENCES \"public\".\"job_application\" (\"id\")\nON DELETE CASCADE"
+        "description": "add FK \"fk_contact_organization_id\"",
+        "sql": "ALTER TABLE \"public\".\"contact\"\nADD CONSTRAINT \"fk_contact_organization_id\"\nFOREIGN KEY (\"organization_id\")\nREFERENCES \"public\".\"organization\" (\"id\")\nON DELETE CASCADE"
       }
     ],
     "postcheck": [
       {
-        "description": "verify FK \"fk_contact_job_application_id\" exists",
+        "description": "verify FK \"fk_contact_organization_id\" exists",
         "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
         "params": [
-          "fk_contact_job_application_id",
+          "fk_contact_organization_id",
           "public",
           "\"public\".\"contact\""
         ]

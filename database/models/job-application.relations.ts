@@ -48,7 +48,6 @@ export function jobApplicationRelations(
         .belongsTo(User, { from: 'userId', to: 'id' })
         .sql({ fk: { name: 'fk_job_application_user_id', onDelete: 'cascade' } }),
       statusHistory: rel.hasMany(ApplicationStatusHistory, { by: 'jobApplicationId' }),
-      contacts: rel.hasMany(Contact, { by: 'jobApplicationId' }),
       interviewRounds: rel.hasMany(InterviewRound, { by: 'jobApplicationId' }),
       skills: rel.hasMany(JobApplicationHasSkill, { by: 'jobApplicationId' }),
     }),
@@ -58,9 +57,9 @@ export function jobApplicationRelations(
       }),
     }),
     Contact: Contact.relations({
-      jobApplication: rel
-        .belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' })
-        .sql({ fk: { name: 'fk_contact_job_application_id', onDelete: 'cascade' } }),
+      organization: rel
+        .belongsTo(Organization, { from: 'organizationId', to: 'id' })
+        .sql({ fk: { name: 'fk_contact_organization_id', onDelete: 'cascade' } }),
       interviewRounds: rel.hasMany(InterviewRoundHasContact, { by: 'contactId' }),
     }),
     InterviewRound: InterviewRound.relations({

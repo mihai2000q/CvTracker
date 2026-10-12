@@ -267,16 +267,6 @@
                   }
                 }
               },
-              "jobApplicationId": {
-                "nullable": false,
-                "type": {
-                  "codecId": "sql/char@1",
-                  "kind": "scalar",
-                  "typeParams": {
-                    "length": 36
-                  }
-                }
-              },
               "name": {
                 "nullable": false,
                 "type": {
@@ -284,6 +274,16 @@
                   "kind": "scalar",
                   "typeParams": {
                     "length": 150
+                  }
+                }
+              },
+              "organizationId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "sql/char@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "length": 36
                   }
                 }
               },
@@ -324,19 +324,19 @@
                   "namespace": "public"
                 }
               },
-              "jobApplication": {
+              "organization": {
                 "cardinality": "N:1",
                 "nullable": false,
                 "on": {
                   "localFields": [
-                    "jobApplicationId"
+                    "organizationId"
                   ],
                   "targetFields": [
                     "id"
                   ]
                 },
                 "to": {
-                  "model": "JobApplication",
+                  "model": "Organization",
                   "namespace": "public"
                 }
               }
@@ -349,11 +349,11 @@
                 "id": {
                   "column": "id"
                 },
-                "jobApplicationId": {
-                  "column": "job_application_id"
-                },
                 "name": {
                   "column": "name"
+                },
+                "organizationId": {
+                  "column": "organization_id"
                 },
                 "phone": {
                   "column": "phone"
@@ -1021,21 +1021,6 @@
               }
             },
             "relations": {
-              "contacts": {
-                "cardinality": "1:N",
-                "on": {
-                  "localFields": [
-                    "id"
-                  ],
-                  "targetFields": [
-                    "jobApplicationId"
-                  ]
-                },
-                "to": {
-                  "model": "Contact",
-                  "namespace": "public"
-                }
-              },
               "country": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -1343,6 +1328,21 @@
               }
             },
             "relations": {
+              "contacts": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "organizationId"
+                  ]
+                },
+                "to": {
+                  "model": "Contact",
+                  "namespace": "public"
+                }
+              },
               "jobApplications": {
                 "cardinality": "1:N",
                 "on": {
@@ -1847,19 +1847,19 @@
                     "length": 36
                   }
                 },
-                "job_application_id": {
+                "name": {
+                  "codecId": "sql/varchar@1",
+                  "dataType": "pg/varchar",
+                  "nullable": false,
+                  "typeRef": "varChar150"
+                },
+                "organization_id": {
                   "codecId": "sql/char@1",
                   "dataType": "pg/char",
                   "nullable": false,
                   "typeParams": {
                     "length": 36
                   }
-                },
-                "name": {
-                  "codecId": "sql/varchar@1",
-                  "dataType": "pg/varchar",
-                  "nullable": false,
-                  "typeRef": "varChar150"
                 },
                 "phone": {
                   "codecId": "sql/varchar@1",
@@ -1877,13 +1877,13 @@
               "foreignKeys": [
                 {
                   "index": {
-                    "name": "contact_job_application_id_idx_6988889c"
+                    "name": "contact_organization_id_idx_1a5cd3f5"
                   },
-                  "name": "fk_contact_job_application_id",
+                  "name": "fk_contact_organization_id",
                   "onDelete": "cascade",
                   "source": {
                     "columns": [
-                      "job_application_id"
+                      "organization_id"
                     ],
                     "namespaceId": "public",
                     "tableName": "contact"
@@ -1893,17 +1893,17 @@
                       "id"
                     ],
                     "namespaceId": "public",
-                    "tableName": "job_application"
+                    "tableName": "organization"
                   }
                 }
               ],
               "indexes": [
                 {
                   "columns": [
-                    "job_application_id"
+                    "organization_id"
                   ],
-                  "name": "contact_job_application_id_idx_6988889c",
-                  "prefix": "contact_job_application_id_idx",
+                  "name": "contact_organization_id_idx_1a5cd3f5",
+                  "prefix": "contact_organization_id_idx",
                   "unique": false
                 }
               ],
@@ -3074,7 +3074,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "ad5f372c228285d696031e4362244a53db02b7aa9cabf1e6426e6e48f4cd5ff9",
+    "storageHash": "34483dac6db044c39d4b46c5312a482339d07382b8abc5430358a9956d676af8",
     "types": {
       "email": {
         "codecId": "sql/varchar@1",

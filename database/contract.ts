@@ -50,6 +50,7 @@ export const contract = defineContract(
           Country,
           OrganizationCountry,
           JobApplication,
+          Contact,
         }),
         ...documentRelations(helpers, {
           Document,
