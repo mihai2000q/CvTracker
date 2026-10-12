@@ -1,22 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { RiGlobalLine, RiGroupLine, RiLinkedinLine } from '@remixicon/react';
 import { Input } from '@/components/ui/input.tsx';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible.tsx';
+import JobApplicationSourceIcon from '@/components/icon/job-application-source-icon.tsx';
+import { JOB_SOURCES, OTHER_SOURCE } from '@/features/job-applications/constants/job-sources.ts';
 
-const OTHER = 'Other';
-const iconStyle = { width: 'inherit', height: 'inherit' };
-
-const sources = [
-  { label: 'LinkedIn', icon: <RiLinkedinLine style={iconStyle} /> },
-  { label: 'Indeed', icon: <RiLinkedinLine style={iconStyle} /> },
-  { label: 'Stepstone', icon: <RiLinkedinLine style={iconStyle} /> },
-  { label: 'Company site', icon: <RiGlobalLine style={iconStyle} /> },
-  { label: 'Referral', icon: <RiGroupLine style={iconStyle} /> },
-  { label: OTHER, icon: <RiGroupLine style={iconStyle} /> },
-];
+const sources = [...JOB_SOURCES, OTHER_SOURCE];
 
 interface Props {
   change: (source: string) => void;
@@ -29,7 +20,7 @@ const SourceGroup = ({ change, blur }: Props) => {
 
   const handleSelectedChange = ([label]: string[]) => {
     setSelected(label);
-    change(label === OTHER ? other.trim() : (label ?? ''));
+    change(label === OTHER_SOURCE ? other.trim() : (label ?? ''));
   };
 
   return (
@@ -42,14 +33,14 @@ const SourceGroup = ({ change, blur }: Props) => {
         onValueChange={handleSelectedChange}
         onBlur={blur}
       >
-        {sources.map(({ label, icon }) => (
+        {sources.map((label) => (
           <ToggleGroupItem key={label} value={label} className={'rounded-full'}>
-            <span className={'size-3'}>{icon}</span>
+            <JobApplicationSourceIcon source={label} className={'size-3'} />
             {label}
           </ToggleGroupItem>
         ))}
       </ToggleGroup>
-      <Collapsible open={selected === OTHER}>
+      <Collapsible open={selected === OTHER_SOURCE}>
         <CollapsibleContent>
           <Input
             value={other}
