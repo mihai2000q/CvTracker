@@ -19,7 +19,7 @@ interface Props extends Omit<ComponentProps<'input'>, 'type' | 'value' | 'defaul
   hint?: string;
 }
 
-const DocumentPicker = ({
+const FilePicker = ({
   onChange,
   hint = 'PDF or Word document, up to 10 MB',
   accept = ALLOWED_FILE_TYPES.join(','),
@@ -82,4 +82,4 @@ const DocumentPicker = ({
   );
 };
 
-export default DocumentPicker;
+export default FilePicker;
