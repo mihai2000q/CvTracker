@@ -36,7 +36,7 @@ import { RiLink } from '@remixicon/react';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import DocumentPicker from '@/features/job-applications/components/document-picker.tsx';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
-import SourceGroup from '@/features/job-applications/components/source-group.tsx';
+import SourceGroup from '@/features/job-applications/components/source/source-group.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 
 interface Props {
