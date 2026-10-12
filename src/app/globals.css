@@ -167,6 +167,40 @@
   --document-color-foreground: var(--color-document-cover-letter-foreground);
 }
 
+/* The colour of each job application status, chosen in one place */
+@theme {
+  --color-status-applied: var(--color-blue-500);
+  --color-status-screening: var(--color-amber-400);
+  --color-status-interview: var(--color-green-500);
+  --color-status-offer: var(--color-green-300);
+  --color-status-rejected: var(--color-red-400);
+  --color-status-withdrawn: var(--color-violet-400);
+  --color-status-no-response: var(--color-gray-300);
+}
+
+/* Anything marked with a status reads its colour as --status-color */
+[data-job-application-status='applied'] {
+  --status-color: var(--color-status-applied);
+}
+[data-job-application-status='screening'] {
+  --status-color: var(--color-status-screening);
+}
+[data-job-application-status='interview'] {
+  --status-color: var(--color-status-interview);
+}
+[data-job-application-status='offer'] {
+  --status-color: var(--color-status-offer);
+}
+[data-job-application-status='rejected'] {
+  --status-color: var(--color-status-rejected);
+}
+[data-job-application-status='withdrawn'] {
+  --status-color: var(--color-status-withdrawn);
+}
+[data-job-application-status='no_response'] {
+  --status-color: var(--color-status-no-response);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
