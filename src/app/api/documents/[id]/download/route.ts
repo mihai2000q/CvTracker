@@ -1,6 +1,9 @@
 import { downloadDocument } from '@/features/documents/queries/download-document.ts';
 
-export async function GET(_request: Request, { params }: RouteContext<'/api/documents/[id]/download'>) {
+export async function GET(
+  _request: Request,
+  { params }: RouteContext<'/api/documents/[id]/download'>
+) {
   const { id } = await params;
   const document = await downloadDocument(id);
   if (!document) {
