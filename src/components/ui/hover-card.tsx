@@ -1,16 +1,14 @@
-"use client"
+'use client';
 
-import { PreviewCard as PreviewCardPrimitive } from "@base-ui/react/preview-card"
-import { cn } from "cn"
+import { PreviewCard as PreviewCardPrimitive } from '@base-ui/react/preview-card';
+import { cn } from 'cn';
 
 function HoverCard({ ...props }: PreviewCardPrimitive.Root.Props) {
-  return <PreviewCardPrimitive.Root data-slot="hover-card" {...props} />
+  return <PreviewCardPrimitive.Root data-slot="hover-card" {...props} />;
 }
 
-function HoverCardTrigger({ ...props }: PreviewCardPrimitive.Trigger.Props) {
-  return (
-    <PreviewCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />
-  )
+function HoverCardTrigger({ delay = 200, ...props }: PreviewCardPrimitive.Trigger.Props) {
+  return <PreviewCardPrimitive.Trigger delay={delay} data-slot="hover-card-trigger" {...props} />;
 }
 
 function HoverCardContent({
