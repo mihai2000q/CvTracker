@@ -108,7 +108,7 @@ const CountryMultiCombobox = ({ onChange, onBlur }: Props) => {
           <ComboboxList className="max-h-none overflow-visible">
             {countries.map((country) => (
               <ComboboxItem key={country.id} value={country}>
-                <FlagIcon isoCode={country.isoCode} />
+                <FlagIcon isoCode={country.isoCode} circle />
                 {country.name}
               </ComboboxItem>
             ))}
