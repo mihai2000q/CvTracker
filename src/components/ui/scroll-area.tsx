@@ -8,8 +8,12 @@ function ScrollArea({
   className,
   children,
   viewportProps,
+  orientation = 'vertical',
   ...props
 }: ScrollAreaPrimitive.Root.Props & {
+  // Which scrollbars it can show. Each one only renders while the content actually overflows
+  // in that direction, so 'horizontal' adds a bar only when something is wider than the area.
+  orientation?: 'vertical' | 'horizontal' | 'both';
   // The `Viewport` is the element that actually scrolls - `Root` itself
   // doesn't (it's `position: relative`, non-scrolling). Anything that needs
   // to observe or react to scrolling (an `onScroll` handler, for example)
@@ -35,7 +39,8 @@ function ScrollArea({
       >
         {children}
       </ScrollAreaPrimitive.Viewport>
-      <ScrollBar />
+      {orientation !== 'horizontal' && <ScrollBar orientation="vertical" />}
+      {orientation !== 'vertical' && <ScrollBar orientation="horizontal" />}
       <ScrollAreaPrimitive.Corner />
     </ScrollAreaPrimitive.Root>
   );
