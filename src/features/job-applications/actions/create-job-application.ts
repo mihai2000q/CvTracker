@@ -11,6 +11,7 @@ import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
+import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 
 export async function createJobApplication(
   _state: SubmissionResult | undefined,
@@ -53,7 +54,7 @@ export async function createJobApplication(
       title: sized<200>(title),
       countryId: uuid(countryId),
       postingUrl,
-      source: source ? sized<100>(source) : undefined,
+      source: source ? sized<100>(normalizeSource(source)) : undefined,
       appliedAt: Temporal.PlainDate.from(appliedAt),
       notes,
       userId: uuid(userId),
