@@ -1,0 +1,186 @@
+import React from 'react';
+import { JobApplication } from '@/features/job-applications/types/job-application.ts';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table.tsx';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
+import { RiEarthFill, RiExternalLinkLine, RiFileFill } from '@remixicon/react';
+import Link from 'next/link';
+import PastDate from '@/components/date/past-date.tsx';
+import DocumentHoverCard from '@/features/documents/components/document-hover-card.tsx';
+import JobApplicationSourceIcon from '@/features/job-applications/components/source/job-application-source-icon.tsx';
+import JobApplicationContextMenu from '@/features/job-applications/components/job-application-context-menu.tsx';
+import InterviewRoundHoverCard from '@/features/job-applications/components/interview/interview-round-hover-card.tsx';
+import NextInterview from '@/features/job-applications/components/interview/next-interview.tsx';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
+import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
+
+// Only an application in the interview stage has rounds worth showing
+const isInterviewing = ({ currentStatus, interviewRounds }: JobApplication) =>
+  currentStatus === JobApplicationStatus.Interview && interviewRounds.length > 0;
+
+const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplication[] }) => {
+  return (
+    // Fixed, so every column keeps its share of the width and long text truncates instead of growing it
+    <Table className={'min-w-5xl table-fixed'}>
+      <TableHeader>
+        <TableRow>
+          <TableHead className={'w-[32%]'}>Title & Organization</TableHead>
+          <TableHead className={'2xl:w-[16%]'}>Context</TableHead>
+          <TableHead className={'2xl:w-[17%]'}>Documents</TableHead>
+          <TableHead className={'2xl:w-[15%]'}>Status</TableHead>
+          <TableHead className={'hidden w-[12%] 2xl:table-cell'}>Next interview</TableHead>
+          <TableHead className={'2xl:w-[10%]'}>Applied at</TableHead>
+        </TableRow>
+      </TableHeader>
+
+      <TableBody>
+        {jobApplications.map((jobApplication) => (
+          <JobApplicationContextMenu key={jobApplication.id} jobApplication={jobApplication}>
+            <TableRow>
+              <TableCell>
+                <div className={'flex flex-row items-center gap-4'}>
+                  <Avatar className={'size-10 rounded-xl after:rounded-xl'}>
+                    <AvatarFallback className={'rounded-xl'}>
+                      <span className={'text-lg'}>{jobApplication.organization.name[0]}</span>
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className={'flex min-w-0 flex-col'}>
+                    <div className={'flex items-center gap-1.5'}>
+                      <Link
+                        href={`/jobs/${jobApplication.id}`}
+                        prefetch={false}
+                        title={jobApplication.title}
+                        className={'link-underline max-w-64 truncate'}
+                      >
+                        {jobApplication.title}
+                      </Link>
+                      {jobApplication.postingUrl && (
+                        <a
+                          href={jobApplication.postingUrl}
+                          target={'_blank'}
+                          rel={'noopener noreferrer'}
+                          aria-label={'Open job posting'}
+                          title={'Open the job posting'}
+                          className={
+                            'text-muted-foreground/60 hover:text-foreground mb-1 shrink-0 transition-colors'
+                          }
+                        >
+                          <RiExternalLinkLine className={'size-3.5'} />
+                        </a>
+                      )}
+                    </div>
+                    <Link
+                      href={`/organizations/${jobApplication.organization.id}`}
+                      prefetch={false}
+                      title={jobApplication.organization.name}
+                      className={
+                        'link-underline text-muted-foreground w-fit max-w-64 truncate text-xs'
+                      }
+                    >
+                      {jobApplication.organization.name}
+                    </Link>
+                  </div>
+                </div>
+              </TableCell>
+
+              <TableCell>
+                <div className={'flex flex-col gap-2 text-xs'}>
+                  <Link
+                    href={`/countries/${jobApplication.country.id}`}
+                    prefetch={false}
+                    className={
+                      'link-underline flex w-fit max-w-full flex-row items-center gap-1 leading-none'
+                    }
+                  >
+                    <RiEarthFill className={'size-4 pb-0.5'} />
+                    <span className={'truncate'}>{jobApplication.country.name}</span>
+                  </Link>
+                  {jobApplication.source && (
+                    <div
+                      className={
+                        'text-muted-foreground flex flex-row items-center gap-1 leading-none'
+                      }
+                    >
+                      <JobApplicationSourceIcon
+                        source={jobApplication.source}
+                        className={'size-4 pb-0.5'}
+                      />
+                      <span className={'truncate'}>{jobApplication.source}</span>
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+
+              <TableCell>
+                <div className={'text-muted-foreground flex flex-col gap-1.5 text-xs'}>
+                  <DocumentHoverCard document={jobApplication.cv}>
+                    <Link
+                      href={`/documents/${jobApplication.cv.id}`}
+                      prefetch={false}
+                      className={
+                        'link-underline flex w-fit max-w-full flex-row items-center gap-1 leading-none'
+                      }
+                    >
+                      <RiFileFill
+                        data-document-type={jobApplication.cv.type}
+                        className={'size-4 pb-0.5 text-(--document-color)'}
+                      />
+                      <span className={'truncate'}>{jobApplication.cv.name}</span>
+                    </Link>
+                  </DocumentHoverCard>
+                  {jobApplication.coverLetter && (
+                    <DocumentHoverCard document={jobApplication.coverLetter}>
+                      <Link
+                        href={`/documents/${jobApplication.coverLetter.id}`}
+                        prefetch={false}
+                        className={
+                          'link-underline flex w-fit max-w-full flex-row items-center gap-1 leading-none'
+                        }
+                      >
+                        <RiFileFill
+                          data-document-type={jobApplication.coverLetter.type}
+                          className={'size-4 pb-0.5 text-(--document-color)'}
+                        />
+                        <span className={'truncate'}>{jobApplication.coverLetter.name}</span>
+                      </Link>
+                    </DocumentHoverCard>
+                  )}
+                </div>
+              </TableCell>
+
+              <TableCell>
+                {isInterviewing(jobApplication) ? (
+                  <InterviewRoundHoverCard rounds={jobApplication.interviewRounds}>
+                    <JobApplicationStatusBadge status={jobApplication.currentStatus} />
+                  </InterviewRoundHoverCard>
+                ) : (
+                  <JobApplicationStatusBadge status={jobApplication.currentStatus} />
+                )}
+              </TableCell>
+
+              <TableCell className={'hidden 2xl:table-cell'}>
+                {isInterviewing(jobApplication) ? (
+                  <NextInterview rounds={jobApplication.interviewRounds} />
+                ) : (
+                  <span className={'text-muted-foreground/60 text-xs italic'}>No interview</span>
+                )}
+              </TableCell>
+
+              <TableCell className={'text-muted-foreground text-xs'}>
+                <PastDate date={jobApplication.appliedAt} />
+              </TableCell>
+            </TableRow>
+          </JobApplicationContextMenu>
+        ))}
+      </TableBody>
+    </Table>
+  );
+};
+
+export default JobApplicationsTable;
