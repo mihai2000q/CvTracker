@@ -25,7 +25,7 @@ import {
   CreateDocumentForm,
   createDocumentSchema,
 } from '@/features/documents/schemas/create-document-schema.ts';
-import DocumentPicker from '@/features/documents/components/document-picker.tsx';
+import FilePicker from '@/components/form/file-picker.tsx';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
@@ -110,7 +110,7 @@ const CreateDocumentDialog = ({ children }: Props) => {
               </FormField>
 
               <FormField field={fields.file} label="File" required>
-                <DocumentPicker
+                <FilePicker
                   {...getInputProps(fields.file, { type: 'file' })}
                   onChange={handleFileChange}
                 />
