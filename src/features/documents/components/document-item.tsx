@@ -2,34 +2,18 @@ import React from 'react';
 import Link from 'next/link';
 import { Card, CardFooter } from '@/components/ui/card.tsx';
 import { Document } from '@/features/documents/types/document.ts';
-import { RiDownload2Line, RiFilePdf2Fill, RiFileWordFill } from '@remixicon/react';
+import { RiDownload2Line } from '@remixicon/react';
+import DocumentThumbnail from '@/features/documents/components/document-thumbnail.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { cn } from '@/lib/utils.ts';
-import { Badge } from '@/components/ui/badge.tsx';
 import FileSize from '@/components/file-size.tsx';
-import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
-
-const TYPE_BADGES: Record<DocumentType, { label: string; className: string }> = {
-  [DocumentType.CV]: {
-    label: 'CV / Resume',
-    className:
-      'border-orange-600/30 bg-orange-600/10 text-orange-700 dark:border-orange-400/25 dark:bg-orange-400/10 dark:text-orange-300',
-  },
-  [DocumentType.CoverLetter]: {
-    label: 'Cover Letter',
-    className:
-      'border-cyan-600/30 bg-cyan-600/10 text-cyan-700 dark:border-cyan-400/25 dark:bg-cyan-400/10 dark:text-cyan-300',
-  },
-};
+import DocumentTypeBadge from '@/features/documents/components/document-type-badge.tsx';
 
 interface Props {
   document: Document;
 }
 
 const DocumentItem = ({ document }: Props) => {
-  const isPdf = document.originalFilename.toLowerCase().endsWith('.pdf');
-  const typeBadge = TYPE_BADGES[document.type];
-
   return (
     <Card
       className={cn(
@@ -39,25 +23,16 @@ const DocumentItem = ({ document }: Props) => {
       )}
     >
       <div className={'flex flex-col items-center gap-3'}>
-        <div
-          className={cn(
-            'grid aspect-[5/6] w-1/2 place-items-center rounded-lg border',
-            isPdf ? 'border-red-400/20 bg-red-400/6' : 'border-blue-400/20 bg-blue-400/5'
-          )}
-        >
-          {isPdf ? (
-            <RiFilePdf2Fill className={'h-auto w-5/8 text-red-400/80'} />
-          ) : (
-            <RiFileWordFill className={'h-auto w-5/8 text-blue-400/80'} />
-          )}
-        </div>
+        <DocumentThumbnail originalFilename={document.originalFilename} className={'w-1/2'} />
 
         <div className={'flex w-full min-w-0 flex-col items-center gap-0.5'}>
           <Link
             href={`/documents/${document.id}`}
             prefetch={false}
             title={document.name}
-            className={'w-full truncate text-center text-lg font-bold outline-none after:absolute after:inset-0'}
+            className={
+              'w-full truncate text-center text-lg font-bold outline-none after:absolute after:inset-0'
+            }
           >
             {document.name}
           </Link>
@@ -76,9 +51,7 @@ const DocumentItem = ({ document }: Props) => {
       </div>
 
       <CardFooter className={'justify-center gap-2'}>
-        <Badge variant={'outline'} className={cn('h-7 rounded-md px-2.5', typeBadge.className)}>
-          {typeBadge.label}
-        </Badge>
+        <DocumentTypeBadge type={document.type} className={'h-7 px-2.5'} />
         <Button
           variant={'secondary'}
           size={'sm'}
