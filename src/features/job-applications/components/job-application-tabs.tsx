@@ -4,10 +4,11 @@ import React from 'react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { cn } from '@/lib/utils.ts';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 
 interface Tab {
-  value: string;
+  value: 'all' | JobApplicationStatus;
   label: string;
   count: number;
 }
@@ -15,7 +16,7 @@ interface Tab {
 const tabs: Tab[] = [
   { value: 'all', label: 'All', count: 12 },
   ...Object.entries(JOB_APPLICATION_STATUSES).map(([value, { label, count }]) => ({
-    value,
+    value: value as JobApplicationStatus,
     label,
     count,
   })),
@@ -48,7 +49,9 @@ const JobApplicationTabs = () => {
               value={tab.value}
               className={'items-center gap-0 leading-none'}
             >
-              <JobApplicationStatusIndicator status={tab.value} className={'mr-2'} />
+              {tab.value !== 'all' && (
+                <JobApplicationStatusIndicator status={tab.value} className={'mr-2'} />
+              )}
               {tab.label}
               <TabCount count={tab.count} />
             </TabsTrigger>

@@ -1,17 +1,14 @@
 import React from 'react';
 import { cn } from '@/lib/utils.ts';
-import { getJobApplicationStatus } from '@/features/job-applications/constants/job-application-statuses.ts';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 const JobApplicationStatusIndicator = ({
   status,
   className,
 }: {
-  status: string;
+  status: JobApplicationStatus;
   className?: string;
 }) => {
-  // The tabs also pass 'all', which has no colour and so no dot
-  if (!getJobApplicationStatus(status)) return null;
-
   return (
     <span
       data-job-application-status={status}

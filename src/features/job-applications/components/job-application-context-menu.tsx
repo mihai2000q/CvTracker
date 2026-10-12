@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/context-menu.tsx';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { JobApplication } from '@/features/job-applications/types/job-application.ts';
 
 interface Props {
@@ -66,7 +67,7 @@ const JobApplicationContextMenu = ({ jobApplication, children }: Props) => {
             <ContextMenuSubContent>
               {Object.entries(JOB_APPLICATION_STATUSES).map(([status, { label }]) => (
                 <ContextMenuItem key={status}>
-                  <JobApplicationStatusIndicator status={status} />
+                  <JobApplicationStatusIndicator status={status as JobApplicationStatus} />
                   {label}
                   {status === jobApplication.currentStatus && <RiCheckLine className={'ml-auto'} />}
                 </ContextMenuItem>

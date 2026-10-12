@@ -1,0 +1,96 @@
+'use server';
+
+import { db, dbClient } from '@database/db';
+import { sized, uuid } from '@database/field-values';
+import { ApplicationStatus, RoundType as DbRoundType } from '@database/enums';
+import { getUserId, verifySession } from '@/lib/auth/session';
+import type { SubmissionResult } from '@conform-to/react';
+import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
+import { zodValidateForm } from '@/lib/zod/parse.ts';
+import { updateTag } from 'next/cache';
+import { cacheTags } from '@/lib/cache-tags.ts';
+import {
+  NewContactForm,
+  scheduleInterviewSchema,
+} from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
+
+const DB_ROUND_TYPES = {
+  [RoundType.IntroCall]: DbRoundType.members.IntroCall,
+  [RoundType.Technical]: DbRoundType.members.Technical,
+  [RoundType.Coding]: DbRoundType.members.Coding,
+  [RoundType.TakeHome]: DbRoundType.members.TakeHome,
+  [RoundType.Behavioral]: DbRoundType.members.Behavioral,
+};
+
+export async function scheduleInterview(_state: SubmissionResult | undefined, formData: FormData) {
+  const userId = getUserId(await verifySession());
+
+  const submission = zodValidateForm({ formData, schema: scheduleInterviewSchema });
+  if (submission.status !== 'success') {
+    return submission.reply();
+  }
+
+  const { jobApplicationId, roundType, date, time, timeZone, contactIds, newContact, notes } =
+    submission.value;
+
+  // Its status and organization decide the status change and where a new contact goes
+  const jobApplication = await db.JobApplication.first({ id: uuid(jobApplicationId) });
+  if (!jobApplication) {
+    return submission.reply({ formErrors: ['Job application not found'] });
+  }
+
+  await dbClient.transaction(async ({ orm }) => {
+    const tx = orm.public;
+
+    await tx.InterviewRound.create({
+      jobApplicationId: uuid(jobApplicationId),
+      roundType: DB_ROUND_TYPES[roundType],
+      scheduledAt: Temporal.PlainDateTime.from(`${date}T${time}`)
+        .toZonedDateTime(timeZone)
+        .toInstant()
+        .toString(),
+      notes,
+      // Each contact of the round is an id, or a new one created here
+      contacts: (roundContacts) =>
+        roundContacts.create([
+          ...[...new Set(contactIds)].map((contactId) => ({ contactId: uuid(contactId) })),
+          ...(newContact
+            ? [{ contact: createNewContact(newContact, jobApplication.organizationId) }]
+            : []),
+        ]),
+    });
+
+    const moveToInterview = STATUSES_BEFORE_INTERVIEW.includes(jobApplication.currentStatus);
+    if (!moveToInterview) return;
+    await tx.JobApplication.where({ id: uuid(jobApplicationId) }).update({
+      currentStatus: ApplicationStatus.members.Interview,
+    });
+    await tx.ApplicationStatusHistory.create({
+      jobApplicationId: uuid(jobApplicationId),
+      status: ApplicationStatus.members.Interview,
+      changedAt: new Date().toISOString(),
+    });
+  });
+
+  updateTag(cacheTags.jobApplications(userId));
+  if (newContact) updateTag(cacheTags.contacts(jobApplication.organizationId));
+  return submission.reply({ resetForm: true });
+}
+
+type JoinInput = Parameters<typeof db.InterviewRoundHasContact.create>[0];
+type NewContactRelation = Extract<NonNullable<JoinInput['contact']>, (...args: never[]) => unknown>;
+
+function createNewContact(
+  { name, email, phone, role }: NewContactForm,
+  organizationId: string
+): NewContactRelation {
+  return (contact) =>
+    contact.create({
+      name: sized<150>(name),
+      email: email ? sized<255>(email) : undefined,
+      phone: phone ? sized<50>(phone) : undefined,
+      role: role ? sized<100>(role) : undefined,
+      organizationId: uuid(organizationId),
+    });
+}

@@ -16,14 +16,10 @@ export const JOB_APPLICATION_STATUSES: Record<JobApplicationStatus, StatusDetail
   [JobApplicationStatus.NoResponse]: { label: 'Ghosted', count: 12 },
 };
 
-// For a status that comes in as a plain string. Nothing for anything that isn't one
-export const getJobApplicationStatus = (value: string): StatusDetails | undefined =>
-  Object.hasOwn(JOB_APPLICATION_STATUSES, value)
-    ? JOB_APPLICATION_STATUSES[value as JobApplicationStatus]
-    : undefined;
-
-// Scheduling an interview moves an application that hasn't reached the interview stage yet.
-// Anywhere else (already interviewing, an offer, or closed by a rejection, a withdrawal or
-// silence) the status is a decision of its own and stays
-export const shouldMoveToInterview = (status: string) =>
-  status === JobApplicationStatus.Applied || status === JobApplicationStatus.Screening;
+// Scheduling an interview moves an application in one of these to Interview. Anywhere else
+// (already interviewing, an offer, or closed by a rejection, a withdrawal or silence) the
+// status is a decision of its own and stays
+export const STATUSES_BEFORE_INTERVIEW: readonly string[] = [
+  JobApplicationStatus.Applied,
+  JobApplicationStatus.Screening,
+];
