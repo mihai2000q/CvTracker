@@ -60,10 +60,10 @@ const Stat = ({ label, count }: { label: string; count: number }) => (
       'bg-background flex min-w-0 flex-col rounded-lg px-3 py-[clamp(0.625rem,3.5cqw,1.25rem)]'
     }
   >
+    <div className={'text-muted-foreground mb-1.5 truncate text-xs'}>{label}</div>
     <div className={'text-[clamp(1.25rem,7cqw,1.875rem)] leading-none font-semibold tabular-nums'}>
       {count}
     </div>
-    <div className={'text-muted-foreground mt-1.5 truncate text-xs'}>{label}</div>
   </div>
 );
 
