@@ -161,7 +161,7 @@ const CreateJobApplicationDialog = ({ children }: Props) => {
                     {...appliedAt}
                     id={fields.appliedAt.id}
                     invalid={!fields.appliedAt.valid}
-                    disableFuture
+                    disable={'future'}
                   />
                 </FormField>
               </div>

@@ -4,7 +4,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent } from '@/components/ui/popover.tsx';
 import { format, isValid, parse } from 'date-fns';
 import { RiArrowDownSLine, RiCalendarLine } from '@remixicon/react';
-import DatePicker, { isFutureDate } from '@/components/date/date-picker.tsx';
+import DatePicker, { isFutureDate, isPastDate } from '@/components/date/date-picker.tsx';
 import { InputGroup, InputGroupInput } from '@/components/ui/input-group.tsx';
 
 const TEMPLATE = 'DD/MM/YYYY';
@@ -20,10 +20,13 @@ interface Props {
   blur?: () => void;
   id?: string;
   invalid?: boolean;
-  disableFuture?: boolean;
+  // Which side of today can't be picked: a date there is replaced by today
+  disable?: 'past' | 'future';
 }
 
-const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
+const DateInput = ({ change, blur, id, invalid, disable }: Props) => {
+  const disableFuture = disable === 'future';
+  const disablePast = disable === 'past';
   const [open, setOpen] = useState(false);
   const [text, setText] = useState(TEMPLATE);
   const [position, setPosition] = useState(0);
@@ -40,17 +43,21 @@ const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
   }, [text, position]);
 
   // Read when typing, never while rendering
-  const getMaxYear = () => (disableFuture ? new Date().getFullYear() : undefined);
+  const getYearRange = () => ({
+    min: disablePast ? new Date().getFullYear() : undefined,
+    max: disableFuture ? new Date().getFullYear() : undefined,
+  });
 
   const commit = (typedText: string, nextPosition: number) => {
-    const nextText = normalize(typedText, disableFuture);
+    const nextText = normalize(typedText, disableFuture, disablePast);
     setText(nextText);
     setPosition(nextPosition);
     const calendar = previewFor(nextText, viewMonth ?? new Date());
     setViewMonth(calendar.view);
     setPreview(calendar.preview);
     const date = toDate(nextText);
-    const isAllowed = date && !(disableFuture && isFutureDate(date));
+    const isAllowed =
+      date && !(disableFuture && isFutureDate(date)) && !(disablePast && isPastDate(date));
     // A partly typed or disallowed date is passed on as it is, so it reads as invalid and only an empty field as required
     change(isAllowed ? format(date, 'yyyy-MM-dd') : nextText === TEMPLATE ? '' : nextText);
   };
@@ -67,7 +74,7 @@ const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
 
     if (/^\d$/.test(event.key)) {
       event.preventDefault();
-      const typed = typeDigit(text, position, event.key, getMaxYear());
+      const typed = typeDigit(text, position, event.key, getYearRange());
       if (typed) commit(typed.text, typed.position);
       return;
     }
@@ -114,7 +121,7 @@ const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
     let nextText = text;
     let nextPosition = position;
     for (const digit of event.clipboardData.getData('text').replace(/\D/g, '')) {
-      const typed = typeDigit(nextText, nextPosition, digit, getMaxYear());
+      const typed = typeDigit(nextText, nextPosition, digit, getYearRange());
       if (!typed) break;
       nextText = typed.text;
       nextPosition = typed.position;
@@ -176,7 +183,7 @@ const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
           onCut={(event) => event.preventDefault()}
           onFocus={() => setPosition(0)}
           onClick={(event) => select(segmentStart(event.currentTarget.selectionStart ?? 0))}
-          className="data-[empty=true]:text-muted-foreground pr-1.5 pl-1.5 tabular-nums caret-transparent selection:bg-primary/30 selection:text-foreground"
+          className="data-[empty=true]:text-muted-foreground selection:bg-primary/30 selection:text-foreground pr-1.5 pl-1.5 tabular-nums caret-transparent"
         />
         <RiArrowDownSLine
           aria-hidden
@@ -199,13 +206,12 @@ const DateInput = ({ change, blur, id, invalid, disableFuture }: Props) => {
           onSelect={handleSelect}
           month={viewMonth}
           onMonthChange={setViewMonth}
-          disableFuture={disableFuture}
+          disable={disable}
         />
       </PopoverContent>
     </Popover>
   );
 };
-
 
 const nextPosition = (position: number) =>
   DIGIT_POSITIONS.find((candidate) => candidate > position) ?? LAST_POSITION;
@@ -246,8 +252,9 @@ function toDate(text: string) {
 }
 
 // Once a full date is typed, a day the month doesn't have becomes its last day, and with
-// disableFuture a date after today becomes today, so a finished date is never invalid
-function normalize(text: string, disableFuture?: boolean) {
+// disableFuture a date after today becomes today (disablePast one before it), so a finished
+// date is never invalid
+function normalize(text: string, disableFuture?: boolean, disablePast?: boolean) {
   const day = text.slice(0, 2);
   const month = text.slice(3, 5);
   const year = text.slice(6);
@@ -264,20 +271,37 @@ function normalize(text: string, disableFuture?: boolean) {
     const now = new Date();
     if (date && date > now) result = format(now, DISPLAY_FORMAT);
   }
+  if (disablePast) {
+    const date = toDate(result);
+    if (date && isPastDate(date)) result = format(new Date(), DISPLAY_FORMAT);
+  }
   return result;
 }
 
 // Writes the digit at the position and returns where the selection goes next, or null
 // when the digit can't be part of a date. A first digit that can only be a single-digit
 // day (4-9) or month (2-9) pads the zero and moves on, since there's nothing left to type.
-function typeDigit(text: string, position: number, typedDigit: string, maxYear?: number) {
+function typeDigit(
+  text: string,
+  position: number,
+  typedDigit: string,
+  years: { min?: number; max?: number } = {}
+) {
   let digit = typedDigit;
-  // Once the year typed so far matches the latest allowed one, a digit can't go past that year's
-  if (maxYear !== undefined && position >= 6) {
-    const latest = String(maxYear);
+  // Once the year typed so far matches the latest (or earliest) allowed one, a digit can't go
+  // past (or under) that year's
+  if (position >= 6) {
     const offset = position - 6;
-    if (text.slice(6, position) === latest.slice(0, offset) && digit > latest[offset]) {
-      digit = latest[offset];
+    const typedYear = text.slice(6, position);
+    if (years.max !== undefined) {
+      const latest = String(years.max);
+      if (typedYear === latest.slice(0, offset) && digit > latest[offset]) digit = latest[offset];
+    }
+    if (years.min !== undefined) {
+      const earliest = String(years.min);
+      if (typedYear === earliest.slice(0, offset) && digit < earliest[offset]) {
+        digit = earliest[offset];
+      }
     }
   }
   const value = Number(digit);
