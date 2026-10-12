@@ -136,6 +136,17 @@
   background-color: oklch(0 0 0 / 40%);
 }
 
+/* A link that draws its underline in on hover */
+@utility link-underline {
+  text-decoration-line: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 1px;
+  transition-property: text-decoration-color;
+  transition-duration: 100ms;
+  &:hover {
+    text-decoration-color: currentColor;
+  }
+}
 
 /* The colour of each type of document, and the text that goes on it, chosen in one place */
 @theme {
