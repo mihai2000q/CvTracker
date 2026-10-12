@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/input.tsx';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible.tsx';
-import JobApplicationSourceIcon from '@/features/job-applications/components/icon/job-application-source-icon.tsx';
+import JobApplicationSourceIcon from '@/features/job-applications/components/source/job-application-source-icon.tsx';
 import { JOB_SOURCES, OTHER_SOURCE } from '@/features/job-applications/constants/job-sources.ts';
 
 const sources = [...JOB_SOURCES, OTHER_SOURCE];

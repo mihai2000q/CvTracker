@@ -1,7 +1,7 @@
 import React from 'react';
 import { RiGlobalLine, RiGroupLine, RiLinkedinLine, RiStackLine } from '@remixicon/react';
-import IndeedIcon from '@/features/job-applications/components/icon/indeed-icon.tsx';
-import StepstoneIcon from '@/features/job-applications/components/icon/stepstone-icon.tsx';
+import IndeedIcon from '@/features/job-applications/components/source/indeed-icon.tsx';
+import StepstoneIcon from '@/features/job-applications/components/source/stepstone-icon.tsx';
 import { isJobSource, JobSource } from '@/features/job-applications/constants/job-sources.ts';
 import { cn } from '@/lib/utils.ts';
 
