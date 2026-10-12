@@ -90,16 +90,18 @@ const CreateDocumentDialog = ({ children }: Props) => {
                 >
                   <ToggleGroupItem
                     value={DocumentType.CV}
+                    data-document-type={DocumentType.CV}
                     className={
-                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-amber-600/90 aria-pressed:text-amber-50'
+                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/90 aria-pressed:text-(--document-color-foreground)'
                     }
                   >
                     CV / Resume
                   </ToggleGroupItem>
                   <ToggleGroupItem
                     value={DocumentType.CoverLetter}
+                    data-document-type={DocumentType.CoverLetter}
                     className={
-                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-cyan-700 aria-pressed:text-cyan-50'
+                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/85 aria-pressed:text-(--document-color-foreground)'
                     }
                   >
                     Cover Letter

@@ -136,6 +136,26 @@
   background-color: oklch(0 0 0 / 40%);
 }
 
+
+/* The colour of each type of document, and the text that goes on it, chosen in one place */
+@theme {
+  --color-document-cv: var(--color-amber-600);
+  --color-document-cv-foreground: var(--color-amber-50);
+  --color-document-cover-letter: var(--color-cyan-600);
+  --color-document-cover-letter-foreground: var(--color-cyan-50);
+}
+
+/* Anything marked with a document type reads them as --document-color and
+   --document-color-foreground */
+[data-document-type='cv'] {
+  --document-color: var(--color-document-cv);
+  --document-color-foreground: var(--color-document-cv-foreground);
+}
+[data-document-type='cover_letter'] {
+  --document-color: var(--color-document-cover-letter);
+  --document-color-foreground: var(--color-document-cover-letter-foreground);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
