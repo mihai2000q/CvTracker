@@ -148,11 +148,20 @@ A round records *what kind* of interview and *when*, so "I have a technical
 round with Siemens next Tuesday" is a queryable fact, not buried in a note.
 
 - `id`
-- `round_type` (e.g. "Phone screen", "Technical", "Onsite", "HR" — free text)
+- `round_type` (`intro_call`, `technical`, `coding`, `take_home`, `behavioral`). It
+  says what the round is about.
 - `scheduled_at` (date/timestamp)
 - `outcome` (`scheduled`, `passed`, `failed`, `cancelled` — default `scheduled`)
 - `notes` (optional)
 - `job_application_id` → JobApplication
+- contacts → Contact, many-to-many through `InterviewRoundHasContact` — who is in
+  the round (a recruiter and a technical interviewer, two engineers, ...).
+  Deleting a contact only removes it from the rounds; the rounds stay.
+
+### InterviewRoundHasContact (join table)
+- `interview_round_id` → InterviewRound
+- `contact_id` → Contact
+- composite primary key (`interview_round_id`, `contact_id`)
 
 ### JobApplicationHasSkill (join table)
 Many-to-many between JobApplication and Skill — which skills/tags were
@@ -195,6 +204,7 @@ erDiagram
     JOB_APPLICATION ||--o{ APPLICATION_STATUS_HISTORY : "has timeline"
     JOB_APPLICATION ||--o{ CONTACT : "has"
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
+    INTERVIEW_ROUND }o--o{ CONTACT : "has in the round"
     JOB_APPLICATION }o--o{ SKILL : "tagged with"
     DOCUMENT }o--o{ SKILL : "emphasizes"
 ```
@@ -204,8 +214,8 @@ is not owned by any `User` (see business rule 9: every `Organization`,
 `Document`, `Skill`, and `JobApplication` — unlike `Country` — belongs to
 exactly one `User` and must be scoped by `user_id` in every query).
 `ApplicationStatusHistory`, `Contact`,
-`InterviewRound`, `OrganizationCountry`, `JobApplicationHasSkill`, and
-`DocumentHasSkill` don't need their own `user_id`: they're only ever reached
+`InterviewRound`, `InterviewRoundHasContact`, `OrganizationCountry`,
+`JobApplicationHasSkill`, and `DocumentHasSkill` don't need their own `user_id`: they're only ever reached
 through their parent (`JobApplication`, `Organization` or `Document`), which
 is already scoped.
 
@@ -263,10 +273,17 @@ and become user-adjustable later without any migration.
 7. One organization legitimately has many job applications — this is not
    an edge case, it's the normal case the tool is built around.
 8. `InterviewRound` rows belong to exactly one `JobApplication` and are
-   deleted along with it. A round's `outcome` is independent of the
+   deleted along with it. A round can have several of that application's
+   `Contact`s (and a new one can be created together with the round); one
+   contact can be in several rounds. A round's `outcome` is independent of the
    application's `current_status` — passing a technical round doesn't by
    itself change the application's status; you still log that via
-   `ApplicationStatusHistory` (e.g. moving to `interview` or `offer`).
+   `ApplicationStatusHistory` (e.g. moving to `offer`). The one exception is
+   scheduling a round: if the application is still `applied` or `screening`,
+   creating the round also moves it to `interview` (a history entry plus
+   `current_status`, in the same transaction). In any other status, including
+   `interview` itself, `offer`, `rejected`, `withdrawn` and `no_response`, the
+   status is left alone.
 9. Every `Organization`, `Document`, `Skill`, and `JobApplication` belongs
    to exactly one `User`. All queries and writes in the application/API
    layers must filter/scope by the current user's `user_id` — there is no

@@ -10,7 +10,7 @@ Naming convention: `snake_case` tables and columns, **singular** table
 names (`country`, `organization`, ...) — Prisma 8's naming config has no
 pluralization option (confirmed against the official docs), so this is
 its default rather than a deliberate choice; the two join tables
-(`organization_in_country`, `job_application_has_skill`) are named
+(`organization_in_country`, `job_application_has_skill`, `interview_round_has_contact`) are named
 explicitly since a compound name isn't derivable from the model name
 either way. Surrogate `id` primary keys (`bigserial` or `uuid` — open
 decision, examples below use `bigserial` for readability).
@@ -178,13 +178,22 @@ Index: `(job_application_id, changed_at)`.
 | Column             | Type          | Constraints                                                          |
 |--------------------|---------------|-------------------------------------------------------------------------|
 | id                 | bigserial     | PK                                                                       |
-| round_type         | varchar(100)  | NOT NULL                                                                 |
+| round_type         | native `ENUM` | NOT NULL — `RoundType` (`intro_call`, `technical`, `coding`, `take_home`, `behavioral`) |
 | scheduled_at       | timestamptz   | NOT NULL                                                                 |
 | outcome            | native `ENUM` | NOT NULL DEFAULT 'scheduled' — `InterviewOutcome` (`scheduled`, `passed`, `failed`, `cancelled`) |
 | notes              | text          | NULL                                                                     |
 | job_application_id | bigint        | FK → job_application(id), NOT NULL                                     |
 
 Index: `(job_application_id, scheduled_at)`.
+
+### `interview_round_has_contact` (join table)
+
+Who is in a round: a round can have several contacts, and a contact can be in several rounds.
+
+| Column             | Type    | Constraints                                                  |
+|--------------------|---------|----------------------------------------------------------------|
+| interview_round_id | bigint  | FK → interview_round(id) ON DELETE CASCADE, PK (part 1)       |
+| contact_id         | bigint  | FK → contact(id) ON DELETE CASCADE, PK (part 2)               |
 
 ### `job_application_has_skill` (join table)
 
@@ -251,7 +260,7 @@ future Node/ICU version resolves a name differently.
   organization with applications shouldn't disappear silently.
 - `application_status_history.job_application_id`,
   `contact.job_application_id`, `interview_round.job_application_id`,
-  `job_application_has_skill.*`: `ON DELETE CASCADE` — these are owned by
+  `job_application_has_skill.*`, `interview_round_has_contact.*`: `ON DELETE CASCADE` — these are owned by
   the job application; deleting an application should clean up its
   timeline, contact, interview rounds, and tags.
 - `organization_in_country.organization_id`: `ON DELETE CASCADE` —

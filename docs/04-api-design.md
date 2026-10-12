@@ -132,7 +132,7 @@ overwriting a field.
 | Method | Path                                                    | Purpose                        |
 |--------|--------------------------------------------------------|------------------------------------|
 | GET    | `/api/job-applications/:id/interview-rounds`             | List rounds for an application     |
-| POST   | `/api/job-applications/:id/interview-rounds`             | Add a round (type + scheduled date)|
+| POST   | `/api/job-applications/:id/interview-rounds`             | Add a round (type + scheduled date, optionally existing contacts and a new one to create with it) |
 | PATCH  | `/api/job-applications/:id/interview-rounds/:roundId`    | Update outcome/notes/date          |
 | DELETE | `/api/job-applications/:id/interview-rounds/:roundId`    | Remove a round                     |
 
