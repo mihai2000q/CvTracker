@@ -2,15 +2,17 @@ import { JobApplicationStatus } from '@/features/job-applications/types/enums/jo
 import { CountrySummary } from '@/features/countries/types/country.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { DocumentSummary } from '@/features/documents/types/document.ts';
+import { InterviewRound } from '@/features/job-applications/types/interview-round.ts';
 
 export interface JobApplication extends JobApplicationSummary {
-  postingUrl?: string;
-  source?: string;
-  notes?: string;
+  postingUrl?: string | null;
+  source?: string | null;
+  notes?: string | null;
   country: CountrySummary;
   organization: OrganizationSummary;
-  cvDocument: DocumentSummary;
-  coverLetter: DocumentSummary;
+  cv: DocumentSummary;
+  coverLetter?: DocumentSummary | null;
+  interviewRounds: InterviewRound[];
 }
 
 export interface JobApplicationSummary {

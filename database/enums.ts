@@ -29,3 +29,13 @@ export const InterviewOutcome = enumType(
   member('Failed', 'failed'),
   member('Cancelled', 'cancelled')
 );
+
+export const RoundType = enumType(
+  'RoundType',
+  pgText,
+  member('IntroCall', 'intro_call'),
+  member('Technical', 'technical'),
+  member('Coding', 'coding'),
+  member('TakeHome', 'take_home'),
+  member('Behavioral', 'behavioral')
+);

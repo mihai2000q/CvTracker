@@ -10,6 +10,7 @@ type JobApplicationModels = {
   ApplicationStatusHistory: Model;
   Contact: Model;
   InterviewRound: Model;
+  InterviewRoundHasContact: Model;
   JobApplicationHasSkill: Model;
 };
 
@@ -25,6 +26,7 @@ export function jobApplicationRelations(
     ApplicationStatusHistory,
     Contact,
     InterviewRound,
+    InterviewRoundHasContact,
     JobApplicationHasSkill,
   }: JobApplicationModels
 ) {
@@ -59,11 +61,21 @@ export function jobApplicationRelations(
       jobApplication: rel
         .belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' })
         .sql({ fk: { name: 'fk_contact_job_application_id', onDelete: 'cascade' } }),
+      interviewRounds: rel.hasMany(InterviewRoundHasContact, { by: 'contactId' }),
     }),
     InterviewRound: InterviewRound.relations({
       jobApplication: rel
         .belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' })
         .sql({ fk: { name: 'fk_interview_round_job_application_id', onDelete: 'cascade' } }),
+      contacts: rel.hasMany(InterviewRoundHasContact, { by: 'interviewRoundId' }),
+    }),
+    InterviewRoundHasContact: InterviewRoundHasContact.relations({
+      interviewRound: rel.belongsTo(InterviewRound, { from: 'interviewRoundId', to: 'id' }).sql({
+        fk: { name: 'fk_interview_round_has_contact_interview_round_id', onDelete: 'cascade' },
+      }),
+      contact: rel
+        .belongsTo(Contact, { from: 'contactId', to: 'id' })
+        .sql({ fk: { name: 'fk_interview_round_has_contact_contact_id', onDelete: 'cascade' } }),
     }),
     JobApplicationHasSkill: JobApplicationHasSkill.relations({
       jobApplication: rel.belongsTo(JobApplication, { from: 'jobApplicationId', to: 'id' }).sql({
