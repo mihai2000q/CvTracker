@@ -29,6 +29,8 @@ const SIDEBAR_WIDTH = '16rem';
 const SIDEBAR_WIDTH_MOBILE = '18rem';
 const SIDEBAR_WIDTH_ICON = '3rem';
 const SIDEBAR_KEYBOARD_SHORTCUT = 'b';
+// Below this width (and above mobile) the sidebar collapses to its icons
+const SIDEBAR_COLLAPSE_BREAKPOINT = 1024;
 
 type SidebarContextProps = {
   state: 'expanded' | 'collapsed';
@@ -85,6 +87,17 @@ function SidebarProvider({
     },
     [setOpenProp, open]
   );
+
+  // Collapses to icons on medium screens and opens again on larger ones. It sets the internal
+  // state directly, so the cookie keeps the preference made on a large screen
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(min-width: ${SIDEBAR_COLLAPSE_BREAKPOINT}px)`);
+    const onChange = (event: MediaQueryListEvent) => _setOpen(event.matches);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!mql.matches) _setOpen(false);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
