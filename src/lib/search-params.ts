@@ -1,4 +1,10 @@
 import { serializeSort, type SortEntry } from '@/lib/sort.ts';
+import {
+  buildFilterOption,
+  serializeFilter,
+  type FilterEntry,
+  type FilterOperator,
+} from '@/lib/filter.ts';
 
 export interface SearchParamsState<TState> {
   keys: readonly string[];
@@ -21,24 +27,36 @@ export function readSearchParams<T>(state: SearchParamsState<T>, searchParams: N
   };
 }
 
-// `readSearchParams` for a paginated, sorted list: the page, the sort serialized (the form a
-// query function validates) and the links to move between pages and orders. The sort as
-// entries, for what renders it, is in `values`.
-export function readListSearchParams<T extends { page: number; sortBy: SortEntry[] }>(
-  state: SearchParamsState<T>,
-  pathname: string,
-  searchParams: NextSearchParams
-) {
+// `readSearchParams` for a paginated, sorted, filtered list: the page, the sort and filter
+// serialized (the form a query function validates) and the links to move between pages,
+// orders and filters.
+export function readListSearchParams<
+  T extends { page: number; sortBy: SortEntry[]; filterBy?: FilterEntry[]; search?: string },
+>(state: SearchParamsState<T>, pathname: string, searchParams: NextSearchParams) {
   const { values, hrefFor } = readSearchParams(state, searchParams);
+  const filterBy = (values.filterBy ?? []) as NonNullable<T['filterBy']>;
+  const hrefForFilterBy = (filterBy: NonNullable<T['filterBy']>) =>
+    hrefFor(pathname, { filterBy, page: 1 } as Partial<T>);
 
   return {
     values: {
       ...values,
-      sortBy: serializeSort(values.sortBy)
+      sortBy: serializeSort(values.sortBy),
+      filterBy: serializeFilter(filterBy),
     },
     hrefForPage: (page: number) => hrefFor(pathname, { page } as Partial<T>),
-    // A new order starts over from the first page
     hrefForSortBy: (sortBy: T['sortBy']) => hrefFor(pathname, { sortBy, page: 1 } as Partial<T>),
+    hrefForNoFilters: () =>
+      hrefFor(pathname, {
+        filterBy: [] as NonNullable<T['filterBy']>,
+        search: undefined,
+        page: 1,
+      } as Partial<T>),
+    filterOption: (
+      field: NonNullable<T['filterBy']>[number]['field'],
+      operator: FilterOperator,
+      value: unknown
+    ) => buildFilterOption(field, operator, value, filterBy, hrefForFilterBy),
   };
 }
 
@@ -53,7 +71,7 @@ function toURLSearchParams(params: NextSearchParams): URLSearchParams {
 }
 
 // Replaces this state's keys in `current` and leaves every other param (search, filters) alone.
-function buildSearchParamsHref<T>(
+export function buildSearchParamsHref<T>(
   pathname: string,
   state: SearchParamsState<T>,
   currentParams: URLSearchParams,
