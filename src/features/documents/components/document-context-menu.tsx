@@ -5,9 +5,10 @@ import {
   ContextMenu,
   ContextMenuContent,
   ContextMenuItem,
+  ContextMenuSeparator,
   ContextMenuTrigger,
 } from '@/components/ui/context-menu.tsx';
-import { RiDeleteBinLine } from '@remixicon/react';
+import { RiDeleteBinLine, RiDownload2Line, RiExternalLinkLine } from '@remixicon/react';
 import DeleteDocumentAlertDialog from '@/features/documents/components/delete-document-alert-dialog.tsx';
 import { Document } from '@/features/documents/types/document.ts';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip.tsx';
@@ -18,6 +19,8 @@ interface Props {
 }
 
 const DocumentContextMenu = ({ document, children }: Props) => {
+  // Browsers only render PDFs; the other types would just download
+  const isPdf = document.originalFilename.toLowerCase().endsWith('.pdf');
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
@@ -25,6 +28,31 @@ const DocumentContextMenu = ({ document, children }: Props) => {
       <ContextMenu>
         <ContextMenuTrigger render={children} />
         <ContextMenuContent>
+          <Tooltip disabled={isPdf}>
+            <TooltipTrigger closeOnClick={false} render={<div className="w-full" />}>
+              <ContextMenuItem
+                disabled={!isPdf}
+                render={
+                  <a
+                    href={`/api/documents/${document.id}/download?inline=1`}
+                    target={'_blank'}
+                    rel={'noopener noreferrer'}
+                  />
+                }
+              >
+                <RiExternalLinkLine />
+                Open in new tab
+              </ContextMenuItem>
+            </TooltipTrigger>
+            <TooltipContent side={'right'}>Only PDFs can be opened in the browser</TooltipContent>
+          </Tooltip>
+          <ContextMenuItem render={<a href={`/api/documents/${document.id}/download`} download />}>
+            <RiDownload2Line />
+            Download
+          </ContextMenuItem>
+
+          <ContextMenuSeparator />
+
           <Tooltip disabled={document.jobApplicationsCount === 0}>
             <TooltipTrigger render={<div className="w-full" />}>
               <ContextMenuItem
