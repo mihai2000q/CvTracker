@@ -13,3 +13,13 @@ export interface OrganizationSummary {
   name: string;
   countries: CountrySummary[];
 }
+
+type OrganizationRow = Omit<OrganizationSummary, 'countries'> & {
+  organizationCountries: { country: CountrySummary }[];
+};
+
+export const toOrganizationSummary = (row: OrganizationRow): OrganizationSummary => ({
+  id: row.id,
+  name: row.name,
+  countries: row.organizationCountries.map(({ country }) => country),
+});

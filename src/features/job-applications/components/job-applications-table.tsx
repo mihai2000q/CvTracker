@@ -1,5 +1,8 @@
 import React from 'react';
-import { JobApplication } from '@/features/job-applications/types/job-application.ts';
+import {
+  isInterviewing,
+  JobApplication,
+} from '@/features/job-applications/types/job-application.ts';
 import {
   Table,
   TableBody,
@@ -17,12 +20,7 @@ import JobApplicationSourceIcon from '@/features/job-applications/components/sou
 import JobApplicationContextMenu from '@/features/job-applications/components/job-application-context-menu.tsx';
 import InterviewRoundHoverCard from '@/features/job-applications/components/interview/interview-round-hover-card.tsx';
 import NextInterview from '@/features/job-applications/components/interview/next-interview.tsx';
-import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
-
-// Only an application in the interview stage has rounds worth showing
-const isInterviewing = ({ currentStatus, interviewRounds }: JobApplication) =>
-  currentStatus === JobApplicationStatus.Interview && interviewRounds.length > 0;
 
 const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplication[] }) => {
   return (
@@ -98,7 +96,7 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
                       'link-underline flex w-fit max-w-full flex-row items-center gap-1 leading-none'
                     }
                   >
-                    <RiEarthFill className={'size-4 pb-0.5'} />
+                    <RiEarthFill className={'size-4 -translate-y-px'} />
                     <span className={'truncate'}>{jobApplication.country.name}</span>
                   </Link>
                   {jobApplication.source && (
@@ -109,7 +107,7 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
                     >
                       <JobApplicationSourceIcon
                         source={jobApplication.source}
-                        className={'size-4 pb-0.5'}
+                        className={'size-4 -translate-y-px'}
                       />
                       <span className={'truncate'}>{jobApplication.source}</span>
                     </div>
@@ -129,7 +127,7 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
                     >
                       <RiFileFill
                         data-document-type={jobApplication.cv.type}
-                        className={'size-4 pb-0.5 text-(--document-color)'}
+                        className={'size-4 -translate-y-px text-(--document-color)'}
                       />
                       <span className={'truncate'}>{jobApplication.cv.name}</span>
                     </Link>
@@ -145,7 +143,7 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
                       >
                         <RiFileFill
                           data-document-type={jobApplication.coverLetter.type}
-                          className={'size-4 pb-0.5 text-(--document-color)'}
+                          className={'size-4 -translate-y-px text-(--document-color)'}
                         />
                         <span className={'truncate'}>{jobApplication.coverLetter.name}</span>
                       </Link>

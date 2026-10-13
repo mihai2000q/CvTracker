@@ -31,14 +31,14 @@ import {
   ScheduleInterviewForm,
   scheduleInterviewSchema,
 } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
-import { JobApplication } from '@/features/job-applications/types/job-application.ts';
+import { JobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
 import RoundTypeCombobox from '@/features/job-applications/components/interview/round-type-combobox.tsx';
 import ContactCombobox from '@/features/organizations/components/contact/contact-combobox.tsx';
 import NewContactSection from '@/features/job-applications/components/interview/new-contact-section.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 
 interface Props {
-  jobApplication: JobApplication;
+  jobApplication: JobApplicationSummary;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

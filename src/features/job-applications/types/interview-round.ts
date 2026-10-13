@@ -11,3 +11,24 @@ export interface InterviewRound {
   notes: string | null;
   contacts: Contact[];
 }
+
+export const toInterviewRound = (
+  row: Omit<InterviewRound, 'roundType' | 'outcome' | 'contacts'> & {
+    roundType: string;
+    outcome: string;
+    contacts: { contact: Contact }[];
+  }
+): InterviewRound => ({
+  id: row.id,
+  roundType: row.roundType as RoundType,
+  scheduledAt: row.scheduledAt,
+  outcome: row.outcome as InterviewOutcome,
+  notes: row.notes,
+  contacts: row.contacts.map(({ contact }) => ({
+    id: contact.id,
+    name: contact.name,
+    role: contact.role,
+    email: contact.email,
+    phone: contact.phone,
+  })),
+});

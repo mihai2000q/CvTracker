@@ -1,5 +1,5 @@
-import { Organization } from '@/features/organizations/types/organization.ts';
-import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
+import { toJobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
+import { Organization, toOrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
@@ -45,7 +45,12 @@ async function getOrganizationsQuery(
     .include('jobApplications', (jobApplications) =>
       jobApplications.combine({
         items: jobApplications
-          .select('id', 'title', 'currentStatus', 'appliedAt')
+          .select('id', 'title', 'currentStatus', 'appliedAt', 'source', 'postingUrl')
+          .include('country')
+          .include('cvDocument')
+          .include('interviewRounds', (r) =>
+            r.include('contacts', (rc) => rc.include('contact')).orderBy((r) => r.scheduledAt.asc())
+          )
           .orderBy((j) => j.appliedAt.desc()),
         lastActivityAt: jobApplications.max('updatedAt'),
       })
@@ -56,19 +61,19 @@ async function getOrganizationsQuery(
     filteredQuery.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
   ]);
 
-  const organizations = models.map((organization) => ({
-    id: organization.id,
-    name: organization.name,
-    websiteUrl: organization.websiteUrl,
-    notes: organization.notes,
-    countries: organization.organizationCountries.map((c) => c.country),
-    jobApplications: organization.jobApplications.items.map((jobApplication) => ({
-      ...jobApplication,
-      currentStatus: jobApplication.currentStatus as JobApplicationStatus,
-      appliedAt: jobApplication.appliedAt.toString(),
-    })),
-    lastActivityAt: organization.jobApplications.lastActivityAt ?? organization.updatedAt,
-  }));
+  const organizations = models.map((organization) => {
+    const summary = toOrganizationSummary(organization);
+
+    return {
+      ...summary,
+      websiteUrl: organization.websiteUrl,
+      notes: organization.notes,
+      jobApplications: organization.jobApplications.items.map((jobApplication) =>
+        toJobApplicationSummary(jobApplication, summary)
+      ),
+      lastActivityAt: organization.jobApplications.lastActivityAt ?? organization.updatedAt,
+    };
+  });
 
   return { items: organizations, totalCount };
 }
