@@ -46,6 +46,8 @@ export function readListSearchParams<
     },
     hrefForPage: (page: number) => hrefFor(pathname, { page } as Partial<T>),
     hrefForSortBy: (sortBy: T['sortBy']) => hrefFor(pathname, { sortBy, page: 1 } as Partial<T>),
+    // Any other change to the list starts over from the first page too
+    hrefForPatch: (patch: Partial<T>) => hrefFor(pathname, { ...patch, page: 1 }),
     hrefForNoFilters: () =>
       hrefFor(pathname, {
         filterBy: [] as NonNullable<T['filterBy']>,

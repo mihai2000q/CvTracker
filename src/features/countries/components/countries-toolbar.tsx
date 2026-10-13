@@ -1,7 +1,6 @@
 import React from 'react';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
-import { RiSearchLine } from '@remixicon/react';
 import { Card } from '@/components/ui/card.tsx';
+import CountriesSearchInput from '@/features/countries/components/countries-search-input.tsx';
 import SortCombobox from '@/components/sort/sort-combobox.tsx';
 import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
 import {
@@ -17,12 +16,10 @@ interface Props {
 const CountriesToolbar = ({ sortBy, hrefForSortBy }: Props) => {
   return (
     <Card className={'flex flex-row flex-wrap gap-4 px-4.5 py-4'}>
-      <InputGroup className={'dark:bg-background min-w-48 flex-1'}>
-        <InputGroupAddon>
-          <RiSearchLine />
-        </InputGroupAddon>
-        <InputGroupInput placeholder="Search by name..." />
-      </InputGroup>
+      <CountriesSearchInput
+        placeholder="Search by name or ISO code..."
+        className={'dark:bg-background min-w-48 flex-1'}
+      />
 
       <SortCombobox
         options={buildSortOptions(COUNTRY_SORT_PRESETS, sortBy, hrefForSortBy)}
