@@ -35,15 +35,19 @@ export type OrganizationSortField = (typeof ORGANIZATION_SORT_FIELDS)[number];
 
 // Default Sort By
 export const DEFAULT_ORGANIZATION_SORT_BY: SortEntry<OrganizationSortField>[] = [
-  { field: 'updatedAt', direction: 'desc' },
+  { field: 'lastActivityAt', direction: 'desc' },
 ];
 
 export const ORGANIZATION_SORT_PRESETS: SortPreset<OrganizationSortField>[] = [
-  { label: 'Recently updated', icon: <RiRefreshLine />, sortBy: DEFAULT_ORGANIZATION_SORT_BY },
   {
     label: 'Last activity',
     icon: <RiPulseLine />,
-    sortBy: [{ field: 'lastActivityAt', direction: 'desc' }],
+    sortBy: DEFAULT_ORGANIZATION_SORT_BY,
+  },
+  {
+    label: 'Recently updated',
+    icon: <RiRefreshLine />,
+    sortBy: [{ field: 'updatedAt', direction: 'desc' }],
   },
   {
     label: 'Newest',
