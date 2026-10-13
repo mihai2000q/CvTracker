@@ -1,4 +1,4 @@
-import { readSearchParams } from '@/lib/search-params.ts';
+import { readListSearchParams } from '@/lib/search-params.ts';
 import { countriesSearchParamsState } from '@/features/countries/schemas/countries-search-params.ts';
 import { getCountries } from '@/features/countries/queries/get-countries.ts';
 import { countCountries } from '@/features/countries/queries/count-countries.ts';
@@ -10,14 +10,14 @@ import AppPagination from '@/components/pagination/app-pagination.tsx';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 
 const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
-  const {
-    values: { page },
-    hrefFor,
-  } = readSearchParams(countriesSearchParamsState, await searchParams);
-  const hrefForPage = (page: number) => hrefFor('/countries', { page });
+  const { page, sortBy, hrefForPage, hrefForSortBy } = readListSearchParams(
+    countriesSearchParamsState,
+    '/countries',
+    await searchParams
+  );
 
   const [result, allCount, appliedCount] = await Promise.all([
-    getCountries({ page }),
+    getCountries({ page, sortBy }),
     countCountries('all'),
     countCountries('applied'),
   ]);
@@ -54,7 +54,7 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
       </header>
 
       <main className={'flex flex-1 flex-col gap-6'}>
-        {totalCount > 0 && <CountriesToolbar />}
+        {totalCount > 0 && <CountriesToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
 
         {totalCount > 0 && (
           <ul role="list" className={'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'}>
