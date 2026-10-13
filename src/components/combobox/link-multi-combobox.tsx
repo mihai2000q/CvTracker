@@ -25,6 +25,8 @@ interface Props {
   clearHref: string;
   // Beside the box; a single selection's own icon takes its place
   icon?: React.ReactNode;
+  // For the dropdown, which is as wide as the box unless it says otherwise
+  contentClassName?: string;
   inputProps?: ComboboxInputProps;
 }
 
@@ -42,7 +44,14 @@ const Checkbox = ({ checked }: { checked: boolean }) => (
 
 // A combobox that picks several of its options with checkboxes. Like `LinkCombobox`, each
 // choice is a link, so the page holds the selection and it stays open while it changes.
-const LinkMultiCombobox = ({ options, allLabel, clearHref, icon, inputProps }: Props) => {
+const LinkMultiCombobox = ({
+  options,
+  allLabel,
+  clearHref,
+  icon,
+  contentClassName,
+  inputProps,
+}: Props) => {
   const anchor = useComboboxAnchor();
   const selected = options.filter((option) => option.active);
   const all: LinkOption = { label: allLabel, href: clearHref, active: selected.length === 0 };
@@ -69,7 +78,7 @@ const LinkMultiCombobox = ({ options, allLabel, clearHref, icon, inputProps }: P
         ) : null}
       </ComboboxInput>
 
-      <ComboboxContent anchor={anchor}>
+      <ComboboxContent anchor={anchor} className={contentClassName}>
         <ScrollArea viewportProps={{ className: 'max-h-65' }}>
           <ComboboxList className="max-h-none overflow-visible">
             {(option: LinkOption) => (
@@ -81,7 +90,9 @@ const LinkMultiCombobox = ({ options, allLabel, clearHref, icon, inputProps }: P
               >
                 <Checkbox checked={option.active} />
                 {option.icon}
-                {option.label}
+                <span title={option.label} className={'min-w-0 truncate'}>
+                  {option.label}
+                </span>
               </ComboboxItem>
             )}
           </ComboboxList>
