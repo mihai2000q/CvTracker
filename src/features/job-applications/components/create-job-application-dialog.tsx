@@ -44,7 +44,6 @@ interface Props {
   children?: React.ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  // Starts the form with this organization, and its first country, already picked
   organization?: OrganizationSummary;
 }
 
@@ -119,6 +118,11 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
               Record a job you&#39;ve applied to. Fill in what you know, save and edit later.
             </DialogDescription>
           </DialogHeader>
+
+          {/* The dialog content mounts after these controls' effects ran, so they find no form to
+              attach their input to. Real inputs make a prefilled value reach the form data. */}
+          <input {...getInputProps(fields.organizationName, { type: 'hidden' })} />
+          <input {...getInputProps(fields.countryId, { type: 'hidden' })} />
 
           <Separator />
 
