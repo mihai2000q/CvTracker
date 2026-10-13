@@ -1,11 +1,13 @@
-'use client';
-
 import React from 'react';
+import Link from 'next/link';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { cn } from '@/lib/utils.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import type { JobApplicationStatusCounts } from '@/features/job-applications/types/job-application-status-counts.ts';
+import type { FilterOperator } from '@/lib/filter.ts';
+import type { LinkOption } from '@/lib/link-option.ts';
+import type { JobApplicationFilterField } from '@/features/job-applications/constants/job-application-filtering.ts';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 
 interface Tab {
@@ -42,16 +44,33 @@ const TabCount = ({ count }: { count: number }) => (
   </span>
 );
 
-const JobApplicationTabs = ({ counts }: { counts: JobApplicationStatusCounts }) => {
+interface Props {
+  counts: JobApplicationStatusCounts;
+  filterOption: (
+    field: JobApplicationFilterField,
+    operator: FilterOperator,
+    value: unknown
+  ) => Pick<LinkOption, 'href' | 'active'>;
+}
+
+// One tab per status, each a link that filters by it, and "All" to clear
+const JobApplicationTabs = ({ counts, filterOption }: Props) => {
+  const tabs = buildTabs(counts).map((tab) => ({
+    ...tab,
+    ...filterOption('status', 'eq', tab.value === 'all' ? undefined : tab.value),
+  }));
+
   return (
-    <Tabs>
+    <Tabs value={tabs.find((tab) => tab.active)?.value}>
       <TabsList variant={'line'}>
-        {buildTabs(counts)
+        {tabs
           .filter((tab) => tab.count > 0)
           .map((tab) => (
             <TabsTrigger
               key={tab.value}
               value={tab.value}
+              nativeButton={false}
+              render={<Link href={tab.href} prefetch={false} />}
               className={'items-center gap-0 leading-none'}
             >
               {tab.value !== 'all' && (

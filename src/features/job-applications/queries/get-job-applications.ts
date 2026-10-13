@@ -17,6 +17,11 @@ import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
 import { buildOrderBy } from '@database/sort.ts';
+import { buildSearch, buildWhere } from '@database/filter.ts';
+import {
+  JOB_APPLICATION_FILTERS,
+  JOB_APPLICATION_SEARCH_COLUMNS,
+} from '@/features/job-applications/constants/job-application-filtering.ts';
 import {
   JOB_APPLICATION_TIEBREAKERS,
   jobApplicationSorters,
@@ -39,7 +44,7 @@ export async function getJobApplications(
 
 async function getJobApplicationsQuery(
   userId: string,
-  { page, pageSize, sortBy }: GetJobApplicationsQuery
+  { page, pageSize, sortBy, filterBy, search }: GetJobApplicationsQuery
 ): Promise<Page<JobApplication>> {
   'use cache';
   cacheTag(
@@ -48,7 +53,9 @@ async function getJobApplicationsQuery(
     cacheTags.documents(userId)
   );
 
-  const filteredQuery = db.JobApplication.where({ userId: uuid(userId) });
+  const filteredQuery = db.JobApplication.where({ userId: uuid(userId) })
+    .where(buildWhere(filterBy, JOB_APPLICATION_FILTERS))
+    .where(buildSearch(search, JOB_APPLICATION_SEARCH_COLUMNS));
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy(buildOrderBy(sortBy, jobApplicationSorters, JOB_APPLICATION_TIEBREAKERS))
