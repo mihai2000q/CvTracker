@@ -9,7 +9,7 @@ import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
 import {
   DOCUMENT_SORT_PRESETS,
   DocumentSortField,
-} from '@/features/documents/constants/documents-sorting.tsx';
+} from '@/features/documents/constants/document-sorting.tsx';
 
 interface Props {
   sortBy: string[];

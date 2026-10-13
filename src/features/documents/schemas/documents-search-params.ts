@@ -1,7 +1,7 @@
 import type { SearchParamsState } from '@/lib/search-params.ts';
 import { z } from 'zod';
 import { getDocumentsQuerySchema } from '@/features/documents/schemas/get-documents-schema.ts';
-import { DEFAULT_DOCUMENT_SORT_BY } from '@/features/documents/constants/documents-sorting.tsx';
+import { DEFAULT_DOCUMENT_SORT_BY } from '@/features/documents/constants/document-sorting.tsx';
 import { serializeSort } from '@/lib/sort.ts';
 
 enum DocumentsSearchParam {

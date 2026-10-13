@@ -18,7 +18,7 @@ import { buildOrderBy } from '@database/sort.ts';
 import {
   DOCUMENT_TIEBREAKERS,
   documentSorters,
-} from '@/features/documents/constants/documents-sorting.tsx';
+} from '@/features/documents/constants/document-sorting.tsx';
 
 export async function getDocuments(query: GetDocumentsQueryInput): Promise<Result<Page<Document>>> {
   const userId = getUserId(await verifySession());
