@@ -24,10 +24,10 @@ import {
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-import { JobApplication } from '@/features/job-applications/types/job-application.ts';
+import { JobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
 
 interface Props {
-  jobApplication: JobApplication;
+  jobApplication: JobApplicationSummary;
   children: React.ReactElement;
 }
 
