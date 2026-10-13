@@ -2,7 +2,10 @@ import { JobApplicationStatus } from '@/features/job-applications/types/enums/jo
 import { CountrySummary } from '@/features/countries/types/country.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { DocumentSummary, toDocumentSummary } from '@/features/documents/types/document.ts';
-import { InterviewRound, toInterviewRound } from '@/features/job-applications/types/interview-round.ts';
+import {
+  InterviewRound,
+  toInterviewRound,
+} from '@/features/job-applications/types/interview-round.ts';
 
 export interface JobApplicationSummary {
   id: string;

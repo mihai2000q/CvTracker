@@ -7,7 +7,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table.tsx';
@@ -20,20 +19,65 @@ import JobApplicationSourceIcon from '@/features/job-applications/components/sou
 import JobApplicationContextMenu from '@/features/job-applications/components/job-application-context-menu.tsx';
 import InterviewRoundHoverCard from '@/features/job-applications/components/interview/interview-round-hover-card.tsx';
 import NextInterview from '@/features/job-applications/components/interview/next-interview.tsx';
+import TableHeadSortButton from '@/components/sort/table-head-sort-button.tsx';
+import TableHeadSortMenu from '@/components/sort/table-head-sort-menu.tsx';
+import { buildColumnSort, type SortEntry } from '@/lib/sort.ts';
+import type { JobApplicationSortField } from '@/features/job-applications/constants/job-application-sorting.ts';
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
 
-const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplication[] }) => {
+interface Props {
+  jobApplications: JobApplication[];
+  sortBy: string[];
+  hrefForSortBy: (sortBy: SortEntry<JobApplicationSortField>[]) => string;
+}
+
+const JobApplicationsTable = ({ jobApplications, sortBy, hrefForSortBy }: Props) => {
+  const sortOf = (field: JobApplicationSortField) => buildColumnSort(field, sortBy, hrefForSortBy);
+
   return (
     // Fixed, so every column keeps its share of the width and long text truncates instead of growing it
     <Table className={'min-w-5xl table-fixed'}>
       <TableHeader>
         <TableRow>
-          <TableHead className={'w-[32%]'}>Title & Organization</TableHead>
-          <TableHead className={'2xl:w-[16%]'}>Context</TableHead>
-          <TableHead className={'2xl:w-[17%]'}>Documents</TableHead>
-          <TableHead className={'2xl:w-[15%]'}>Status</TableHead>
-          <TableHead className={'hidden w-[12%] 2xl:table-cell'}>Next interview</TableHead>
-          <TableHead className={'2xl:w-[10%]'}>Applied at</TableHead>
+          <TableHeadSortMenu
+            className={'w-[32%]'}
+            options={[
+              { label: 'Title', ...sortOf('title') },
+              { label: 'Organization', ...sortOf('organization') },
+            ]}
+          >
+            Title & Organization
+          </TableHeadSortMenu>
+          <TableHeadSortMenu
+            className={'2xl:w-[16%]'}
+            options={[
+              { label: 'Country', ...sortOf('country') },
+              { label: 'Source', ...sortOf('source') },
+            ]}
+          >
+            Context
+          </TableHeadSortMenu>
+          <TableHeadSortMenu
+            className={'hidden xl:table-cell 2xl:w-[16%]'}
+            options={[
+              { label: 'CV', ...sortOf('cv') },
+              { label: 'Cover letter', ...sortOf('coverLetter') },
+            ]}
+          >
+            Documents
+          </TableHeadSortMenu>
+          <TableHeadSortButton className={'2xl:w-[14%]'} sort={sortOf('status')}>
+            Status
+          </TableHeadSortButton>
+          <TableHeadSortButton
+            className={'hidden w-[15%] 2xl:table-cell'}
+            sort={sortOf('nextInterview')}
+          >
+            Next interview
+          </TableHeadSortButton>
+          <TableHeadSortButton className={'2xl:w-[12%]'} sort={sortOf('appliedAt')}>
+            Applied at
+          </TableHeadSortButton>
         </TableRow>
       </TableHeader>
 
@@ -115,7 +159,7 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
                 </div>
               </TableCell>
 
-              <TableCell>
+              <TableCell className={'hidden xl:table-cell'}>
                 <div className={'text-muted-foreground flex flex-col gap-1.5 text-xs'}>
                   <DocumentHoverCard document={jobApplication.cv}>
                     <Link

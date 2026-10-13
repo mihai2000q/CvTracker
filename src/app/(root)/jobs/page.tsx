@@ -1,6 +1,6 @@
 import EmptyJobApplications from '@/features/job-applications/components/empty-job-applications.tsx';
 import AppPagination from '@/components/pagination/app-pagination.tsx';
-import { readSearchParams } from '@/lib/search-params.ts';
+import { readListSearchParams } from '@/lib/search-params.ts';
 import { redirect } from 'next/navigation';
 import { jobApplicationsSearchParamsState } from '@/features/job-applications/schemas/job-applications-search-params.ts';
 import { getJobApplications } from '@/features/job-applications/queries/get-job-applications.ts';
@@ -10,12 +10,12 @@ import JobApplicationTabs from '@/features/job-applications/components/job-appli
 
 const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
   const {
-    values: { page },
-    hrefFor,
-  } = readSearchParams(jobApplicationsSearchParamsState, await searchParams);
-  const hrefForPage = (page: number) => hrefFor('/jobs', { page });
+    values: { page, sortBy },
+    hrefForPage,
+    hrefForSortBy,
+  } = readListSearchParams(jobApplicationsSearchParamsState, '/jobs', await searchParams);
 
-  const result = await getJobApplications({ page });
+  const result = await getJobApplications({ page, sortBy });
   if (!result.success) {
     redirect('/jobs');
   }
@@ -33,7 +33,13 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
         {totalCount > 0 && <JobApplicationTabs />}
         {totalCount > 0 && <JobApplicationsToolbar />}
 
-        {jobApplications.length > 0 && <JobApplicationsTable jobApplications={jobApplications} />}
+        {jobApplications.length > 0 && (
+          <JobApplicationsTable
+            jobApplications={jobApplications}
+            sortBy={sortBy}
+            hrefForSortBy={hrefForSortBy}
+          />
+        )}
 
         {totalCount === 0 && <EmptyJobApplications />}
       </main>

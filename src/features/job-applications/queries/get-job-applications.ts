@@ -16,6 +16,11 @@ import {
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
+import { buildOrderBy } from '@database/sort.ts';
+import {
+  JOB_APPLICATION_TIEBREAKERS,
+  jobApplicationSorters,
+} from '@/features/job-applications/constants/job-application-sorting.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { toDocumentSummary } from '@/features/documents/types/document.ts';
 
@@ -34,7 +39,7 @@ export async function getJobApplications(
 
 async function getJobApplicationsQuery(
   userId: string,
-  { page, pageSize }: GetJobApplicationsQuery
+  { page, pageSize, sortBy }: GetJobApplicationsQuery
 ): Promise<Page<JobApplication>> {
   'use cache';
   cacheTag(
@@ -46,7 +51,7 @@ async function getJobApplicationsQuery(
   const filteredQuery = db.JobApplication.where({ userId: uuid(userId) });
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
-    .orderBy((o) => o.appliedAt.desc())
+    .orderBy(buildOrderBy(sortBy, jobApplicationSorters, JOB_APPLICATION_TIEBREAKERS))
     .include('organization', (o) =>
       o.include('organizationCountries', (oc) =>
         oc.include('country').orderBy((c) => c.country.name.asc())
