@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card.tsx';
 import OrganizationWebsiteUrl from '@/features/organizations/components/organization/organization-website-url.tsx';
 import { RiSendPlaneFill } from '@remixicon/react';
 import OrganizationCountryBadge from '@/features/organizations/components/organization/organization-country-badge.tsx';
+import OrganizationJobApplicationItem from '@/features/organizations/components/organization/organization-job-application-item.tsx';
 
 interface Props {
   organization: Organization;
@@ -31,9 +32,9 @@ const OrganizationItem = ({ organization }: Props) => {
                 <OrganizationCountryBadge key={country.id} country={country} />
               ))}
 
-              <div className={'text-muted-foreground flex items-center gap-2 pl-3'}>
+              <div className={'text-muted-foreground flex items-center gap-2 pl-3 leading-none'}>
                 <RiSendPlaneFill className={'size-3'} />
-                <div className={'text-[11px]'}>
+                <div className={'text-[0.6875rem]'}>
                   {organization.jobApplications.length} applications sent
                 </div>
               </div>
@@ -41,10 +42,20 @@ const OrganizationItem = ({ organization }: Props) => {
           </div>
         </AccordionTrigger>
 
-        <AccordionContent>
-          {organization.jobApplications.map((jobApplication) => (
-            <div key={jobApplication.id}>{jobApplication.title}</div>
-          ))}
+        <AccordionContent className={'dark:bg-background/40'}>
+          {organization.jobApplications.length > 0 && (
+            <div className={'pt-3 flex flex-col gap-1 px-6'}>
+              <div className={'mb-1 text-muted-foreground text-[0.70rem] font-bold uppercase'}>
+                ATTACHED JOBS
+              </div>
+              {organization.jobApplications.map((jobApplication) => (
+                <OrganizationJobApplicationItem
+                  key={jobApplication.id}
+                  jobApplication={jobApplication}
+                />
+              ))}
+            </div>
+          )}
 
           {organization.jobApplications.length === 0 && (
             <div className={'text-muted-foreground pt-4 text-center'}>No job applications sent</div>
