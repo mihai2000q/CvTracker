@@ -6,8 +6,9 @@ import { redirect } from 'next/navigation';
 import CountriesToolbar from '@/features/countries/components/countries-toolbar.tsx';
 import CountryItem from '@/features/countries/components/country-item.tsx';
 import EmptyCountries from '@/features/countries/components/empty-countries.tsx';
-import AppPagination from '@/components/pagination/app-pagination.tsx';
-import Link from 'next/link';
+import ListHeader from '@/components/list/list-header.tsx';
+import ListFooter from '@/components/list/list-footer.tsx';
+import NoResults from '@/components/list/no-results.tsx';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 
 const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
@@ -32,32 +33,29 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
 
   return (
     <div className={'flex flex-1 flex-col gap-6'}>
-      <header className={'flex flex-wrap items-center justify-between gap-3'}>
-        <div className={'flex flex-col'}>
-          <h1 className={'text-2xl font-bold'}>Countries</h1>
-          <div className={'text-muted-foreground text-xs'}>
-            Manage and track the applications you&#39;ve sent, filtered by country
-          </div>
-        </div>
-
-        <SegmentedControl
-          aria-label="Country filter"
-          items={[
-            {
-              label: 'All',
-              href: hrefForPatch({ scope: 'all' }),
-              active: scope === 'all',
-              count: allCount,
-            },
-            {
-              label: 'Applied',
-              href: hrefForPatch({ scope: 'applied' }),
-              active: scope === 'applied',
-              count: appliedCount,
-            },
-          ]}
-        />
-      </header>
+      <ListHeader
+        title="Countries"
+        description="Manage and track the applications you've sent, filtered by country"
+        rightSection={
+          <SegmentedControl
+            aria-label="Country filter"
+            items={[
+              {
+                label: 'All',
+                href: hrefForPatch({ scope: 'all' }),
+                active: scope === 'all',
+                count: allCount,
+              },
+              {
+                label: 'Applied',
+                href: hrefForPatch({ scope: 'applied' }),
+                active: scope === 'applied',
+                count: appliedCount,
+              },
+            ]}
+          />
+        }
+      />
 
       <main className={'flex flex-1 flex-col gap-6'}>
         <CountriesToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />
@@ -74,24 +72,17 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
 
         {totalCount === 0 && !search && <EmptyCountries />}
         {totalCount === 0 && search && (
-          <div className={'text-muted-foreground py-12 text-center text-sm'}>
-            No countries match your search.{' '}
-            <Link href={hrefForNoFilters()} className={'link-underline'}>
-              Clear search
-            </Link>
-          </div>
+          <NoResults noun="countries" clearHref={hrefForNoFilters()} />
         )}
       </main>
 
-      {totalCount > 0 && (
-        <div className={'flex flex-wrap items-center justify-between gap-2 pt-4'}>
-          <div className={'text-muted-foreground text-xs'}>
-            Displaying {countries.length} of {totalCount} countries
-          </div>
-
-          <AppPagination page={page} totalCount={totalCount} hrefForPage={hrefForPage} />
-        </div>
-      )}
+      <ListFooter
+        shown={countries.length}
+        totalCount={totalCount}
+        noun="countries"
+        page={page}
+        hrefForPage={hrefForPage}
+      />
     </div>
   );
 };
