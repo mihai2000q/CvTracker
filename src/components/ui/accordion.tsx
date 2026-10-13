@@ -16,7 +16,13 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn('not-last:border-b', className)}
+      className={cn(
+        'relative rounded-xl not-last:border-b',
+        'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit]',
+        'after:ring-1 after:ring-transparent after:transition-shadow after:duration-150 after:ring-inset',
+        'data-open:after:ring-[oklch(from_var(--primary)_calc(l+0.15)_c_h)]/40',
+        className
+      )}
       {...props}
     />
   );
@@ -28,7 +34,7 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          'group/accordion-trigger focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:after:border-ring **: **:data-[slot=accordion-trigger-icon]:text-muted-foreground relative flex flex-1 items-center rounded-md border border-transparent py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-3 aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:size-4',
+          'group/accordion-trigger focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:after:border-ring relative flex flex-1 items-center rounded-xl border border-transparent py-4 text-left text-sm font-medium transition-all outline-none focus-visible:ring-3 aria-disabled:pointer-events-none aria-disabled:opacity-50',
           'hover:bg-muted',
           className
         )}
@@ -37,7 +43,10 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
         {children}
         <RiArrowDownSLine
           data-slot="accordion-trigger-icon"
-          className="pointer-events-none ml-auto shrink-0 transition-transform duration-150 group-aria-expanded/accordion-trigger:rotate-180"
+          className={cn(
+            'transition-[color, transform] pointer-events-none ml-auto shrink-0 duration-150',
+            'text-muted-foreground size-5 group-aria-expanded/accordion-trigger:rotate-180 group-aria-expanded/accordion-trigger:text-[oklch(from_var(--primary)_calc(l+0.15)_c_h)]'
+          )}
         />
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>
@@ -53,7 +62,7 @@ function AccordionContent({ className, children, ...props }: AccordionPrimitive.
     >
       <div
         className={cn(
-          '[&_a]:hover:text-foreground h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_p:not(:last-child)]:mb-4',
+          '[&_a]:hover:text-foreground h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_p:not(:last-child)]:mb-4',
           className
         )}
       >
