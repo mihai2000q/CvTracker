@@ -6,7 +6,7 @@ import { RiLink } from '@remixicon/react';
 const OrganizationWebsiteUrl = ({ link }: { link: string }) => {
   return (
     <div
-      className={'flex gap-0.75 text-[11px] text-blue-500 hover:underline'}
+      className={'flex gap-0.75 text-[0.6875rem] text-blue-500 hover:underline'}
       onClick={(e) => {
         e.stopPropagation();
       }}

@@ -43,7 +43,7 @@ const OrganizationHoverCard = ({ organization }: { organization: OrganizationSum
         </AvatarFallback>
       </Avatar>
       <div className={'flex min-w-0 flex-col gap-px'}>
-        <div className={'truncate text-[1rem] font-bold'} title={organization.name}>
+        <div className={'truncate text-base font-bold'} title={organization.name}>
           {organization.name}
         </div>
         <span
