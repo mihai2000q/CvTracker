@@ -34,3 +34,7 @@ function truncateFilename(filename: string) {
   const stem = path.basename(filename, extension);
   return stem.slice(0, 255 - extension.length) + extension;
 }
+
+export async function removeStoredDocument(filePath: string) {
+  await rm(path.join(UPLOADS_DIR, ...filePath.split('/')), { force: true });
+}
