@@ -9,9 +9,14 @@ import {
   GetCountriesQueryInput,
   getCountriesQuerySchema,
 } from '@/features/countries/schemas/get-countries-schema.ts';
+import {
+  COUNTRY_TIEBREAKERS,
+  countrySorters,
+} from '@/features/countries/constants/country-sorting.tsx';
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
+import { buildOrderBy } from '@database/sort.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 
 export async function getCountries(query: GetCountriesQueryInput): Promise<Result<Page<Country>>> {
@@ -27,7 +32,7 @@ export async function getCountries(query: GetCountriesQueryInput): Promise<Resul
 
 async function getCountriesQuery(
   userId: string,
-  { page, pageSize }: GetCountriesQuery
+  { page, pageSize, sortBy }: GetCountriesQuery
 ): Promise<Page<Country>> {
   'use cache';
   cacheTag(
@@ -41,7 +46,7 @@ async function getCountriesQuery(
   );
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
-    .orderBy((c) => c.name.asc())
+    .orderBy(buildOrderBy(sortBy, countrySorters(userId), COUNTRY_TIEBREAKERS))
     .include('jobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
     .include('organizationCountries', (oc) =>
       oc.where((x) => x.organization.some((o) => o.userId.eq(uuid(userId)))).count()
