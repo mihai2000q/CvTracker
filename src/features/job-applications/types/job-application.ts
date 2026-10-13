@@ -4,20 +4,17 @@ import { OrganizationSummary } from '@/features/organizations/types/organization
 import { DocumentSummary } from '@/features/documents/types/document.ts';
 import { InterviewRound } from '@/features/job-applications/types/interview-round.ts';
 
-export interface JobApplication extends JobApplicationSummary {
-  postingUrl?: string | null;
-  source?: string | null;
-  notes?: string | null;
-  country: CountrySummary;
-  organization: OrganizationSummary;
-  cv: DocumentSummary;
-  coverLetter?: DocumentSummary | null;
-  interviewRounds: InterviewRound[];
-}
-
-export interface JobApplicationSummary {
+export interface JobApplication {
   id: string;
   title: string;
   currentStatus: JobApplicationStatus;
   appliedAt: string;
+  source?: string | null;
+  postingUrl?: string | null;
+  notes?: string | null;
+  organization: OrganizationSummary;
+  country: CountrySummary;
+  cv: DocumentSummary;
+  coverLetter?: DocumentSummary | null;
+  interviewRounds: InterviewRound[];
 }
