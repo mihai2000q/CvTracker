@@ -11,6 +11,9 @@ import type { LinkOption } from '@/lib/link-option.ts';
 import type { JobApplicationFilterField } from '@/features/job-applications/constants/job-application-filtering.ts';
 import { getJobApplicationFiltersMetadata } from '@/features/job-applications/queries/get-job-application-filters-metadata.ts';
 
+// Names of organizations and CVs run long: the dropdown fits the longest, up to a limit
+const WIDE_DROPDOWN = 'w-max max-w-[min(20rem,var(--available-width))]';
+
 type FilterLink = Pick<LinkOption, 'href' | 'active'>;
 
 interface Props {
@@ -30,7 +33,7 @@ const JobApplicationsToolbar = async ({ filterOption, filterToggle }: Props) => 
     <div className={'flex flex-row flex-wrap gap-4'}>
       <JobApplicationsSearchInput
         placeholder="Search by title or organization..."
-        className={'min-w-48 flex-1'}
+        className={'min-w-55 flex-1'}
       />
 
       <LinkMultiCombobox
@@ -41,7 +44,8 @@ const JobApplicationsToolbar = async ({ filterOption, filterToggle }: Props) => 
         }))}
         allLabel="All organizations"
         clearHref={clearHref('organization')}
-        inputProps={{ className: 'w-full sm:w-50' }}
+        contentClassName={WIDE_DROPDOWN}
+        inputProps={{ className: 'w-full sm:w-60' }}
       />
 
       <LinkMultiCombobox
@@ -82,7 +86,8 @@ const JobApplicationsToolbar = async ({ filterOption, filterToggle }: Props) => 
         }))}
         allLabel="All CVs"
         clearHref={clearHref('cv')}
-        inputProps={{ className: 'w-full sm:w-40' }}
+        contentClassName={WIDE_DROPDOWN}
+        inputProps={{ className: 'w-full sm:w-45' }}
       />
     </div>
   );
