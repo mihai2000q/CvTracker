@@ -1,6 +1,7 @@
 import { serializeSort, type SortEntry } from '@/lib/sort.ts';
 import {
   buildFilterOption,
+  buildFilterToggleOption,
   serializeFilter,
   type FilterEntry,
   type FilterOperator,
@@ -46,7 +47,6 @@ export function readListSearchParams<
     },
     hrefForPage: (page: number) => hrefFor(pathname, { page } as Partial<T>),
     hrefForSortBy: (sortBy: T['sortBy']) => hrefFor(pathname, { sortBy, page: 1 } as Partial<T>),
-    // Any other change to the list starts over from the first page too
     hrefForPatch: (patch: Partial<T>) => hrefFor(pathname, { ...patch, page: 1 }),
     hrefForNoFilters: () =>
       hrefFor(pathname, {
@@ -59,6 +59,9 @@ export function readListSearchParams<
       operator: FilterOperator,
       value: unknown
     ) => buildFilterOption(field, operator, value, filterBy, hrefForFilterBy),
+    // The link that adds or removes one value of an `in` filter, and whether it is in the list
+    filterToggle: (field: NonNullable<T['filterBy']>[number]['field'], value: unknown) =>
+      buildFilterToggleOption(field, value, filterBy, hrefForFilterBy),
   };
 }
 

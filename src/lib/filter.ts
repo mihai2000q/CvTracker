@@ -40,3 +40,27 @@ export function buildFilterOption<Field extends string>(
     href: hrefForFilterBy(value === undefined ? others : [...others, { field, operator, value }]),
   };
 }
+
+// A control that adds or removes one value of an `in` filter: the link that does it and leaves
+// the other filters alone, and whether the value is in the list now. The filter is gone once
+// its list is empty.
+export function buildFilterToggleOption<Field extends string>(
+  field: Field,
+  value: unknown,
+  filterBy: readonly FilterEntry<Field>[],
+  hrefForFilterBy: (filterBy: FilterEntry<Field>[]) => string
+) {
+  const isThis = (entry: FilterEntry<Field>) => entry.field === field && entry.operator === 'in';
+  const current = filterBy.find(isThis)?.value;
+  const values = Array.isArray(current) ? current : [];
+  const active = values.includes(value);
+  const next = active ? values.filter((v) => v !== value) : [...values, value];
+  const others = filterBy.filter((entry) => !isThis(entry));
+
+  return {
+    active,
+    href: hrefForFilterBy(
+      next.length > 0 ? [...others, { field, operator: 'in', value: next }] : others
+    ),
+  };
+}
