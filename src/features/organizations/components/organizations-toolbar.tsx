@@ -5,8 +5,19 @@ import { Button } from '@/components/ui/button.tsx';
 import CreateOrganizationDialog from '@/features/organizations/components/create-organization-dialog.tsx';
 import { Card } from '@/components/ui/card.tsx';
 import { Combobox, ComboboxContent, ComboboxInput } from '@/components/ui/combobox.tsx';
+import SortCombobox from '@/components/sort/sort-combobox.tsx';
+import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
+import {
+  ORGANIZATION_SORT_PRESETS,
+  OrganizationSortField,
+} from '@/features/organizations/constants/organization-sorting.tsx';
 
-const OrganizationsToolbar = () => {
+interface Props {
+  sortBy: string[];
+  hrefForSortBy: (sortBy: SortEntry<OrganizationSortField>[]) => string;
+}
+
+const OrganizationsToolbar = ({ sortBy, hrefForSortBy }: Props) => {
   return (
     <Card className={'flex flex-row gap-4 px-4.5 py-4'}>
       <CreateOrganizationDialog>
@@ -32,14 +43,13 @@ const OrganizationsToolbar = () => {
         <ComboboxContent></ComboboxContent>
       </Combobox>
 
-      <Combobox>
-        <ComboboxInput
-          className={'dark:bg-background w-full sm:w-50'}
-          placeholder={'Sort: Newest'}
-        />
-
-        <ComboboxContent></ComboboxContent>
-      </Combobox>
+      <SortCombobox
+        options={buildSortOptions(ORGANIZATION_SORT_PRESETS, sortBy, hrefForSortBy)}
+        inputProps={{
+          className: 'dark:bg-background w-full sm:w-50',
+          placeholder: 'Sort organizations by...',
+        }}
+      />
     </Card>
   );
 };

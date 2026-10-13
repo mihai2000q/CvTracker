@@ -1,5 +1,8 @@
 import { toJobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
-import { Organization, toOrganizationSummary } from '@/features/organizations/types/organization.ts';
+import {
+  Organization,
+  toOrganizationSummary,
+} from '@/features/organizations/types/organization.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
@@ -13,6 +16,11 @@ import {
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
+import { buildOrderBy } from '@database/sort.ts';
+import {
+  ORGANIZATION_TIEBREAKERS,
+  organizationSorters,
+} from '@/features/organizations/constants/organization-sorting.tsx';
 import { zodValidate } from '@/lib/zod/parse.ts';
 
 export async function getOrganizations(
@@ -30,7 +38,7 @@ export async function getOrganizations(
 
 async function getOrganizationsQuery(
   userId: string,
-  { page, pageSize }: GetOrganizationsQuery
+  { page, pageSize, sortBy }: GetOrganizationsQuery
 ): Promise<Page<Organization>> {
   'use cache';
   cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
@@ -38,7 +46,7 @@ async function getOrganizationsQuery(
   const filteredQuery = db.Organization.where({ userId: uuid(userId) });
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
-    .orderBy((o) => o.createdAt.desc())
+    .orderBy(buildOrderBy(sortBy, organizationSorters, ORGANIZATION_TIEBREAKERS))
     .include('organizationCountries', (oc) =>
       oc.include('country').orderBy((c) => c.country.name.asc())
     )
