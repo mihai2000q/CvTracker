@@ -45,8 +45,8 @@ const JobApplicationsTable = ({ jobApplications }: { jobApplications: JobApplica
             <TableRow>
               <TableCell>
                 <div className={'flex flex-row items-center gap-4'}>
-                  <Avatar className={'size-10 rounded-xl after:rounded-xl'}>
-                    <AvatarFallback className={'rounded-xl'}>
+                  <Avatar className={'size-10 rounded-xl'}>
+                    <AvatarFallback>
                       <span className={'text-lg'}>{jobApplication.organization.name[0]}</span>
                     </AvatarFallback>
                   </Avatar>

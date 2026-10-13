@@ -16,8 +16,8 @@ const OrganizationItem = ({ organization }: Props) => {
     <Card className={'p-0'}>
       <AccordionItem value={organization.id} key={organization.id}>
         <AccordionTrigger className={'flex gap-4 p-4'}>
-          <Avatar className={'size-13 rounded-xl after:rounded-xl'}>
-            <AvatarFallback className={'rounded-xl after:rounded-xl'}>
+          <Avatar className={'size-13 rounded-xl'}>
+            <AvatarFallback>
               <span className={'text-lg'}>{organization.name[0]}</span>
             </AvatarFallback>
           </Avatar>

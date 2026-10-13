@@ -8,8 +8,8 @@ const AppSidebarUser = async () => {
 
   return (
     <AppSidebarUserMenu>
-      <Avatar className="h-8 w-8 rounded-xl after:rounded-xl">
-        <AvatarFallback className="rounded-xl after:rounded-xl">{user.name[0]}</AvatarFallback>
+      <Avatar className="h-8 w-8 rounded-xl">
+        <AvatarFallback>{user.name[0]}</AvatarFallback>
       </Avatar>
       <div className="grid flex-1 text-left text-sm leading-tight">
         <span className="truncate font-medium">{user.name}</span>

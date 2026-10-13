@@ -29,16 +29,16 @@ const OrganizationHoverCard = ({ organization }: { organization: OrganizationSum
     <HoverCardTrigger
       closeDelay={100}
       render={
-        <Avatar className={'size-6 rounded-md after:rounded-md'}>
-          <AvatarFallback className={'rounded-md'}>
+        <Avatar className={'size-6 rounded-md'}>
+          <AvatarFallback>
             <span className={'text-xs'}>{organization.name[0]}</span>
           </AvatarFallback>
         </Avatar>
       }
     />
     <HoverCardContent className="flex max-w-64 flex-row items-center gap-3">
-      <Avatar className={'size-15 shrink-0 rounded-lg after:rounded-lg'}>
-        <AvatarFallback className={'rounded-lg'}>
+      <Avatar className={'size-15 shrink-0 rounded-lg'}>
+        <AvatarFallback>
           <span className={'text-xl'}>{organization.name[0]}</span>
         </AvatarFallback>
       </Avatar>
@@ -146,8 +146,8 @@ const OrganizationCombobox = ({ idName, change, blur, id, invalid }: Props) => {
           <ComboboxList className="max-h-none overflow-visible">
             {organizations.map((organization) => (
               <ComboboxItem key={organization.id} value={organization}>
-                <Avatar size={'sm'} className={'rounded-lg after:rounded-lg'}>
-                  <AvatarFallback className={'rounded-lg'}>
+                <Avatar size={'sm'} className={'rounded-lg'}>
+                  <AvatarFallback>
                     <span>{organization.name[0]}</span>
                   </AvatarFallback>
                 </Avatar>
