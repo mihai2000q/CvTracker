@@ -40,18 +40,29 @@ import SourceGroup from '@/features/job-applications/components/source/source-gr
 import { Separator } from '@/components/ui/separator.tsx';
 
 interface Props {
-  children: React.ReactElement;
+  // Opens the dialog; leave it out when the dialog is opened from somewhere else
+  children?: React.ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  // Starts the form with this organization, and its first country, already picked
+  organization?: OrganizationSummary;
 }
 
-const CreateJobApplicationDialog = ({ children }: Props) => {
+const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization }: Props) => {
+  const initialCountry = organization?.countries[0] ?? null;
   const queryClient = useQueryClient();
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateJobApplicationForm>({
       action: createJobApplication,
       schema: createJobApplicationSchema,
+      open,
+      onOpenChange,
+      defaultValue: organization
+        ? { organizationName: organization.name, countryId: initialCountry?.id }
+        : undefined,
       deps: { cvDocumentFile: ['cvDocumentId'] },
       onReset: () => {
-        setCountry(null);
+        setCountry(initialCountry);
       },
       onSuccess: async (formData) => {
         const isUploaded = (name: string) => {
@@ -83,7 +94,7 @@ const CreateJobApplicationDialog = ({ children }: Props) => {
   // Country
   const countryId = useFieldControl(form, fields.countryId);
   // for the organization to prefill
-  const [country, setCountry] = useState<CountrySummary | null>(null);
+  const [country, setCountry] = useState<CountrySummary | null>(initialCountry);
   const handleCountryChange = (next: CountrySummary | null) => {
     setCountry(next);
     countryId.change(next?.id ?? '');
@@ -99,7 +110,7 @@ const CreateJobApplicationDialog = ({ children }: Props) => {
 
   return (
     <Dialog {...dialogProps}>
-      <DialogTrigger render={children} />
+      {children && <DialogTrigger render={children} />}
       <DialogContent {...contentProps} className="px-0 md:max-w-lg">
         <form id={form.id} onSubmit={form.onSubmit} noValidate>
           <DialogHeader className={'mb-4 px-6'}>
@@ -125,6 +136,7 @@ const CreateJobApplicationDialog = ({ children }: Props) => {
                 <FormField field={fields.organizationName} label="Organization" required>
                   <OrganizationCombobox
                     idName={fields.organizationId.name}
+                    defaultValue={organization}
                     change={handleOrganizationChange}
                     blur={organizationName.blur}
                     id={fields.organizationName.id}

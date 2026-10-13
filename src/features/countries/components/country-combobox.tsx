@@ -33,9 +33,9 @@ interface Props {
 
 const CountryCombobox = ({ value, change, blur, id, invalid }: Props) => {
   const anchor = useComboboxAnchor();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(value?.name ?? '');
 
-  // When set from outside
+  // When set from outside, after the first render
   const [internalValue, setInternalValue] = useState(value);
   if (value !== internalValue) {
     setInternalValue(value);

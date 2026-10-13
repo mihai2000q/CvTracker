@@ -64,12 +64,14 @@ interface Props {
   blur?: () => void;
   id?: string;
   invalid?: boolean;
+  // An organization that is already picked when the combobox first shows
+  defaultValue?: OrganizationSummary;
 }
 
-const OrganizationCombobox = ({ idName, change, blur, id, invalid }: Props) => {
-  const [selected, setSelected] = useState<OrganizationSummary | null>(null);
+const OrganizationCombobox = ({ idName, change, blur, id, invalid, defaultValue }: Props) => {
+  const [selected, setSelected] = useState<OrganizationSummary | null>(defaultValue ?? null);
   const anchor = useComboboxAnchor();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(defaultValue?.name ?? '');
 
   const handleValueChange = (organization: OrganizationSummary | null) => {
     if (!organization) return;
