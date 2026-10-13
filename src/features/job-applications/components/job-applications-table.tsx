@@ -3,13 +3,7 @@ import {
   isInterviewing,
   JobApplication,
 } from '@/features/job-applications/types/job-application.ts';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table.tsx';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table.tsx';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
 import { RiEarthFill, RiExternalLinkLine, RiFileFill } from '@remixicon/react';
 import Link from 'next/link';

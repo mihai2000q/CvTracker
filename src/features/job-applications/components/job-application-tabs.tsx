@@ -5,6 +5,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { cn } from '@/lib/utils.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
+import type { JobApplicationStatusCounts } from '@/features/job-applications/types/job-application-status-counts.ts';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 
 interface Tab {
@@ -13,12 +14,16 @@ interface Tab {
   count: number;
 }
 
-const tabs: Tab[] = [
-  { value: 'all', label: 'All', count: 12 },
-  ...Object.entries(JOB_APPLICATION_STATUSES).map(([value, { label, count }]) => ({
+const buildTabs = (counts: JobApplicationStatusCounts): Tab[] => [
+  {
+    value: 'all',
+    label: 'All',
+    count: Object.values(counts).reduce((sum, count) => sum + count, 0),
+  },
+  ...Object.entries(JOB_APPLICATION_STATUSES).map(([value, label]) => ({
     value: value as JobApplicationStatus,
     label,
-    count,
+    count: counts[value as JobApplicationStatus],
   })),
 ];
 
@@ -37,11 +42,11 @@ const TabCount = ({ count }: { count: number }) => (
   </span>
 );
 
-const JobApplicationTabs = () => {
+const JobApplicationTabs = ({ counts }: { counts: JobApplicationStatusCounts }) => {
   return (
     <Tabs>
       <TabsList variant={'line'}>
-        {tabs
+        {buildTabs(counts)
           .filter((tab) => tab.count > 0)
           .map((tab) => (
             <TabsTrigger

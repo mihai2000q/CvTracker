@@ -21,7 +21,7 @@ const JobApplicationStatusBadge = ({
       )}
     >
       <JobApplicationStatusIndicator status={status} />
-      {JOB_APPLICATION_STATUSES[status].label}
+      {JOB_APPLICATION_STATUSES[status]}
     </div>
   );
 };

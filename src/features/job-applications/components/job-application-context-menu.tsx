@@ -65,7 +65,7 @@ const JobApplicationContextMenu = ({ jobApplication, children }: Props) => {
               Change status
             </ContextMenuSubTrigger>
             <ContextMenuSubContent>
-              {Object.entries(JOB_APPLICATION_STATUSES).map(([status, { label }]) => (
+              {Object.entries(JOB_APPLICATION_STATUSES).map(([status, label]) => (
                 <ContextMenuItem key={status}>
                   <JobApplicationStatusIndicator status={status as JobApplicationStatus} />
                   {label}
