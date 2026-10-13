@@ -41,3 +41,24 @@ export function buildSortOptions<Field extends string>(
     active: serializeSort(preset.sortBy).join() === current,
   }));
 }
+
+// What a table header needs of one sort field: its direction while it leads the sort, and the
+// link that sorts by it. A field starts ascending, then flips on each click.
+export interface ColumnSort {
+  direction?: SortDirection;
+  href: string;
+}
+
+export function buildColumnSort<Field extends string>(
+  field: Field,
+  sortBy: readonly string[],
+  hrefForSortBy: (sortBy: SortEntry<Field>[]) => string
+): ColumnSort {
+  const [leadField, leadDirection] = sortBy[0]?.split(':') ?? [];
+  const direction = leadField === field ? (leadDirection as SortDirection) : undefined;
+
+  return {
+    direction,
+    href: hrefForSortBy([{ field, direction: direction === 'asc' ? 'desc' : 'asc' }]),
+  };
+}
