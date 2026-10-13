@@ -6,16 +6,16 @@ import EmptyOrganizations from '@/features/organizations/components/empty-organi
 import { redirect } from 'next/navigation';
 import AppPagination from '@/components/pagination/app-pagination.tsx';
 import { organizationsSearchParamsState } from '@/features/organizations/schemas/organizations-search-params.ts';
-import { readSearchParams } from '@/lib/search-params.ts';
+import { readListSearchParams } from '@/lib/search-params.ts';
 
 const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
   const {
-    values: { page },
-    hrefFor,
-  } = readSearchParams(organizationsSearchParamsState, await searchParams);
-  const hrefForPage = (page: number) => hrefFor('/organizations', { page });
+    values: { page, sortBy },
+    hrefForPage,
+    hrefForSortBy,
+  } = readListSearchParams(organizationsSearchParamsState, '/organizations', await searchParams);
 
-  const result = await getOrganizations({ page });
+  const result = await getOrganizations({ page, sortBy });
   if (!result.success) {
     redirect('/organizations');
   }
@@ -32,7 +32,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
       </header>
 
       <main className={'flex flex-1 flex-col gap-6'}>
-        {totalCount > 0 && <OrganizationsToolbar />}
+        {totalCount > 0 && <OrganizationsToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
 
         {organizations.length > 0 && (
           <Accordion className={'gap-2.5'}>
