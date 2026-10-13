@@ -1,9 +1,9 @@
 import { all, and, or } from '@prisma/orm-postgres/orm-client';
 import type { AnyExpression } from '@prisma/orm-postgres/relational-core/ast';
 
-// What a column can be compared with, by the operator's name: the method of that name on a model
-// accessor's field
-type Comparable = Partial<Record<string, (value: never) => AnyExpression>>;
+// What a column can be compared with: a model accessor's field, or any object with the
+// comparisons, each a method named like its operator
+type Comparable = object;
 
 // A filter that isn't a model field of the same name says which column it compares
 // (`organization` filtering `organizationId`)
@@ -22,7 +22,7 @@ export function buildWhere<Row, Field extends string>(
       ...filterBy.map(({ field, operator, value }) => {
         const column = (filters[field] as Partial<FilterColumn<Row>> | undefined)?.column;
         const comparable = column ? column(row) : (row as Record<string, Comparable>)[field];
-        return (comparable[operator] as (value: unknown) => AnyExpression)(value);
+        return (comparable as Record<string, (value: unknown) => AnyExpression>)[operator](value);
       })
     );
 }
