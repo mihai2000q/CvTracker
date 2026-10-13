@@ -14,6 +14,11 @@ import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+import { buildOrderBy } from '@database/sort.ts';
+import {
+  DOCUMENT_TIEBREAKERS,
+  documentSorters,
+} from '@/features/documents/constants/documents-sorting.tsx';
 
 export async function getDocuments(query: GetDocumentsQueryInput): Promise<Result<Page<Document>>> {
   const userId = getUserId(await verifySession());
@@ -28,7 +33,7 @@ export async function getDocuments(query: GetDocumentsQueryInput): Promise<Resul
 
 async function getDocumentsQuery(
   userId: string,
-  { page, pageSize }: GetDocumentsQuery
+  { page, pageSize, sortBy }: GetDocumentsQuery
 ): Promise<Page<Document>> {
   'use cache';
   cacheTag(cacheTags.documents(userId), cacheTags.jobApplications(userId));
@@ -36,7 +41,7 @@ async function getDocumentsQuery(
   const filteredQuery = db.Document.where({ userId: uuid(userId) });
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
-    .orderBy((c) => c.uploadedAt.desc())
+    .orderBy(buildOrderBy(sortBy, documentSorters, DOCUMENT_TIEBREAKERS))
     .include('coverLetterForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
     .include('cvForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
     .all();

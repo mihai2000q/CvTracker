@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { pagePaginationSchema } from '@/schemas/page-pagination-schema.ts';
+import { sortSchema } from '@/schemas/sort-schema.ts';
+import { DOCUMENT_SORT_FIELDS } from '@/features/documents/constants/documents-sorting.tsx';
 
-export const getDocumentsQuerySchema = pagePaginationSchema.extend({});
+export const getDocumentsQuerySchema = pagePaginationSchema.extend({
+  sortBy: sortSchema(DOCUMENT_SORT_FIELDS)
+});
 
 export type GetDocumentsQueryInput = z.input<typeof getDocumentsQuerySchema>;
 export type GetDocumentsQuery = z.output<typeof getDocumentsQuerySchema>;

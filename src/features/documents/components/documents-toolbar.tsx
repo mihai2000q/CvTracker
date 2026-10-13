@@ -4,9 +4,19 @@ import { RiAddLine, RiSearchLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import CreateDocumentDialog from '@/features/documents/components/create-document-dialog.tsx';
 import { Card } from '@/components/ui/card.tsx';
-import { Combobox, ComboboxContent, ComboboxInput } from '@/components/ui/combobox.tsx';
+import SortCombobox from '@/components/sort/sort-combobox.tsx';
+import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
+import {
+  DOCUMENT_SORT_PRESETS,
+  DocumentSortField,
+} from '@/features/documents/constants/documents-sorting.tsx';
 
-const DocumentsToolbar = () => {
+interface Props {
+  sortBy: string[];
+  hrefForSortBy: (sortBy: SortEntry<DocumentSortField>[]) => string;
+}
+
+const DocumentsToolbar = ({ sortBy, hrefForSortBy }: Props) => {
   return (
     <Card className={'flex flex-row flex-wrap gap-4 px-4.5 py-4'}>
       <CreateDocumentDialog>
@@ -23,14 +33,13 @@ const DocumentsToolbar = () => {
         <InputGroupInput placeholder="Search by name..." />
       </InputGroup>
 
-      <Combobox>
-        <ComboboxInput
-          className={'dark:bg-background w-full sm:w-75'}
-          placeholder={'Sort: Newest'}
-        />
-
-        <ComboboxContent></ComboboxContent>
-      </Combobox>
+      <SortCombobox
+        options={buildSortOptions(DOCUMENT_SORT_PRESETS, sortBy, hrefForSortBy)}
+        inputProps={{
+          className: 'dark:bg-background min-w-50 sm:w-[20%]',
+          placeholder: 'Sort documents by...',
+        }}
+      />
     </Card>
   );
 };

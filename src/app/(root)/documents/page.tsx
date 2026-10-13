@@ -1,4 +1,4 @@
-import { readSearchParams } from '@/lib/search-params.ts';
+import { readListSearchParams } from '@/lib/search-params.ts';
 import { redirect } from 'next/navigation';
 import { getDocuments } from '@/features/documents/queries/get-documents.ts';
 import { countDocuments } from '@/features/documents/queries/count-documents.ts';
@@ -12,13 +12,13 @@ import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 
 const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   const {
-    values: { page },
-    hrefFor,
-  } = readSearchParams(documentsSearchParamsState, await searchParams);
-  const hrefForPage = (page: number) => hrefFor('/documents', { page });
+    values: { page, sortBy },
+    hrefForPage,
+    hrefForSortBy,
+  } = readListSearchParams(documentsSearchParamsState, '/documents', await searchParams);
 
   const [result, allCount, cvCount] = await Promise.all([
-    getDocuments({ page }),
+    getDocuments({ page, sortBy }),
     countDocuments(),
     countDocuments(DocumentType.CV),
   ]);
@@ -55,7 +55,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
       </header>
 
       <main className={'flex flex-1 flex-col gap-6'}>
-        {totalCount > 0 && <DocumentsToolbar />}
+        {totalCount > 0 && <DocumentsToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
 
         {totalCount > 0 && (
           <ul role="list" className={'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'}>
