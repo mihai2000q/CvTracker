@@ -8,17 +8,20 @@ import DocumentItem from '@/features/documents/components/document-item.tsx';
 import { documentsSearchParamsState } from '@/features/documents/schemas/documents-search-params.ts';
 import EmptyDocuments from '@/features/documents/components/empty-documents.tsx';
 import DocumentsToolbar from '@/features/documents/components/documents-toolbar.tsx';
+import Link from 'next/link';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 
 const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   const {
-    values: { page, sortBy },
+    values: { page, sortBy, filterBy, search },
     hrefForPage,
     hrefForSortBy,
+    hrefForNoFilters,
+    filterOption,
   } = readListSearchParams(documentsSearchParamsState, '/documents', await searchParams);
 
   const [result, allCount, cvCount] = await Promise.all([
-    getDocuments({ page, sortBy }),
+    getDocuments({ page, sortBy, filterBy, search }),
     countDocuments(),
     countDocuments(DocumentType.CV),
   ]);
@@ -29,6 +32,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   }
 
   const { items: documents, totalCount } = result.data;
+  const typeOption = (type: DocumentType | undefined) => filterOption('type', 'eq', type);
 
   return (
     <div className={'flex flex-1 flex-col gap-6'}>
@@ -38,16 +42,16 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
           <div className={'text-muted-foreground text-xs'}>Manage your CVs and Cover Letters</div>
         </div>
 
-        {totalCount > 0 && (
+        {allCount > 0 && (
           <SegmentedControl
             aria-label="Document type"
             items={[
-              { label: 'All', href: '/documents', active: true, count: allCount },
-              { label: 'CVs', href: '/documents?type=cv', count: cvCount },
+              { label: 'All', count: allCount, ...typeOption(undefined) },
+              { label: 'CVs', count: cvCount, ...typeOption(DocumentType.CV) },
               {
                 label: 'Cover Letters',
-                href: '/documents?type=cover-letter',
                 count: coverLetterCount,
+                ...typeOption(DocumentType.CoverLetter),
               },
             ]}
           />
@@ -55,7 +59,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
       </header>
 
       <main className={'flex flex-1 flex-col gap-6'}>
-        {totalCount > 0 && <DocumentsToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
+        {allCount > 0 && <DocumentsToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
 
         {totalCount > 0 && (
           <ul role="list" className={'grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4'}>
@@ -67,7 +71,15 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
           </ul>
         )}
 
-        {totalCount === 0 && <EmptyDocuments />}
+        {allCount === 0 && <EmptyDocuments />}
+        {allCount > 0 && totalCount === 0 && (
+          <div className={'text-muted-foreground py-12 text-center text-sm'}>
+            No documents match these filters.{' '}
+            <Link href={hrefForNoFilters()} className={'link-underline'}>
+              Clear filters
+            </Link>
+          </div>
+        )}
       </main>
 
       {totalCount > 0 && (

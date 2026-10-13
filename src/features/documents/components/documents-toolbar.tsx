@@ -1,9 +1,9 @@
 import React from 'react';
-import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
-import { RiAddLine, RiSearchLine } from '@remixicon/react';
+import { RiAddLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import CreateDocumentDialog from '@/features/documents/components/create-document-dialog.tsx';
 import { Card } from '@/components/ui/card.tsx';
+import DocumentsSearchInput from '@/features/documents/components/documents-search-input.tsx';
 import SortCombobox from '@/components/sort/sort-combobox.tsx';
 import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
 import {
@@ -26,12 +26,10 @@ const DocumentsToolbar = ({ sortBy, hrefForSortBy }: Props) => {
         </Button>
       </CreateDocumentDialog>
 
-      <InputGroup className={'dark:bg-background min-w-48 flex-1'}>
-        <InputGroupAddon>
-          <RiSearchLine />
-        </InputGroupAddon>
-        <InputGroupInput placeholder="Search by name..." />
-      </InputGroup>
+      <DocumentsSearchInput
+        placeholder="Search by name..."
+        className={'dark:bg-background min-w-48 flex-1'}
+      />
 
       <SortCombobox
         options={buildSortOptions(DOCUMENT_SORT_PRESETS, sortBy, hrefForSortBy)}
