@@ -10,7 +10,8 @@ export type Sorters<Row, Field extends string> = Record<Field, (row: Row) => Ord
 // sort value keep a stable order across pages instead of shuffling.
 export type Tiebreakers<Row> = readonly ((row: Row) => OrderByItem)[];
 
-// The `orderBy` selectors for a sort, in priority order, then the tiebreakers.
+// The `orderBy` selectors for a sort, in priority order, then the tiebreakers. Empty values
+// sort last in either direction, where Postgres alone would put them first when descending.
 export function buildOrderBy<Row, Field extends string>(
   sortBy: readonly { field: Field; direction: 'asc' | 'desc' }[],
   sorters: Sorters<Row, Field>,
@@ -20,7 +21,7 @@ export function buildOrderBy<Row, Field extends string>(
     ...sortBy.map(
       ({ field, direction }) =>
         (row: Row) =>
-          sorters[field](row)[direction]()
+          sorters[field](row)[direction]({ nulls: 'last' })
     ),
     ...tiebreakers,
   ];
