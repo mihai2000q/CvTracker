@@ -15,6 +15,11 @@ import { paginate } from '@database/paginate.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { buildOrderBy } from '@database/sort.ts';
+import { buildSearch, buildWhere } from '@database/filter.ts';
+import {
+  DOCUMENT_FILTERS,
+  DOCUMENT_SEARCH_COLUMNS,
+} from '@/features/documents/constants/document-filtering.ts';
 import {
   DOCUMENT_TIEBREAKERS,
   documentSorters,
@@ -33,12 +38,14 @@ export async function getDocuments(query: GetDocumentsQueryInput): Promise<Resul
 
 async function getDocumentsQuery(
   userId: string,
-  { page, pageSize, sortBy }: GetDocumentsQuery
+  { page, pageSize, sortBy, filterBy, search }: GetDocumentsQuery
 ): Promise<Page<Document>> {
   'use cache';
   cacheTag(cacheTags.documents(userId), cacheTags.jobApplications(userId));
 
-  const filteredQuery = db.Document.where({ userId: uuid(userId) });
+  const filteredQuery = db.Document.where({ userId: uuid(userId) })
+    .where(buildWhere(filterBy, DOCUMENT_FILTERS))
+    .where(buildSearch(search, DOCUMENT_SEARCH_COLUMNS));
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy(buildOrderBy(sortBy, documentSorters, DOCUMENT_TIEBREAKERS))
