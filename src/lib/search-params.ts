@@ -1,3 +1,5 @@
+import { serializeSort, type SortEntry } from '@/lib/sort.ts';
+
 export interface SearchParamsState<TState> {
   keys: readonly string[];
   deserialize: (params: URLSearchParams) => TState;
@@ -16,6 +18,26 @@ export function readSearchParams<T>(state: SearchParamsState<T>, searchParams: N
     values,
     hrefFor: (pathname: string, patch: Partial<T>) =>
       buildSearchParamsHref(pathname, state, params, { ...values, ...patch }),
+  };
+}
+
+// `readSearchParams` for a paginated, sorted list: the page, the sort serialized (the form a
+// query function validates) and the links to move between pages and orders. The sort as
+// entries, for what renders it, is in `values`.
+export function readListSearchParams<T extends { page: number; sortBy: SortEntry[] }>(
+  state: SearchParamsState<T>,
+  pathname: string,
+  searchParams: NextSearchParams
+) {
+  const { values, hrefFor } = readSearchParams(state, searchParams);
+
+  return {
+    values,
+    page: values.page,
+    sortBy: serializeSort(values.sortBy),
+    hrefForPage: (page: number) => hrefFor(pathname, { page } as Partial<T>),
+    // A new order starts over from the first page
+    hrefForSortBy: (sortBy: T['sortBy']) => hrefFor(pathname, { sortBy, page: 1 } as Partial<T>),
   };
 }
 
@@ -38,7 +60,7 @@ function buildSearchParamsHref<T>(
 ): string {
   const nextParams = new URLSearchParams(currentParams);
   state.keys.forEach((key) => nextParams.delete(key));
-  state.serialize(values).forEach((value, key) => nextParams.set(key, value));
+  state.serialize(values).forEach((value, key) => nextParams.append(key, value));
   const query = nextParams.toString();
   return query ? `${pathname}?${query}` : pathname;
 }
