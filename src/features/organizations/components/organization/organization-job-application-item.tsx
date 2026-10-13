@@ -78,9 +78,7 @@ const OrganizationJobApplicationItem = ({
               <RiEarthFill className={'size-3 -translate-y-px'} />
               {jobApplication.country.name}, {jobApplication.country.isoCode}
             </Link>
-            <span aria-hidden>
-              •
-            </span>
+            <span aria-hidden>•</span>
             {jobApplication.source && (
               <span className={'flex gap-1.5 max-sm:hidden'}>
                 <span className={'flex items-center gap-1'}>
@@ -98,7 +96,9 @@ const OrganizationJobApplicationItem = ({
               <Link
                 href={`/documents/${jobApplication.cv.id}`}
                 prefetch={false}
-                className={'link-underline relative z-10 flex w-fit max-w-40 items-center gap-1 max-md:hidden'}
+                className={
+                  'link-underline relative z-10 flex w-fit max-w-40 items-center gap-1 max-md:hidden'
+                }
               >
                 <RiFileFill
                   data-document-type={jobApplication.cv.type}
