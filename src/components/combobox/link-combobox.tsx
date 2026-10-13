@@ -12,14 +12,15 @@ import {
   useComboboxAnchor,
 } from '@/components/ui/combobox.tsx';
 import { InputGroupAddon } from '@/components/ui/input-group.tsx';
-import type { SortOption } from '@/lib/sort.ts';
+import { ScrollArea } from '@/components/ui/scroll-area.tsx';
+import type { LinkOption } from '@/lib/link-option.ts';
 
 interface Props {
-  options: SortOption[];
+  options: LinkOption[];
   inputProps?: ComboboxInputProps;
 }
 
-const SortCombobox = ({ options, inputProps }: Props) => {
+const LinkCombobox = ({ options, inputProps }: Props) => {
   const anchor = useComboboxAnchor();
   const [open, setOpen] = useState(false);
   const active = options.find((option) => option.active) ?? null;
@@ -38,23 +39,25 @@ const SortCombobox = ({ options, inputProps }: Props) => {
       </ComboboxInput>
 
       <ComboboxContent anchor={anchor}>
-        <ComboboxList>
-          {(option: SortOption) => (
-            <ComboboxItem
-              key={option.label}
-              value={option}
-              render={<Link href={option.href} prefetch={false} />}
-              // The link navigates, but the selection only changes once the new page renders
-              onClick={() => setOpen(false)}
-            >
-              {option.icon}
-              {option.label}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
+        <ScrollArea viewportProps={{ className: 'max-h-65' }}>
+          <ComboboxList className="max-h-none overflow-visible">
+            {(option: LinkOption) => (
+              <ComboboxItem
+                key={option.label}
+                value={option}
+                render={<Link href={option.href} prefetch={false} />}
+                // The link navigates, but the selection only changes once the new page renders
+                onClick={() => setOpen(false)}
+              >
+                {option.icon}
+                {option.label}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ScrollArea>
       </ComboboxContent>
     </Combobox>
   );
 };
 
-export default SortCombobox;
+export default LinkCombobox;

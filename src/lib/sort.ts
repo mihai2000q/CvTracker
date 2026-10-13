@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { LinkOption } from '@/lib/link-option.ts';
 
 export type SortDirection = 'asc' | 'desc';
 
@@ -21,18 +22,11 @@ export interface SortPreset<Field extends string = string> {
   sortBy: SortEntry<Field>[];
 }
 
-export interface SortOption {
-  label: string;
-  icon?: ReactNode;
-  href: string;
-  active: boolean;
-}
-
 export function buildSortOptions<Field extends string>(
   presets: readonly SortPreset<Field>[],
   sortBy: readonly string[],
   hrefForSortBy: (sortBy: SortEntry<Field>[]) => string
-): SortOption[] {
+): LinkOption[] {
   const current = sortBy.join();
   return presets.map((preset) => ({
     label: preset.label,
