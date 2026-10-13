@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { cn } from 'cn';
-
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
@@ -22,7 +21,13 @@ function Table({ className, ...props }: React.ComponentProps<'table'>) {
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
-  return <thead data-slot="table-header" className={cn(className)} {...props} />;
+  return (
+    <thead
+      data-slot="table-header"
+      className={cn('hover:bg-muted/15 transition-colors', className)}
+      {...props}
+    />
+  );
 }
 
 function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
@@ -44,7 +49,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot="table-row"
       className={cn(
-        'hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted transition-colors',
+        'not-in-data-[slot=table-header]:hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted transition-colors',
         className
       )}
       {...props}
