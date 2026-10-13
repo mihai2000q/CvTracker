@@ -32,9 +32,10 @@ export function readListSearchParams<T extends { page: number; sortBy: SortEntry
   const { values, hrefFor } = readSearchParams(state, searchParams);
 
   return {
-    values,
-    page: values.page,
-    sortBy: serializeSort(values.sortBy),
+    values: {
+      ...values,
+      sortBy: serializeSort(values.sortBy)
+    },
     hrefForPage: (page: number) => hrefFor(pathname, { page } as Partial<T>),
     // A new order starts over from the first page
     hrefForSortBy: (sortBy: T['sortBy']) => hrefFor(pathname, { sortBy, page: 1 } as Partial<T>),

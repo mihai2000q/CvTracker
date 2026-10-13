@@ -10,17 +10,22 @@ import type { Contract } from '@database/contract.d';
 import type { Sorters, Tiebreakers } from '@database/sort.ts';
 import type { SortEntry, SortPreset } from '@/lib/sort.ts';
 
+// Fields
 export const COUNTRY_SORT_FIELDS = ['name', 'jobApplications', 'organizations'] as const;
 export type CountrySortField = (typeof COUNTRY_SORT_FIELDS)[number];
 
+// Default Sort By
 export const DEFAULT_COUNTRY_SORT_BY: SortEntry<CountrySortField>[] = [
   { field: 'jobApplications', direction: 'desc' },
 ];
 
-// The orders the sort picker offers. Any order is valid in the URL, but the picker
-// only lists these; a URL with another order shows no option as selected.
+// Presets
 export const COUNTRY_SORT_PRESETS: SortPreset<CountrySortField>[] = [
-  { label: 'Most applications', icon: <RiBriefcaseLine />, sortBy: DEFAULT_COUNTRY_SORT_BY },
+  {
+    label: 'Most applications',
+    icon: <RiBriefcaseLine />,
+    sortBy: DEFAULT_COUNTRY_SORT_BY,
+  },
   {
     label: 'Most organizations',
     icon: <RiBuildingLine />,
@@ -38,6 +43,7 @@ export const COUNTRY_SORT_PRESETS: SortPreset<CountrySortField>[] = [
   },
 ];
 
+// Sorters
 type CountryAccessor = ModelAccessor<Contract, 'Country', 'public'>;
 
 export const countrySorters = (userId: string): Sorters<CountryAccessor, CountrySortField> => ({
@@ -47,7 +53,7 @@ export const countrySorters = (userId: string): Sorters<CountryAccessor, Country
     c.organizationCountries.count((oc) => oc.organization.some((o) => o.userId.eq(uuid(userId)))),
 });
 
-// Countries that tie on the sort read alphabetically, and `id` settles the rest
+// Tiebreakers
 export const COUNTRY_TIEBREAKERS: Tiebreakers<CountryAccessor> = [
   (c) => c.name.asc(),
   (c) => c.id.asc(),

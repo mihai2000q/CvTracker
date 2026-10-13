@@ -27,7 +27,7 @@ const CountriesToolbar = ({ sortBy, hrefForSortBy }: Props) => {
       <SortCombobox
         options={buildSortOptions(COUNTRY_SORT_PRESETS, sortBy, hrefForSortBy)}
         inputProps={{
-          className: 'dark:bg-background w-full sm:w-75',
+          className: 'dark:bg-background min-w-50 sm:w-[20%]',
           placeholder: 'Sort countries by...',
         }}
       />

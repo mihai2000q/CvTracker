@@ -12,7 +12,8 @@ export function serializeSort(sortBy: readonly SortEntry[]): string[] {
   return sortBy.map(({ field, direction }) => `${field}:${direction}`);
 }
 
-// An order a sort picker offers
+// The orders the sort picker offers. Any order is valid in the URL, but the picker
+// only lists these; a URL with another order shows no option as selected.
 export interface SortPreset<Field extends string = string> {
   label: string;
   // An element, not a component: options travel from server to client components

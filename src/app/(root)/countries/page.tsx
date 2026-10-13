@@ -10,11 +10,11 @@ import AppPagination from '@/components/pagination/app-pagination.tsx';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 
 const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
-  const { page, sortBy, hrefForPage, hrefForSortBy } = readListSearchParams(
-    countriesSearchParamsState,
-    '/countries',
-    await searchParams
-  );
+  const {
+    values: { page, sortBy },
+    hrefForPage,
+    hrefForSortBy,
+  } = readListSearchParams(countriesSearchParamsState, '/countries', await searchParams);
 
   const [result, allCount, appliedCount] = await Promise.all([
     getCountries({ page, sortBy }),
