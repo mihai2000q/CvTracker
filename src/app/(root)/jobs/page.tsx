@@ -1,6 +1,7 @@
 import EmptyJobApplications from '@/features/job-applications/components/empty-job-applications.tsx';
 import ListHeader from '@/components/list/list-header.tsx';
 import ListFooter from '@/components/list/list-footer.tsx';
+import NoResults from '@/components/list/no-results.tsx';
 import { readListSearchParams } from '@/lib/search-params.ts';
 import { redirect } from 'next/navigation';
 import { jobApplicationsSearchParamsState } from '@/features/job-applications/schemas/job-applications-search-params.ts';
@@ -12,13 +13,16 @@ import JobApplicationTabs from '@/features/job-applications/components/job-appli
 
 const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
   const {
-    values: { page, sortBy },
+    values: { page, sortBy, filterBy, search },
     hrefForPage,
     hrefForSortBy,
+    hrefForNoFilters,
+    filterOption,
+    filterToggle,
   } = readListSearchParams(jobApplicationsSearchParamsState, '/jobs', await searchParams);
 
   const [result, statusCounts] = await Promise.all([
-    getJobApplications({ page, sortBy }),
+    getJobApplications({ page, sortBy, filterBy, search }),
     countJobApplicationsByStatus(),
   ]);
   if (!result.success) {
@@ -26,14 +30,17 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
   }
 
   const { items: jobApplications, totalCount } = result.data;
+  const allCount = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
 
   return (
     <div className={'flex flex-1 flex-col gap-6'}>
       <ListHeader title="Job Applications" description="All your applications, in one place" />
 
       <main className={'flex flex-1 flex-col gap-4'}>
-        {totalCount > 0 && <JobApplicationTabs counts={statusCounts} />}
-        {totalCount > 0 && <JobApplicationsToolbar />}
+        {allCount > 0 && <JobApplicationTabs counts={statusCounts} filterOption={filterOption} />}
+        {allCount > 0 && (
+          <JobApplicationsToolbar filterOption={filterOption} filterToggle={filterToggle} />
+        )}
 
         {jobApplications.length > 0 && (
           <JobApplicationsTable
@@ -43,7 +50,10 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
           />
         )}
 
-        {totalCount === 0 && <EmptyJobApplications />}
+        {allCount === 0 && <EmptyJobApplications />}
+        {allCount > 0 && totalCount === 0 && (
+          <NoResults noun="applications" clearHref={hrefForNoFilters()} />
+        )}
       </main>
 
       <ListFooter
