@@ -5,7 +5,6 @@ import type { SortDirection, SortEntry } from '@/lib/sort.ts';
 // param in `?s=jobApplications:desc&s=name:asc`. A lone `name` reads as ascending.
 // Without entries the list is empty, and a field can't appear twice.
 export function sortSchema<Field extends string>(fields: readonly [Field, ...Field[]]) {
-  // Next hands a repeated param as an array and a single one as a plain string.
   return z
     .union([z.string(), z.array(z.string())])
     .optional()

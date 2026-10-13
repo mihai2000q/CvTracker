@@ -14,9 +14,7 @@ const ListFooter = ({ shown, totalCount, noun, page, hrefForPage }: Props) => {
 
   return (
     <div
-      className={
-        'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'
-      }
+      className={'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'}
     >
       <div className={'text-muted-foreground text-xs'}>
         Displaying {shown} of {totalCount} {noun}
