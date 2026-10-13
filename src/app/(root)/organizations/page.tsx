@@ -1,5 +1,4 @@
 import OrganizationsToolbar from '@/features/organizations/components/organizations-toolbar.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
 import { Accordion } from '@/components/ui/accordion.tsx';
 import OrganizationItem from '@/features/organizations/components/organization-item.tsx';
 import { getOrganizations } from '@/features/organizations/queries/get-organizations.ts';
@@ -24,7 +23,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
   const { items: organizations, totalCount } = result.data;
 
   return (
-    <div className={'flex flex-1 flex-col'}>
+    <div className={'flex flex-1 flex-col gap-6'}>
       <header>
         <h1 className={'text-2xl font-bold'}>Organizations</h1>
         <div className={'text-muted-foreground text-xs'}>
@@ -32,10 +31,8 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
         </div>
       </header>
 
-      <Separator className={'mt-4 mb-3'} />
-
-      <main className={'flex flex-1 flex-col gap-4'}>
-        {organizations.length > 0 && <OrganizationsToolbar />}
+      <main className={'flex flex-1 flex-col gap-6'}>
+        {totalCount > 0 && <OrganizationsToolbar />}
 
         {organizations.length > 0 && (
           <Accordion className={'gap-2.5'}>
@@ -45,11 +42,11 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
           </Accordion>
         )}
 
-        {organizations.length === 0 && <EmptyOrganizations />}
+        {totalCount === 0 && <EmptyOrganizations />}
       </main>
 
       {totalCount > 0 && (
-        <div className={'flex items-center justify-between pt-4'}>
+        <div className={'flex flex-wrap items-center justify-between gap-2 pt-4'}>
           <div className={'text-muted-foreground text-xs'}>
             Displaying {organizations.length} of {totalCount} organizations
           </div>
