@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button.tsx';
 import CreateDocumentDialog from '@/features/documents/components/create-document-dialog.tsx';
 import { Card } from '@/components/ui/card.tsx';
 import DocumentsSearchInput from '@/features/documents/components/documents-search-input.tsx';
-import SortCombobox from '@/components/sort/sort-combobox.tsx';
+import LinkCombobox from '@/components/combobox/link-combobox.tsx';
 import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
 import {
   DOCUMENT_SORT_PRESETS,
@@ -31,7 +31,7 @@ const DocumentsToolbar = ({ sortBy, hrefForSortBy }: Props) => {
         className={'dark:bg-background min-w-48 flex-1'}
       />
 
-      <SortCombobox
+      <LinkCombobox
         options={buildSortOptions(DOCUMENT_SORT_PRESETS, sortBy, hrefForSortBy)}
         inputProps={{
           className: 'dark:bg-background min-w-50 sm:w-[20%]',

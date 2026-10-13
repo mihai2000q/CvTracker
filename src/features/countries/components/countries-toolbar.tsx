@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card.tsx';
 import CountriesSearchInput from '@/features/countries/components/countries-search-input.tsx';
-import SortCombobox from '@/components/sort/sort-combobox.tsx';
+import LinkCombobox from '@/components/combobox/link-combobox.tsx';
 import { buildSortOptions, SortEntry } from '@/lib/sort.ts';
 import {
   COUNTRY_SORT_PRESETS,
@@ -21,7 +21,7 @@ const CountriesToolbar = ({ sortBy, hrefForSortBy }: Props) => {
         className={'dark:bg-background min-w-48 flex-1'}
       />
 
-      <SortCombobox
+      <LinkCombobox
         options={buildSortOptions(COUNTRY_SORT_PRESETS, sortBy, hrefForSortBy)}
         inputProps={{
           className: 'dark:bg-background min-w-50 sm:w-[20%]',

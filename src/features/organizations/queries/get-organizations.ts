@@ -17,6 +17,11 @@ import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
 import { buildOrderBy } from '@database/sort.ts';
+import { buildSearch, buildWhere } from '@database/filter.ts';
+import {
+  ORGANIZATION_FILTERS,
+  ORGANIZATION_SEARCH_COLUMNS,
+} from '@/features/organizations/constants/organization-filtering.ts';
 import {
   ORGANIZATION_TIEBREAKERS,
   organizationSorters,
@@ -38,12 +43,14 @@ export async function getOrganizations(
 
 async function getOrganizationsQuery(
   userId: string,
-  { page, pageSize, sortBy }: GetOrganizationsQuery
+  { page, pageSize, sortBy, filterBy, search }: GetOrganizationsQuery
 ): Promise<Page<Organization>> {
   'use cache';
   cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
-  const filteredQuery = db.Organization.where({ userId: uuid(userId) });
+  const filteredQuery = db.Organization.where({ userId: uuid(userId) })
+    .where(buildWhere(filterBy, ORGANIZATION_FILTERS))
+    .where(buildSearch(search, ORGANIZATION_SEARCH_COLUMNS));
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy(buildOrderBy(sortBy, organizationSorters, ORGANIZATION_TIEBREAKERS))
