@@ -1,5 +1,5 @@
 import React from 'react';
-import { RiAddLine } from '@remixicon/react';
+import { RiAddLine, RiGlobalLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
 import CreateOrganizationDialog from '@/features/organizations/components/create-organization-dialog.tsx';
 import OrganizationsSearchInput from '@/features/organizations/components/organizations-search-input.tsx';
@@ -53,6 +53,7 @@ const OrganizationsToolbar = async ({
       />
 
       <LinkMultiCombobox
+        icon={<RiGlobalLine />}
         options={countries.map(({ id, name, isoCode }) => ({
           label: name,
           icon: <FlagIcon isoCode={isoCode} circle />,

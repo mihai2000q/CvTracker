@@ -12,6 +12,7 @@ import {
   ComboboxList,
   useComboboxAnchor,
 } from '@/components/ui/combobox.tsx';
+import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { cn } from '@/lib/utils.ts';
 import type { LinkOption } from '@/lib/link-option.ts';
@@ -22,6 +23,8 @@ interface Props {
   // The choice for no selection: what the box says then, and the link that clears it
   allLabel: string;
   clearHref: string;
+  // Beside the box; a single selection's own icon takes its place
+  icon?: React.ReactNode;
   inputProps?: ComboboxInputProps;
 }
 
@@ -39,7 +42,7 @@ const Checkbox = ({ checked }: { checked: boolean }) => (
 
 // A combobox that picks several of its options with checkboxes. Like `LinkCombobox`, each
 // choice is a link, so the page holds the selection and it stays open while it changes.
-const LinkMultiCombobox = ({ options, allLabel, clearHref, inputProps }: Props) => {
+const LinkMultiCombobox = ({ options, allLabel, clearHref, icon, inputProps }: Props) => {
   const anchor = useComboboxAnchor();
   const selected = options.filter((option) => option.active);
   const all: LinkOption = { label: allLabel, href: clearHref, active: selected.length === 0 };
@@ -58,16 +61,20 @@ const LinkMultiCombobox = ({ options, allLabel, clearHref, inputProps }: Props) 
       items={items}
       value={items.filter((option) => option.active)}
       itemToStringLabel={(option) => option.label}
-      isItemEqualToValue={(a, b) => a.label === b.label}
+      isItemEqualToValue={(a, b) => a.href === b.href}
     >
-      <ComboboxInput {...inputProps} placeholder={summary} anchorRef={anchor} />
+      <ComboboxInput {...inputProps} placeholder={summary} anchorRef={anchor}>
+        {(selected.length === 1 && selected[0].icon) || icon ? (
+          <InputGroupAddon>{(selected.length === 1 && selected[0].icon) || icon}</InputGroupAddon>
+        ) : null}
+      </ComboboxInput>
 
       <ComboboxContent anchor={anchor}>
         <ScrollArea viewportProps={{ className: 'max-h-65' }}>
           <ComboboxList className="max-h-none overflow-visible">
             {(option: LinkOption) => (
               <ComboboxItem
-                key={option.label}
+                key={option.href}
                 value={option}
                 showIndicator={false}
                 render={<Link href={option.href} prefetch={false} />}
