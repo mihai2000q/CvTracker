@@ -20,7 +20,7 @@ import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { RiBuilding2Line } from '@remixicon/react';
 import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
+import OrganizationAvatar from '@/features/organizations/components/organization/organization-avatar.tsx';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card.tsx';
 
@@ -29,19 +29,21 @@ const OrganizationHoverCard = ({ organization }: { organization: OrganizationSum
     <HoverCardTrigger
       closeDelay={100}
       render={
-        <Avatar className={'size-6 rounded-md'}>
-          <AvatarFallback>
-            <span className={'text-xs'}>{organization.name[0]}</span>
-          </AvatarFallback>
-        </Avatar>
+        <OrganizationAvatar
+          organization={organization}
+          variant={'outline'}
+          className={'size-6 rounded-md'}
+          letterClassName={'text-xs'}
+        />
       }
     />
     <HoverCardContent className="flex max-w-64 flex-row items-center gap-3">
-      <Avatar className={'size-15 shrink-0 rounded-lg'}>
-        <AvatarFallback>
-          <span className={'text-xl'}>{organization.name[0]}</span>
-        </AvatarFallback>
-      </Avatar>
+      <OrganizationAvatar
+        organization={organization}
+        variant={'outline'}
+        className={'size-15 rounded-lg'}
+        letterClassName={'text-xl'}
+      />
       <div className={'flex min-w-0 flex-col gap-px'}>
         <div className={'truncate text-base font-bold'} title={organization.name}>
           {organization.name}
@@ -148,11 +150,13 @@ const OrganizationCombobox = ({ idName, change, blur, id, invalid, defaultValue 
           <ComboboxList className="max-h-none overflow-visible">
             {organizations.map((organization) => (
               <ComboboxItem key={organization.id} value={organization}>
-                <Avatar size={'sm'} className={'rounded-lg'}>
-                  <AvatarFallback>
-                    <span>{organization.name[0]}</span>
-                  </AvatarFallback>
-                </Avatar>
+                <OrganizationAvatar
+                  organization={organization}
+                  size={'sm'}
+                  variant={'outline'}
+                  className={'rounded-lg'}
+                  letterClassName={'text-xs'}
+                />
                 {organization.name}
               </ComboboxItem>
             ))}

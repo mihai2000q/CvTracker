@@ -44,7 +44,7 @@ const OrganizationJobApplicationItem = ({
               title={jobApplication.title}
               className={cn(
                 'focus-visible:after:ring-ring outline-none after:absolute after:inset-0 after:rounded-xl focus-visible:after:ring-2',
-                'truncate text-base font-semibold'
+                'truncate text-base font-medium'
               )}
             >
               {jobApplication.title}

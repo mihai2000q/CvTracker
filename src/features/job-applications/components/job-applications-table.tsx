@@ -4,7 +4,7 @@ import {
   JobApplication,
 } from '@/features/job-applications/types/job-application.ts';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components/ui/table.tsx';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar.tsx';
+import OrganizationAvatar from '@/features/organizations/components/organization/organization-avatar.tsx';
 import { RiEarthFill, RiExternalLinkLine, RiFileFill } from '@remixicon/react';
 import Link from 'next/link';
 import PastDate from '@/components/date/past-date.tsx';
@@ -81,11 +81,11 @@ const JobApplicationsTable = ({ jobApplications, sortBy, hrefForSortBy }: Props)
             <TableRow>
               <TableCell>
                 <div className={'flex flex-row items-center gap-4'}>
-                  <Avatar className={'size-10 rounded-xl'}>
-                    <AvatarFallback>
-                      <span className={'text-lg'}>{jobApplication.organization.name[0]}</span>
-                    </AvatarFallback>
-                  </Avatar>
+                  <OrganizationAvatar
+                    organization={jobApplication.organization}
+                    variant={'outline'}
+                    className={'size-10'}
+                  />
                   <div className={'flex min-w-0 flex-col'}>
                     <div className={'flex items-center gap-1.5'}>
                       <Link
