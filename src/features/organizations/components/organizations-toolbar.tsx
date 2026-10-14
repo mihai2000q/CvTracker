@@ -15,11 +15,12 @@ import {
   OrganizationSortField,
 } from '@/features/organizations/constants/organization-sorting.tsx';
 import type { OrganizationFilterField } from '@/features/organizations/constants/organization-filtering.ts';
-import { getOrganizationFiltersMetadata } from '@/features/organizations/queries/get-organization-filters-metadata.ts';
+import type { OrganizationFiltersMetadata } from '@/features/organizations/types/organization-filters-metadata.ts';
 
 type FilterLink = Pick<LinkOption, 'href' | 'active'>;
 
 interface Props {
+  filtersMetadata: OrganizationFiltersMetadata;
   sortBy: string[];
   hrefForSortBy: (sortBy: SortEntry<OrganizationSortField>[]) => string;
   filterOption: (
@@ -30,14 +31,13 @@ interface Props {
   filterToggle: (field: OrganizationFilterField, value: unknown) => FilterLink;
 }
 
-const OrganizationsToolbar = async ({
+const OrganizationsToolbar = ({
+  filtersMetadata: { countries },
   sortBy,
   hrefForSortBy,
   filterOption,
   filterToggle,
 }: Props) => {
-  const { countries } = await getOrganizationFiltersMetadata();
-
   return (
     <Card className={'flex flex-row flex-wrap gap-4 px-4.5 py-4'}>
       <CreateOrganizationDialog>

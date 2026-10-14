@@ -9,6 +9,7 @@ import { getJobApplications } from '@/features/job-applications/queries/get-job-
 import JobApplicationsTable from '@/features/job-applications/components/job-applications-table.tsx';
 import JobApplicationsToolbar from '@/features/job-applications/components/job-applications-toolbar.tsx';
 import { countJobApplicationsByStatus } from '@/features/job-applications/queries/count-job-applications-by-status.ts';
+import { getJobApplicationFiltersMetadata } from '@/features/job-applications/queries/get-job-application-filters-metadata.ts';
 import JobApplicationTabs from '@/features/job-applications/components/job-application-tabs.tsx';
 
 const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
@@ -21,9 +22,10 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
     filterToggle,
   } = readListSearchParams(jobApplicationsSearchParamsState, '/jobs', await searchParams);
 
-  const [result, statusCounts] = await Promise.all([
+  const [result, statusCounts, filtersMetadata] = await Promise.all([
     getJobApplications({ page, sortBy, filterBy, search }),
     countJobApplicationsByStatus(),
+    getJobApplicationFiltersMetadata(),
   ]);
   if (!result.success) {
     redirect('/jobs');
@@ -39,7 +41,11 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
       <main className={'flex flex-1 flex-col gap-4'}>
         {allCount > 0 && <JobApplicationTabs counts={statusCounts} filterOption={filterOption} />}
         {allCount > 0 && (
-          <JobApplicationsToolbar filterOption={filterOption} filterToggle={filterToggle} />
+          <JobApplicationsToolbar
+            filtersMetadata={filtersMetadata}
+            filterOption={filterOption}
+            filterToggle={filterToggle}
+          />
         )}
 
         {jobApplications.length > 0 && (

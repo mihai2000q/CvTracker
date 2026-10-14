@@ -2,6 +2,7 @@ import OrganizationsToolbar from '@/features/organizations/components/organizati
 import { Accordion } from '@/components/ui/accordion.tsx';
 import OrganizationItem from '@/features/organizations/components/organization-item.tsx';
 import { getOrganizations } from '@/features/organizations/queries/get-organizations.ts';
+import { getOrganizationFiltersMetadata } from '@/features/organizations/queries/get-organization-filters-metadata.ts';
 import { countOrganizations } from '@/features/organizations/queries/count-organizations.ts';
 import EmptyOrganizations from '@/features/organizations/components/empty-organizations.tsx';
 import { redirect } from 'next/navigation';
@@ -21,9 +22,10 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
     filterToggle,
   } = readListSearchParams(organizationsSearchParamsState, '/organizations', await searchParams);
 
-  const [result, allCount] = await Promise.all([
+  const [result, allCount, filtersMetadata] = await Promise.all([
     getOrganizations({ page, sortBy, filterBy, search }),
     countOrganizations(),
+    getOrganizationFiltersMetadata(),
   ]);
   if (!result.success) {
     redirect('/organizations');
@@ -41,6 +43,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
       <main className={'flex flex-1 flex-col gap-6'}>
         {allCount > 0 && (
           <OrganizationsToolbar
+            filtersMetadata={filtersMetadata}
             sortBy={sortBy}
             hrefForSortBy={hrefForSortBy}
             filterOption={filterOption}

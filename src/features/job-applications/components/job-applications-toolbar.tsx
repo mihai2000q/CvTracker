@@ -9,7 +9,7 @@ import { DocumentType } from '@/features/documents/types/enums/document-type.ts'
 import type { FilterOperator } from '@/lib/filter.ts';
 import type { LinkOption } from '@/lib/link-option.ts';
 import type { JobApplicationFilterField } from '@/features/job-applications/constants/job-application-filtering.ts';
-import { getJobApplicationFiltersMetadata } from '@/features/job-applications/queries/get-job-application-filters-metadata.ts';
+import type { JobApplicationFiltersMetadata } from '@/features/job-applications/types/job-application-filters-metadata.ts';
 
 // Names of organizations and CVs run long: the dropdown fits the longest, up to a limit
 const WIDE_DROPDOWN = 'w-max max-w-[min(20rem,var(--available-width))]';
@@ -17,6 +17,7 @@ const WIDE_DROPDOWN = 'w-max max-w-[min(20rem,var(--available-width))]';
 type FilterLink = Pick<LinkOption, 'href' | 'active'>;
 
 interface Props {
+  filtersMetadata: JobApplicationFiltersMetadata;
   filterOption: (
     field: JobApplicationFilterField,
     operator: FilterOperator,
@@ -25,8 +26,11 @@ interface Props {
   filterToggle: (field: JobApplicationFilterField, value: unknown) => FilterLink;
 }
 
-const JobApplicationsToolbar = async ({ filterOption, filterToggle }: Props) => {
-  const { organizations, countries, cvs } = await getJobApplicationFiltersMetadata();
+const JobApplicationsToolbar = ({
+  filtersMetadata: { organizations, countries, cvs },
+  filterOption,
+  filterToggle,
+}: Props) => {
   const clearHref = (field: JobApplicationFilterField) => filterOption(field, 'in', undefined).href;
 
   return (
