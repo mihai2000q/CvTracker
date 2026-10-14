@@ -4,7 +4,7 @@ import { queryKeys } from '@/lib/query-keys.ts';
 import React from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getInputProps } from '@conform-to/react';
-import { useFieldControl } from '@/hooks/use-field-control.ts';
+import FieldControl from '@/components/form/field-control.tsx';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import {
   Dialog,
@@ -44,8 +44,6 @@ const CreateOrganizationDialog = ({ children }: Props) => {
       onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.organizations }),
     });
 
-  const countryIds = useFieldControl<string[]>(form, fields.countryIds);
-
   return (
     <Dialog {...dialogProps}>
       <DialogTrigger render={children} />
@@ -81,7 +79,11 @@ const CreateOrganizationDialog = ({ children }: Props) => {
               </FormField>
 
               <FormField field={fields.countryIds} label="Countries" required>
-                <CountryMultiCombobox onChange={countryIds.change} onBlur={countryIds.blur} />
+                <FieldControl<string[]> form={form} field={fields.countryIds}>
+                  {(countryIds) => (
+                    <CountryMultiCombobox onChange={countryIds.change} onBlur={countryIds.blur} />
+                  )}
+                </FieldControl>
               </FormField>
 
               <FormField field={fields.notes} className={'pb-4'} label="Notes">

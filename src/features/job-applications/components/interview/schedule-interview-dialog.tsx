@@ -18,7 +18,7 @@ import DateInput from '@/components/form/date-input.tsx';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
-import { useFieldControl } from '@/hooks/use-field-control.ts';
+import FieldControl from '@/components/form/field-control.tsx';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from '@/components/ui/toast.tsx';
@@ -68,10 +68,6 @@ const ScheduleInterviewDialog = ({ jobApplication, open, onOpenChange }: Props) 
       },
     });
 
-  const roundType = useFieldControl(form, fields.roundType);
-  const date = useFieldControl(form, fields.date);
-  const contactIds = useFieldControl<string[]>(form, fields.contactIds);
-
   return (
     <Dialog {...dialogProps}>
       <DialogContent {...contentProps} className="px-0 md:max-w-md">
@@ -96,22 +92,30 @@ const ScheduleInterviewDialog = ({ jobApplication, open, onOpenChange }: Props) 
               />
 
               <FormField field={fields.roundType} label="Round type" required>
-                <RoundTypeCombobox
-                  {...roundType}
-                  name={fields.roundType.name}
-                  id={fields.roundType.id}
-                  invalid={!fields.roundType.valid}
-                />
+                <FieldControl form={form} field={fields.roundType}>
+                  {(roundType) => (
+                    <RoundTypeCombobox
+                      {...roundType}
+                      name={fields.roundType.name}
+                      id={fields.roundType.id}
+                      invalid={!fields.roundType.valid}
+                    />
+                  )}
+                </FieldControl>
               </FormField>
 
               <div className={'flex gap-4'}>
                 <FormField field={fields.date} label="Date" required>
-                  <DateInput
-                    {...date}
-                    id={fields.date.id}
-                    invalid={!fields.date.valid}
-                    disable={'past'}
-                  />
+                  <FieldControl form={form} field={fields.date}>
+                    {(date) => (
+                      <DateInput
+                        {...date}
+                        id={fields.date.id}
+                        invalid={!fields.date.valid}
+                        disable={'past'}
+                      />
+                    )}
+                  </FieldControl>
                 </FormField>
 
                 <FormField field={fields.time} label="Time" required>
@@ -120,11 +124,15 @@ const ScheduleInterviewDialog = ({ jobApplication, open, onOpenChange }: Props) 
               </div>
 
               <FormField field={fields.contactIds} label="Contacts">
-                <ContactCombobox
-                  organizationId={jobApplication.organization.id}
-                  change={contactIds.change}
-                  blur={contactIds.blur}
-                />
+                <FieldControl<string[]> form={form} field={fields.contactIds}>
+                  {(contactIds) => (
+                    <ContactCombobox
+                      organizationId={jobApplication.organization.id}
+                      change={contactIds.change}
+                      blur={contactIds.blur}
+                    />
+                  )}
+                </FieldControl>
               </FormField>
               <NewContactSection
                 contact={fields.newContact}

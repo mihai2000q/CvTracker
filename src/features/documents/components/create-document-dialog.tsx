@@ -16,7 +16,7 @@ import FormField from '@/components/form/form-field.tsx';
 import { Input } from '@/components/ui/input';
 import React from 'react';
 import { getInputProps } from '@conform-to/react';
-import { useFieldControl } from '@/hooks/use-field-control.ts';
+import FieldControl from '@/components/form/field-control.tsx';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import { Separator } from '@/components/ui/separator.tsx';
 import { createDocument } from '@/features/documents/actions/create-document.ts';
@@ -45,8 +45,6 @@ const CreateDocumentDialog = ({ children }: Props) => {
       defaultValue: { type: DocumentType.CV },
       onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.documents }),
     });
-
-  const type = useFieldControl<DocumentType>(form, fields.type);
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
@@ -80,33 +78,37 @@ const CreateDocumentDialog = ({ children }: Props) => {
               </FormField>
 
               <FormField field={fields.type} label="Type" required>
-                <ToggleGroup
-                  size={'sm'}
-                  spacing={0}
-                  className={'bg-secondary/80 rounded-lg'}
-                  value={type.value ? [type.value] : []}
-                  onValueChange={(next) => next[0] && type.change(next[0] as DocumentType)}
-                  onBlur={type.blur}
-                >
-                  <ToggleGroupItem
-                    value={DocumentType.CV}
-                    data-document-type={DocumentType.CV}
-                    className={
-                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/90 aria-pressed:text-(--document-color-foreground)'
-                    }
-                  >
-                    CV / Resume
-                  </ToggleGroupItem>
-                  <ToggleGroupItem
-                    value={DocumentType.CoverLetter}
-                    data-document-type={DocumentType.CoverLetter}
-                    className={
-                      'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/85 aria-pressed:text-(--document-color-foreground)'
-                    }
-                  >
-                    Cover Letter
-                  </ToggleGroupItem>
-                </ToggleGroup>
+                <FieldControl<DocumentType> form={form} field={fields.type}>
+                  {(type) => (
+                    <ToggleGroup
+                      size={'sm'}
+                      spacing={0}
+                      className={'bg-secondary/80 rounded-lg'}
+                      value={type.value ? [type.value] : []}
+                      onValueChange={(next) => next[0] && type.change(next[0] as DocumentType)}
+                      onBlur={type.blur}
+                    >
+                      <ToggleGroupItem
+                        value={DocumentType.CV}
+                        data-document-type={DocumentType.CV}
+                        className={
+                          'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/90 aria-pressed:text-(--document-color-foreground)'
+                        }
+                      >
+                        CV / Resume
+                      </ToggleGroupItem>
+                      <ToggleGroupItem
+                        value={DocumentType.CoverLetter}
+                        data-document-type={DocumentType.CoverLetter}
+                        className={
+                          'flex-1 rounded-lg transition-colors duration-125 aria-pressed:bg-(--document-color)/85 aria-pressed:text-(--document-color-foreground)'
+                        }
+                      >
+                        Cover Letter
+                      </ToggleGroupItem>
+                    </ToggleGroup>
+                  )}
+                </FieldControl>
               </FormField>
 
               <FormField field={fields.file} label="File" required>
