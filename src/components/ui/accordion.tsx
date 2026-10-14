@@ -17,10 +17,10 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
     <AccordionPrimitive.Item
       data-slot="accordion-item"
       className={cn(
-        'relative rounded-xl not-last:border-b',
+        'relative rounded-xl',
         'after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit]',
         'after:ring-1 after:ring-transparent after:transition-shadow after:duration-150 after:ring-inset',
-        'data-open:after:ring-[oklch(from_var(--primary)_calc(l+0.15)_c_h)]/40',
+        'data-open:after:ring-ring/50',
         className
       )}
       {...props}
@@ -44,8 +44,8 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
         <RiArrowDownSLine
           data-slot="accordion-trigger-icon"
           className={cn(
-            'transition-[color, transform] pointer-events-none ml-auto shrink-0 duration-150',
-            'text-muted-foreground size-5 group-aria-expanded/accordion-trigger:rotate-180 group-aria-expanded/accordion-trigger:text-[oklch(from_var(--primary)_calc(l+0.15)_c_h)]'
+            'transition-[color,rotate] pointer-events-none ml-auto shrink-0 duration-150',
+            'text-muted-foreground size-5 group-aria-expanded/accordion-trigger:rotate-180'
           )}
         />
       </AccordionPrimitive.Trigger>
