@@ -6,28 +6,36 @@ import OrganizationCombobox from '@/features/organizations/components/organizati
 import CountryCombobox from '@/features/countries/components/country-combobox.tsx';
 import { CountrySummary } from '@/features/countries/types/country.ts';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
-import { CreateJobApplicationForm } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 
-interface Props {
+interface Props<Form extends Record<string, unknown>> {
   form: { id: string };
   fields: {
-    organizationName: FieldMetadata<string, CreateJobApplicationForm>;
-    organizationId: FieldMetadata<string | undefined, CreateJobApplicationForm>;
-    countryId: FieldMetadata<string, CreateJobApplicationForm>;
+    organizationName: FieldMetadata<string, Form>;
+    organizationId: FieldMetadata<string | undefined, Form>;
+    countryId: FieldMetadata<string, Form>;
   };
   // A prefilled organization, which also prefills its first country
   organization?: OrganizationSummary;
+  // The country it starts with, when it isn't the first of the organization
+  defaultCountry?: CountrySummary | null;
 }
 
 // Both fields can start with a value, and neither combobox renders an input named after its
 // field. Their controls have to mount together with the form to get one, so they live here,
 // in a component that mounts with the form, instead of in the dialog that is mounted before it.
 // This also restarts the country on every reset, as the dialog remounts its fields
-const OrganizationCountrySection = ({ form, fields, organization }: Props) => {
+const OrganizationCountrySection = <Form extends Record<string, unknown>>({
+  form,
+  fields,
+  organization,
+  defaultCountry,
+}: Props<Form>) => {
   const organizationName = useFieldControl(form, fields.organizationName);
   const countryId = useFieldControl(form, fields.countryId);
   // Kept as an object too: the combobox shows its name and flag, the form only needs the id
-  const [country, setCountry] = useState<CountrySummary | null>(organization?.countries[0] ?? null);
+  const [country, setCountry] = useState<CountrySummary | null>(
+    defaultCountry ?? organization?.countries[0] ?? null
+  );
 
   const handleCountryChange = (next: CountrySummary | null) => {
     setCountry(next);
