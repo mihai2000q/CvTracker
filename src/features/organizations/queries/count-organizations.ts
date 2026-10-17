@@ -3,18 +3,25 @@ import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
-export async function countOrganizations(): Promise<number> {
+export async function countOrganizations(status?: JobApplicationStatus): Promise<number> {
   const userId = getUserId(await verifySession());
-  return countOrganizationsQuery(userId);
+  return countOrganizationsQuery(userId, status);
 }
 
-async function countOrganizationsQuery(userId: string): Promise<number> {
+async function countOrganizationsQuery(
+  userId: string,
+  status?: JobApplicationStatus
+): Promise<number> {
   'use cache';
-  cacheTag(cacheTags.organizations(userId));
+  cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
-  const { total } = await db.Organization.where({ userId: uuid(userId) }).aggregate(
-    (aggregate) => ({ total: aggregate.count() })
-  );
+  const organizations = db.Organization.where({ userId: uuid(userId) });
+  const { total } = await (
+    status
+      ? organizations.where((o) => o.jobApplications.some((j) => j.currentStatus.eq(status)))
+      : organizations
+  ).aggregate((aggregate) => ({ total: aggregate.count() }));
   return total;
 }

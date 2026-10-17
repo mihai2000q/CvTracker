@@ -3,6 +3,7 @@ import { not } from '@prisma/orm-postgres/orm-client';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
 import { uuid } from '@database/field-values';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 type OrganizationAccessor = ModelAccessor<Contract, 'Organization', 'public'>;
 
@@ -22,6 +23,23 @@ export const ORGANIZATION_FILTERS = {
         neq: (id: string) => not(inCountry(id)),
         in: inAnyOf,
         notIn: (ids: string[]) => not(inAnyOf(ids)),
+      };
+    },
+  },
+  // An organization has the status when any of its applications does. The applications it shows
+  // are filtered by the same entries.
+  status: {
+    value: z.enum(JobApplicationStatus),
+    column: (o: OrganizationAccessor) => {
+      const hasStatus = (status: JobApplicationStatus) =>
+        o.jobApplications.some((j) => j.currentStatus.eq(status));
+      const hasAnyOf = (statuses: JobApplicationStatus[]) =>
+        o.jobApplications.some((j) => j.currentStatus.in(statuses));
+      return {
+        eq: hasStatus,
+        neq: (status: JobApplicationStatus) => not(hasStatus(status)),
+        in: hasAnyOf,
+        notIn: (statuses: JobApplicationStatus[]) => not(hasAnyOf(statuses)),
       };
     },
   },

@@ -10,6 +10,8 @@ import ListHeader from '@/components/list/list-header.tsx';
 import ListFooter from '@/components/list/list-footer.tsx';
 import NoResults from '@/components/list/no-results.tsx';
 import { organizationsSearchParamsState } from '@/features/organizations/schemas/organizations-search-params.ts';
+import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { readListSearchParams } from '@/lib/search-params.ts';
 
 const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
@@ -22,22 +24,53 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
     filterToggle,
   } = readListSearchParams(organizationsSearchParamsState, '/organizations', await searchParams);
 
-  const [result, allCount, filtersMetadata] = await Promise.all([
-    getOrganizations({ page, sortBy, filterBy, search }),
-    countOrganizations(),
-    getOrganizationFiltersMetadata(),
-  ]);
+  const [result, allCount, appliedCount, interviewCount, offerCount, filtersMetadata] =
+    await Promise.all([
+      getOrganizations({ page, sortBy, filterBy, search }),
+      countOrganizations(),
+      countOrganizations(JobApplicationStatus.Applied),
+      countOrganizations(JobApplicationStatus.Interview),
+      countOrganizations(JobApplicationStatus.Offer),
+      getOrganizationFiltersMetadata(),
+    ]);
   if (!result.success) {
     redirect('/organizations');
   }
 
   const { items: organizations, totalCount } = result.data;
+  const statusOption = (status: JobApplicationStatus | undefined) =>
+    filterOption('status', 'eq', status);
 
   return (
     <div className={'flex flex-1 flex-col gap-6'}>
       <ListHeader
         title="Organizations"
         description="Manage and track the organizations you've applied to, in one place"
+        rightSection={
+          allCount > 0 && (
+            <SegmentedControl
+              aria-label="Application status"
+              items={[
+                { label: 'All', count: allCount, ...statusOption(undefined) },
+                {
+                  label: 'Applied',
+                  count: appliedCount,
+                  ...statusOption(JobApplicationStatus.Applied),
+                },
+                {
+                  label: 'Interview',
+                  count: interviewCount,
+                  ...statusOption(JobApplicationStatus.Interview),
+                },
+                {
+                  label: 'Offer',
+                  count: offerCount,
+                  ...statusOption(JobApplicationStatus.Offer),
+                },
+              ]}
+            />
+          )
+        }
       />
 
       <main className={'flex flex-1 flex-col gap-6'}>

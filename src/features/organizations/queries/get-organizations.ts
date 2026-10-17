@@ -26,6 +26,7 @@ import {
   ORGANIZATION_TIEBREAKERS,
   organizationSorters,
 } from '@/features/organizations/constants/organization-sorting.tsx';
+import { JOB_APPLICATION_FILTERS } from '@/features/job-applications/constants/job-application-filtering.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 
 export async function getOrganizations(
@@ -57,8 +58,15 @@ async function getOrganizationsQuery(
     .include('organizationCountries', (oc) =>
       oc.include('country').orderBy((c) => c.country.name.asc())
     )
-    .include('jobApplications', (jobApplications) =>
-      jobApplications.combine({
+    .include('jobApplications', (allJobApplications) => {
+      // Only the applications that have the status filtered by, when there is one
+      const jobApplications = allJobApplications.where(
+        buildWhere(
+          filterBy.filter(({ field }) => field === 'status'),
+          JOB_APPLICATION_FILTERS
+        )
+      );
+      return jobApplications.combine({
         items: jobApplications
           .select('id', 'title', 'currentStatus', 'appliedAt', 'source', 'postingUrl')
           .include('country')
@@ -67,9 +75,10 @@ async function getOrganizationsQuery(
             r.include('contacts', (rc) => rc.include('contact')).orderBy((r) => r.scheduledAt.asc())
           )
           .orderBy((j) => j.appliedAt.desc()),
-        lastActivityAt: jobApplications.max('updatedAt'),
-      })
-    )
+        // Of every application, not only those shown
+        lastActivityAt: allJobApplications.max('updatedAt'),
+      });
+    })
     .all();
   const [models, { totalCount }] = await Promise.all([
     modelsQuery,
