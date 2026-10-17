@@ -4,13 +4,11 @@ import JobApplicationStatusIndicator from '@/features/job-applications/component
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
-const JobApplicationStatusBadge = ({
-  status,
-  className,
-}: {
+interface Props extends React.ComponentProps<'div'> {
   status: JobApplicationStatus;
-  className?: string;
-}) => {
+}
+
+const JobApplicationStatusBadge = ({ status, className, children, ...props }: Props) => {
   return (
     <div
       data-job-application-status={status}
@@ -19,9 +17,11 @@ const JobApplicationStatusBadge = ({
         'bg-(--status-color)/20 text-xs font-bold text-(--status-color) uppercase',
         className
       )}
+      {...props}
     >
       <JobApplicationStatusIndicator status={status} />
       {JOB_APPLICATION_STATUSES[status]}
+      {children}
     </div>
   );
 };
