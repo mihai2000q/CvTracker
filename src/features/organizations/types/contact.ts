@@ -1,10 +1,7 @@
-export interface Contact extends ContactSummary {
-  email?: string | null;
-  phone?: string | null;
-}
-
-export interface ContactSummary {
+export interface Contact {
   id: string;
   name: string;
   role: string | null;
+  email?: string | null;
+  phone?: string | null;
 }

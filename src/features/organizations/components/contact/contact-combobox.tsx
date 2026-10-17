@@ -19,7 +19,7 @@ import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { Spinner } from '@/components/ui/spinner.tsx';
 import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { queryKeys } from '@/lib/query-keys.ts';
-import { ContactSummary } from '@/features/organizations/types/contact.ts';
+import { Contact } from '@/features/organizations/types/contact.ts';
 
 interface Props {
   organizationId: string;
@@ -28,18 +28,18 @@ interface Props {
 }
 
 const ContactCombobox = ({ organizationId, change, blur }: Props) => {
-  const [selected, setSelected] = useState<ContactSummary[]>([]);
+  const [selected, setSelected] = useState<Contact[]>([]);
   const anchor = useComboboxAnchor();
 
   const { data: contacts, isPending } = useQuery({
     queryKey: queryKeys.organizationContacts(organizationId),
-    queryFn: () => fetchJson<ContactSummary[]>(`/api/organizations/${organizationId}/contacts`),
+    queryFn: () => fetchJson<Contact[]>(`/api/organizations/${organizationId}/contacts`),
   });
 
   const hasNoContacts = !isPending && contacts?.length === 0;
   const isDisabled = isPending || hasNoContacts;
 
-  const handleValueChange = (next: ContactSummary[]) => {
+  const handleValueChange = (next: Contact[]) => {
     setSelected(next);
     change(next.map((contact) => contact.id));
   };
@@ -51,8 +51,8 @@ const ContactCombobox = ({ organizationId, change, blur }: Props) => {
       items={contacts ?? []}
       value={selected}
       onValueChange={handleValueChange}
-      itemToStringLabel={(contact: ContactSummary) => contact.name}
-      isItemEqualToValue={(a: ContactSummary, b: ContactSummary) => a.id === b.id}
+      itemToStringLabel={(contact: Contact) => contact.name}
+      isItemEqualToValue={(a: Contact, b: Contact) => a.id === b.id}
       disabled={isDisabled}
     >
       <ComboboxChips ref={anchor} data-disabled={isDisabled}>
@@ -60,7 +60,7 @@ const ContactCombobox = ({ organizationId, change, blur }: Props) => {
           {isPending ? <Spinner /> : <RiUserLine />}
         </InputGroupAddon>
         <ComboboxValue>
-          {(values: ContactSummary[]) => (
+          {(values: Contact[]) => (
             <React.Fragment>
               {values.map((contact) => (
                 <ComboboxChip key={contact.id}>{contact.name}</ComboboxChip>
@@ -84,7 +84,7 @@ const ContactCombobox = ({ organizationId, change, blur }: Props) => {
       <ComboboxContent anchor={anchor}>
         <ComboboxEmpty>No contacts found</ComboboxEmpty>
         <ComboboxList>
-          {(contact: ContactSummary) => (
+          {(contact: Contact) => (
             <ComboboxItem key={contact.id} value={contact}>
               {contact.name}
               {contact.role && (

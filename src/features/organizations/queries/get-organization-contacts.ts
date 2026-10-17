@@ -7,11 +7,11 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
-import { ContactSummary } from '@/features/organizations/types/contact.ts';
+import { Contact } from '@/features/organizations/types/contact.ts';
 
 export async function getOrganizationContacts(
   organizationId: string
-): Promise<Result<ContactSummary[]>> {
+): Promise<Result<Contact[]>> {
   const userId = getUserId(await verifySession());
   const parsed = zodValidate(organizationId, z.uuid());
   if (!parsed.success) {
@@ -24,7 +24,7 @@ export async function getOrganizationContacts(
 async function getOrganizationContactsQuery(
   userId: string,
   organizationId: string
-): Promise<ContactSummary[]> {
+): Promise<Contact[]> {
   'use cache';
   cacheTag(cacheTags.contacts(organizationId));
 
@@ -34,7 +34,7 @@ async function getOrganizationContactsQuery(
   });
   if (!organization) return [];
 
-  return db.Contact.select('id', 'name', 'role')
+  return db.Contact.select('id', 'name', 'role', 'email', 'phone')
     .where({ organizationId: uuid(organizationId) })
     .orderBy((c) => c.name.asc())
     .all();
