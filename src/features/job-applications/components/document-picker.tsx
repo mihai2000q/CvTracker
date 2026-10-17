@@ -10,6 +10,7 @@ import {
 import { RiCloseLine, RiFileTextLine } from '@remixicon/react';
 import FileDropzone from '@/components/form/file-dropzone.tsx';
 import DocumentCombobox from '@/features/documents/components/document-combobox.tsx';
+import { DocumentSummary } from '@/features/documents/types/document.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { ALLOWED_FILE_TYPES } from '@/lib/zod/fields.ts';
 import FileSize from '@/components/file-size.tsx';
@@ -24,11 +25,13 @@ interface Props extends Omit<ComponentProps<'input'>, 'type' | 'value' | 'defaul
     invalid?: boolean;
     inputProps?: ComboboxInputProps;
   };
+  defaultDocument?: DocumentSummary | null;
   hint?: string;
 }
 
 const DocumentPicker = ({
   documentType,
+  defaultDocument,
   selectorProps,
   onChange,
   hint = 'PDF or Word document (10 MB)',
@@ -58,8 +61,9 @@ const DocumentPicker = ({
         className="sr-only"
         onChange={(event) => {
           setFile(event.currentTarget.files?.[0] ?? null);
-          // A file and a picked document are alternatives; the form must never hold both
-          selectorProps.change('');
+          // A file and a picked document are alternatives; the form must never hold both. Without
+          // a file again, it is back to the document it started with
+          selectorProps.change(event.currentTarget.files?.[0] ? '' : (defaultDocument?.id ?? ''));
           onChange?.(event);
         }}
       />
@@ -85,7 +89,11 @@ const DocumentPicker = ({
         </Attachment>
       ) : (
         <div className={'flex flex-col items-center gap-2.5'}>
-          <DocumentCombobox documentType={documentType} {...selectorProps} />
+          <DocumentCombobox
+            documentType={documentType}
+            defaultValue={defaultDocument}
+            {...selectorProps}
+          />
 
           <FileDropzone
             accept={accept}
