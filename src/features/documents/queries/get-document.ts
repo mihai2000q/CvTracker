@@ -1,0 +1,47 @@
+import { Document } from '@/features/documents/types/document.ts';
+import { db } from '@database/db.ts';
+import { uuid } from '@database/field-values';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
+import { cacheTag } from 'next/cache';
+import { cacheTags } from '@/lib/cache-tags.ts';
+import { z } from 'zod';
+import { zodValidate } from '@/lib/zod/parse.ts';
+import { Result } from '@/types/result.ts';
+import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+
+export async function getDocument(id: string): Promise<Result<Document | null>> {
+  const userId = getUserId(await verifySession());
+
+  const parsed = zodValidate(id, z.uuid());
+  if (!parsed.success) {
+    return parsed;
+  }
+
+  return { success: true, data: await getDocumentQuery(userId, parsed.data) };
+}
+
+async function getDocumentQuery(userId: string, id: string): Promise<Document | null> {
+  'use cache';
+  cacheTag(cacheTags.documents(userId), cacheTags.jobApplications(userId));
+
+  const [document] = await db.Document.where({ id: uuid(id), userId: uuid(userId) })
+    .include('coverLetterForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
+    .include('cvForJobApplications', (ja) => ja.where({ userId: uuid(userId) }).count())
+    .all();
+
+  if (!document) {
+    return null;
+  }
+
+  return {
+    id: document.id,
+    name: document.name,
+    type: document.type as DocumentType,
+    filePath: document.filePath,
+    originalFilename: document.originalFilename,
+    size: document.size,
+    notes: document.notes,
+    uploadedAt: document.uploadedAt,
+    jobApplicationsCount: document.coverLetterForJobApplications || document.cvForJobApplications,
+  };
+}

@@ -20,9 +20,10 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   document: Document;
+  onDeleted?: () => void;
 }
 
-const DeleteDocumentAlertDialog = ({ open, onOpenChange, document }: Props) => {
+const DeleteDocumentAlertDialog = ({ open, onOpenChange, document, onDeleted }: Props) => {
   const [isPending, run] = useResultTransition();
 
   function handleDelete() {
@@ -30,6 +31,7 @@ const DeleteDocumentAlertDialog = ({ open, onOpenChange, document }: Props) => {
       onSuccess: () => {
         toast.add({ type: 'success', title: 'Document deleted', description: document.name });
         onOpenChange(false);
+        onDeleted?.();
       },
     });
   }
