@@ -26,3 +26,9 @@ export const toOrganizationSummary = (row: OrganizationRow): OrganizationSummary
   name: row.name,
   countries: row.organizationCountries.map(({ country }) => country),
 });
+
+export interface OrganizationDetail extends OrganizationSummary {
+  websiteUrl: string | null;
+  notes: string | null;
+  jobApplicationsCount: number;
+}

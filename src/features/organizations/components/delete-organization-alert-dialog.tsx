@@ -23,6 +23,7 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   organization: Pick<Organization, 'id' | 'name'>;
   jobApplicationsCount: number;
+  onDeleted?: () => void;
 }
 
 const DeleteOrganizationAlertDialog = ({
@@ -30,6 +31,7 @@ const DeleteOrganizationAlertDialog = ({
   onOpenChange,
   organization,
   jobApplicationsCount,
+  onDeleted,
 }: Props) => {
   const queryClient = useQueryClient();
   const [isPending, run] = useResultTransition();
@@ -44,6 +46,7 @@ const DeleteOrganizationAlertDialog = ({
           description: organization.name,
         });
         onOpenChange(false);
+        onDeleted?.();
         await queryClient.invalidateQueries({ queryKey: queryKeys.organizations });
       },
     });
