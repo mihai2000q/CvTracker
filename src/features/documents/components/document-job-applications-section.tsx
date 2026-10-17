@@ -67,7 +67,7 @@ const DocumentJobApplicationsSection = ({
     <section className={'flex flex-col gap-3'}>
       <div className={'flex items-center justify-between gap-2'}>
         <div className={'flex items-baseline gap-1.5'}>
-          <h2 className={'text-lg font-semibold'}>Used on</h2>
+          <h2 className={'text-lg font-semibold'}>Job Applications</h2>
           <span className={'text-muted-foreground text-sm tabular-nums'}>{totalCount}</span>
         </div>
         {totalCount > 1 && (
