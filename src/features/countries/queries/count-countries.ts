@@ -13,7 +13,7 @@ export async function countCountries(scope: CountryScope = 'applied'): Promise<n
 
 async function countCountriesQuery(userId: string, scope: CountryScope): Promise<number> {
   'use cache';
-  cacheTag(cacheTags.countries(userId), cacheTags.jobApplications(userId));
+  cacheTag(cacheTags.jobApplications(userId));
 
   const countries =
     scope === 'applied'

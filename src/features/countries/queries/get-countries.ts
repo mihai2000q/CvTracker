@@ -38,11 +38,7 @@ async function getCountriesQuery(
   { page, pageSize, sortBy, scope, search }: GetCountriesQuery
 ): Promise<Page<Country>> {
   'use cache';
-  cacheTag(
-    cacheTags.countries(userId),
-    cacheTags.organizations(userId),
-    cacheTags.jobApplications(userId)
-  );
+  cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
   const filteredQuery = db.Country.where(
     scope === 'applied'
