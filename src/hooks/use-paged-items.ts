@@ -1,4 +1,5 @@
 import { useState, useTransition } from 'react';
+import { toast } from '@/components/ui/toast.tsx';
 
 interface Options<T> {
   // The first page, which the server renders. When it changes the list starts over from it
@@ -6,11 +7,20 @@ interface Options<T> {
   totalCount: number;
   // The items of a page, from 2 on
   loadPage: (page: number) => Promise<T[]>;
+  // What happens when a page can't be loaded; a toast by default
   onError?: () => void;
 }
 
 // A list that grows by a page at a time, in state that is local to it
-export function usePagedItems<T>({ initialItems, totalCount, loadPage, onError }: Options<T>) {
+const notifyLoadFailed = () =>
+  toast.add({ type: 'error', title: 'Could not load more', description: 'Please try again' });
+
+export function usePagedItems<T>({
+  initialItems,
+  totalCount,
+  loadPage,
+  onError = notifyLoadFailed,
+}: Options<T>) {
   const [state, setState] = useState({ initialItems, more: [] as T[], page: 1 });
   const [isPending, startTransition] = useTransition();
 
@@ -31,7 +41,7 @@ export function usePagedItems<T>({ initialItems, totalCount, loadPage, onError }
           page: current.page + 1,
         }));
       } catch {
-        onError?.();
+        onError();
       }
     });
   };

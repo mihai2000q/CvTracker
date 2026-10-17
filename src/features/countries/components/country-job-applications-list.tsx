@@ -3,7 +3,6 @@
 import React from 'react';
 import { RiArrowDownSLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
-import { toast } from '@/components/ui/toast.tsx';
 import { usePagedItems } from '@/hooks/use-paged-items.ts';
 import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
@@ -28,8 +27,6 @@ const CountryJobApplicationsList = ({ countryId, initialJobApplications, totalCo
           `/api/job-applications/summaries?${buildSearchParams({ countryId, page, pageSize: COUNTRY_JOB_APPLICATIONS_PAGE_SIZE })}`
         )
       ).items,
-    onError: () =>
-      toast.add({ type: 'error', title: 'Could not load more', description: 'Please try again' }),
   });
 
   return (

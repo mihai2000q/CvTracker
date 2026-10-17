@@ -3,7 +3,6 @@
 import React from 'react';
 import { RiArrowDownSLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
-import { toast } from '@/components/ui/toast.tsx';
 import { usePagedItems } from '@/hooks/use-paged-items.ts';
 import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
@@ -29,8 +28,6 @@ const CountryOrganizationsList = ({ country, initialOrganizations, totalCount }:
           `/api/countries/${country.id}/organizations?${buildSearchParams({ page, pageSize: COUNTRY_ORGANIZATIONS_PAGE_SIZE })}`
         )
       ).items,
-    onError: () =>
-      toast.add({ type: 'error', title: 'Could not load more', description: 'Please try again' }),
   });
 
   return (
