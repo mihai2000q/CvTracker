@@ -28,15 +28,15 @@ const DocumentActions = ({ document }: { document: Document }) => {
         </Button>
 
         <div className={'grid grid-cols-2 gap-2'}>
-          <Button variant={'outline'} onClick={() => setEditOpen(true)}>
+          <Button variant={'tertiary'} onClick={() => setEditOpen(true)}>
             <RiEdit2Line />
             Edit
           </Button>
           <Tooltip disabled={!isUsed}>
             <TooltipTrigger render={<div className={'w-full'} />}>
               <Button
-                variant={'outline'}
-                className={'text-destructive hover:text-destructive w-full'}
+                variant={'destructive'}
+                className={'w-full'}
                 disabled={isUsed}
                 onClick={() => setDeleteOpen(true)}
               >
