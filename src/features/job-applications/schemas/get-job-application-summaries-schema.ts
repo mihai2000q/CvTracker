@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { pagePaginationSchema } from '@/schemas/page-pagination-schema.ts';
 
-// The applications of a country, or the ones a document is used on
 export const getJobApplicationSummariesQuerySchema = pagePaginationSchema
   .extend({
     countryId: z.uuid().optional(),
     documentId: z.uuid().optional(),
+    organizationId: z.uuid().optional(),
   })
-  .refine(({ countryId, documentId }) => countryId || documentId, {
-    message: 'A country or a document is required',
+  .refine(({ countryId, documentId, organizationId }) => countryId || documentId || organizationId, {
+    message: 'A country, a document or an organization is required',
   });
 
 export type GetJobApplicationSummariesQueryInput = z.input<

@@ -39,14 +39,14 @@ export async function getJobApplicationSummaries(
 
 async function getJobApplicationSummariesQuery(
   userId: string,
-  { countryId, documentId, page, pageSize }: GetJobApplicationSummariesQuery
+  { countryId, documentId, organizationId, page, pageSize }: GetJobApplicationSummariesQuery
 ): Promise<Page<JobApplicationSummary>> {
   'use cache';
   cacheTag(cacheTags.jobApplications(userId), cacheTags.organizations(userId));
 
   const filteredQuery = db.JobApplication.where({ userId: uuid(userId) })
     .where((ja) => (countryId ? ja.countryId.eq(uuid(countryId)) : all()))
-    // Used as the CV or as the cover letter
+    .where((ja) => (organizationId ? ja.organizationId.eq(uuid(organizationId)) : all()))
     .where((ja) =>
       documentId
         ? or(ja.cvDocumentId.eq(uuid(documentId)), ja.coverLetterDocumentId.eq(uuid(documentId)))
