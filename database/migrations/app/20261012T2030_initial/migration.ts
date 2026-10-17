@@ -6,9 +6,31 @@ import {
   MigrationCLI,
   checkExpression,
   col,
+  createExtension,
   lit,
   primaryKey,
+  rawSql,
 } from '@prisma/orm-postgres/migration';
+
+// Typo-tolerant search: `word_similarity` from `pg_trgm`, and the trigram indexes that keep it
+// and `ilike '%term%'` from scanning every row. Countries are too few to need one.
+const trigramIndex = (table: string, column: string) => {
+  const index = `${table}_${column}_trgm_idx`;
+  return rawSql({
+    id: `index.${index}`,
+    label: `Create index "${index}"`,
+    operationClass: 'additive',
+    target: { id: 'postgres' },
+    precheck: [],
+    execute: [
+      {
+        description: `Create index "${index}"`,
+        sql: `CREATE INDEX IF NOT EXISTS "${index}" ON "public"."${table}" USING gin ("${column}" gin_trgm_ops)`,
+      },
+    ],
+    postcheck: [],
+  });
+};
 
 export default class M extends Migration<never, End> {
   override readonly endContractJson = endContract;
@@ -701,6 +723,10 @@ export default class M extends Migration<never, End> {
           onDelete: 'cascade',
         },
       }),
+      createExtension('pg_trgm'),
+      trigramIndex('job_application', 'title'),
+      trigramIndex('organization', 'name'),
+      trigramIndex('document', 'name'),
     ];
   }
 }

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
+import { fuzzy, similarTo } from '@database/filter.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 type JobApplicationAccessor = ModelAccessor<Contract, 'JobApplication', 'public'>;
@@ -17,9 +18,11 @@ export const JOB_APPLICATION_FILTERS = {
 };
 export type JobApplicationFilterField = keyof typeof JOB_APPLICATION_FILTERS;
 
+// Both match what contains the term and, with `pg_trgm`, what is close to it
 export const JOB_APPLICATION_SEARCH_COLUMNS = [
-  (j: JobApplicationAccessor) => j.title,
+  fuzzy((j: JobApplicationAccessor) => j.title),
   (j: JobApplicationAccessor) => ({
     ilike: (pattern: string) => j.organization.some((o) => o.name.ilike(pattern)),
+    similar: (term: string) => j.organization.some((o) => similarTo(o.name, term)),
   }),
 ];

@@ -1,5 +1,6 @@
 import 'server-only';
-import { or } from '@prisma/orm-postgres/orm-client';
+import { buildSearch } from '@database/filter.ts';
+import { DOCUMENT_NAME_SEARCH_COLUMNS } from '@/features/documents/constants/document-filtering.ts';
 import { db } from '@database/db.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
@@ -49,9 +50,7 @@ export async function searchDocumentsQuery(
     const [uploadedAt, id] = decoded;
     dbQuery = dbQuery.cursor({ uploadedAt, id: uuid(id) });
   }
-  if (search && search !== '') {
-    dbQuery = dbQuery.where((c) => or(c.name.ilike(`%${search}%`)));
-  }
+  dbQuery = dbQuery.where(buildSearch(search, DOCUMENT_NAME_SEARCH_COLUMNS));
 
   const documents = await dbQuery.all();
 

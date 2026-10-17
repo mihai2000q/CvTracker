@@ -1,5 +1,4 @@
 import 'server-only';
-import { or } from '@prisma/orm-postgres/orm-client';
 import { db } from '@database/db.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
@@ -13,6 +12,8 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { uuid } from '@database/field-values.ts';
+import { buildSearch } from '@database/filter.ts';
+import { ORGANIZATION_SEARCH_COLUMNS } from '@/features/organizations/constants/organization-filtering.ts';
 import { CursorPage, decodeCursor, encodeCursor } from '@/lib/pagination.ts';
 
 export async function searchOrganizations(
@@ -46,9 +47,7 @@ export async function searchOrganizationsQuery(
     const [updatedAt, name, id] = decoded;
     dbQuery = dbQuery.cursor({ updatedAt, name, id: uuid(id) });
   }
-  if (search && search !== '') {
-    dbQuery = dbQuery.where((c) => or(c.name.ilike(`%${search}%`)));
-  }
+  dbQuery = dbQuery.where(buildSearch(search, ORGANIZATION_SEARCH_COLUMNS));
 
   const organizations = await dbQuery.all();
 

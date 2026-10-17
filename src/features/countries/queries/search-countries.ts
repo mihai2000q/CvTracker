@@ -1,5 +1,6 @@
 import 'server-only';
-import { or } from '@prisma/orm-postgres/orm-client';
+import { buildSearch } from '@database/filter.ts';
+import { COUNTRY_SEARCH_COLUMNS } from '@/features/countries/constants/country-filtering.ts';
 import { db } from '@database/db.ts';
 import { CountrySummary } from '@/features/countries/types/country.ts';
 import {
@@ -37,9 +38,7 @@ export async function searchCountriesQuery({
   if (cursor) {
     dbQuery = dbQuery.cursor({ name: cursor });
   }
-  if (search && search !== '') {
-    dbQuery = dbQuery.where((c) => or(c.name.ilike(`%${search}%`), c.isoCode.ilike(`%${search}%`)));
-  }
+  dbQuery = dbQuery.where(buildSearch(search, COUNTRY_SEARCH_COLUMNS));
 
   const countries = await dbQuery.all();
 

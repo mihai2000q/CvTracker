@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { not } from '@prisma/orm-postgres/orm-client';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
+import { fuzzy } from '@database/filter.ts';
 import { uuid } from '@database/field-values';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
@@ -46,4 +47,4 @@ export const ORGANIZATION_FILTERS = {
 };
 export type OrganizationFilterField = keyof typeof ORGANIZATION_FILTERS;
 
-export const ORGANIZATION_SEARCH_COLUMNS = [(o: OrganizationAccessor) => o.name];
+export const ORGANIZATION_SEARCH_COLUMNS = [fuzzy((o: OrganizationAccessor) => o.name)];

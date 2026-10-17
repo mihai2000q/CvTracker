@@ -2343,5 +2343,69 @@
         ]
       }
     ]
+  },
+  {
+    "id": "extension.pg_trgm",
+    "label": "Create extension \"pg_trgm\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create extension \"pg_trgm\"",
+        "sql": "CREATE EXTENSION IF NOT EXISTS \"pg_trgm\""
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "index.job_application_title_trgm_idx",
+    "label": "Create index \"job_application_title_trgm_idx\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create index \"job_application_title_trgm_idx\"",
+        "sql": "CREATE INDEX IF NOT EXISTS \"job_application_title_trgm_idx\" ON \"public\".\"job_application\" USING gin (\"title\" gin_trgm_ops)"
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "index.organization_name_trgm_idx",
+    "label": "Create index \"organization_name_trgm_idx\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create index \"organization_name_trgm_idx\"",
+        "sql": "CREATE INDEX IF NOT EXISTS \"organization_name_trgm_idx\" ON \"public\".\"organization\" USING gin (\"name\" gin_trgm_ops)"
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "index.document_name_trgm_idx",
+    "label": "Create index \"document_name_trgm_idx\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create index \"document_name_trgm_idx\"",
+        "sql": "CREATE INDEX IF NOT EXISTS \"document_name_trgm_idx\" ON \"public\".\"document\" USING gin (\"name\" gin_trgm_ops)"
+      }
+    ],
+    "postcheck": []
   }
 ]
