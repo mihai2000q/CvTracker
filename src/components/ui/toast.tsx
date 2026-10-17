@@ -175,7 +175,12 @@ function ToastList() {
   const { toasts } = ToastPrimitive.useToastManager();
 
   return toasts.map((toastItem) => (
-    <Toast key={toastItem.id} toast={toastItem}>
+    <Toast
+      key={toastItem.id}
+      toast={toastItem}
+      // A toast with an action has more to say: it grows to the left, on large screens only
+      className={toastItem.actionProps ? 'lg:w-[calc(100%+8rem)]' : undefined}
+    >
       <ToastContent>
         <ToastIcon type={toastItem.type} />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
