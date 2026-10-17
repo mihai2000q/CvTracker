@@ -16,10 +16,12 @@ import {
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
-import { all } from '@prisma/orm-postgres/orm-client';
 import { buildOrderBy } from '@database/sort.ts';
 import { buildSearch } from '@database/filter.ts';
-import { COUNTRY_SEARCH_COLUMNS } from '@/features/countries/constants/country-filtering.ts';
+import {
+  COUNTRY_SEARCH_COLUMNS,
+  countryScopeWhere,
+} from '@/features/countries/constants/country-filtering.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 
 export async function getCountries(query: GetCountriesQueryInput): Promise<Result<Page<Country>>> {
@@ -40,11 +42,9 @@ async function getCountriesQuery(
   'use cache';
   cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
 
-  const filteredQuery = db.Country.where(
-    scope === 'applied'
-      ? (c) => c.jobApplications.some((ja) => ja.userId.eq(uuid(userId)))
-      : () => all()
-  ).where(buildSearch(search, COUNTRY_SEARCH_COLUMNS));
+  const filteredQuery = db.Country.where(countryScopeWhere(scope, userId)).where(
+    buildSearch(search, COUNTRY_SEARCH_COLUMNS)
+  );
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy(buildOrderBy(sortBy, countrySorters(userId), COUNTRY_TIEBREAKERS))
