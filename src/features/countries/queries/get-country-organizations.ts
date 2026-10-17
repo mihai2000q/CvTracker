@@ -4,6 +4,7 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { paginate } from '@database/paginate.ts';
+import { buildOrderBy } from '@database/sort.ts';
 import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
@@ -13,6 +14,11 @@ import {
   getCountryOrganizationsQuerySchema,
 } from '@/features/countries/schemas/get-country-organizations-schema.ts';
 import type { CountryOrganization } from '@/features/countries/types/country-organization.ts';
+import { DEFAULT_COUNTRY_ORGANIZATION_SORT_BY } from '@/features/countries/constants/country-page.ts';
+import {
+  ORGANIZATION_TIEBREAKERS,
+  organizationSorters,
+} from '@/features/organizations/constants/organization-sorting.tsx';
 
 export async function getCountryOrganizations(
   query: GetCountryOrganizationsQueryInput
@@ -29,7 +35,7 @@ export async function getCountryOrganizations(
 
 async function getCountryOrganizationsQuery(
   userId: string,
-  { countryId, page, pageSize }: GetCountryOrganizationsQuery
+  { countryId, sortBy, page, pageSize }: GetCountryOrganizationsQuery
 ): Promise<Page<CountryOrganization>> {
   'use cache';
   cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
@@ -39,7 +45,13 @@ async function getCountryOrganizationsQuery(
   );
 
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
-    .orderBy((o) => o.name.asc())
+    .orderBy(
+      buildOrderBy(
+        sortBy.length > 0 ? sortBy : DEFAULT_COUNTRY_ORGANIZATION_SORT_BY,
+        organizationSorters,
+        ORGANIZATION_TIEBREAKERS
+      )
+    )
     .include('jobApplications', (ja) =>
       ja.combine({
         inCountry: ja.where({ countryId: uuid(countryId) }).count(),

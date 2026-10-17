@@ -6,6 +6,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const result = await getCountryOrganizations({
     ...Object.fromEntries(searchParams),
     countryId: id,
+    sortBy: searchParams.getAll('sortBy'),
   });
   if (!result.success) {
     return Response.json({ errors: result.errors }, { status: 400 });
