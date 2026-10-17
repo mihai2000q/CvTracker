@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { RiAddLine, RiDeleteBinLine, RiExternalLinkLine } from '@remixicon/react';
+import Link from 'next/link';
+import { RiAddLine, RiDeleteBinLine, RiExternalLinkLine, RiEyeLine } from '@remixicon/react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -15,11 +16,12 @@ import DeleteOrganizationAlertDialog from '@/features/organizations/components/d
 import { Organization } from '@/features/organizations/types/organization.ts';
 
 interface Props {
-  organization: Organization;
+  organization: Pick<Organization, 'id' | 'name' | 'websiteUrl' | 'countries'>;
+  jobApplicationsCount: number;
   children: React.ReactElement;
 }
 
-const OrganizationContextMenu = ({ organization, children }: Props) => {
+const OrganizationContextMenu = ({ organization, jobApplicationsCount, children }: Props) => {
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -28,6 +30,12 @@ const OrganizationContextMenu = ({ organization, children }: Props) => {
       <ContextMenu>
         <ContextMenuTrigger render={children} />
         <ContextMenuContent>
+          <ContextMenuItem
+            render={<Link href={`/organizations/${organization.id}`} prefetch={false} />}
+          >
+            <RiEyeLine />
+            View details
+          </ContextMenuItem>
           <ContextMenuItem onClick={() => setCreateOpen(true)}>
             <RiAddLine />
             Add job application
@@ -70,6 +78,7 @@ const OrganizationContextMenu = ({ organization, children }: Props) => {
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         organization={organization}
+        jobApplicationsCount={jobApplicationsCount}
       />
     </>
   );

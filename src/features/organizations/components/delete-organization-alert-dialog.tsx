@@ -21,13 +21,19 @@ import { Organization } from '@/features/organizations/types/organization.ts';
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  organization: Organization;
+  organization: Pick<Organization, 'id' | 'name'>;
+  jobApplicationsCount: number;
 }
 
-const DeleteOrganizationAlertDialog = ({ open, onOpenChange, organization }: Props) => {
+const DeleteOrganizationAlertDialog = ({
+  open,
+  onOpenChange,
+  organization,
+  jobApplicationsCount,
+}: Props) => {
   const queryClient = useQueryClient();
   const [isPending, run] = useResultTransition();
-  const jobsCount = organization.jobApplications.length;
+  const jobsCount = jobApplicationsCount;
 
   function handleDelete() {
     run(() => deleteOrganization(organization.id), {

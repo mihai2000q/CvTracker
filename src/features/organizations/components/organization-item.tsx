@@ -33,7 +33,10 @@ const OrganizationItem = ({ organization }: Props) => {
     VISIBLE_COUNTRIES.find(({ count }) => index < count)!.showFrom;
 
   return (
-    <OrganizationContextMenu organization={organization}>
+    <OrganizationContextMenu
+      organization={organization}
+      jobApplicationsCount={organization.jobApplications.length}
+    >
       <Card className={'p-0'}>
         <AccordionItem
           value={organization.id}
