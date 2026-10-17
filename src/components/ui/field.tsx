@@ -94,9 +94,10 @@ function FieldContent({ className, ...props }: React.ComponentProps<'div'>) {
 
 function FieldLabel({
   required,
+  hideIndicator,
   className,
   ...props
-}: React.ComponentProps<typeof Label> & { required?: boolean }) {
+}: React.ComponentProps<typeof Label> & { required?: boolean; hideIndicator?: boolean }) {
   return (
     <Label
       data-slot="field-label"
@@ -108,7 +109,7 @@ function FieldLabel({
       {...props}
     >
       {props.children}
-      {required === true ? (
+      {hideIndicator ? null : required === true ? (
         <span className="text-destructive pl-0.5">*</span>
       ) : (
         <span className={'text-muted-foreground text-xs'}>(optional)</span>

@@ -5,12 +5,13 @@ interface Props extends Omit<React.ComponentProps<typeof Field>, 'children'> {
   field: { id: string; errors?: string[] };
   label: React.ReactNode;
   required?: boolean;
+  hideIndicator?: boolean;
   children: React.ReactNode;
 }
 
-const FormField = ({ field, label, required, children, ...props }: Props) => (
+const FormField = ({ field, label, required, hideIndicator, children, ...props }: Props) => (
   <Field {...props}>
-    <FieldLabel htmlFor={field.id} required={required}>
+    <FieldLabel htmlFor={field.id} required={required} hideIndicator={hideIndicator}>
       {label}
     </FieldLabel>
     {children}

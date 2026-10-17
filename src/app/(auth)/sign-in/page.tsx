@@ -18,6 +18,7 @@ import { zodValidator } from '@/components/form/zod-validator.ts';
 import { signIn } from '@/features/auth/sign-in/actions/sign-in.ts';
 import { SignInForm, signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
+import FormField from '@/components/form/form-field.tsx';
 
 const SignIn = () => {
   const [lastResult, formAction, isPending] = useActionState(signIn, undefined);
@@ -43,18 +44,23 @@ const SignIn = () => {
 
           <CardContent>
             <FieldGroup>
-              <Field data-invalid={!!fields.email.errors}>
-                <FieldLabel htmlFor={fields.email.id}>Email</FieldLabel>
+              <FormField
+                field={fields.email}
+                label="Email"
+                hideIndicator
+                data-invalid={!!fields.email.errors}
+              >
                 <Input
                   {...getInputProps(fields.email, { type: 'email' })}
                   placeholder="m@example.com"
                 />
-                <FieldError errors={fields.email.errors} />
-              </Field>
+              </FormField>
 
               <Field data-invalid={!!fields.password.errors}>
                 <div className="flex items-center">
-                  <FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
+                  <FieldLabel htmlFor={fields.password.id} hideIndicator>
+                    Password
+                  </FieldLabel>
                   <a
                     href="#"
                     className="text-muted-foreground ml-auto inline-block text-xs underline-offset-4 hover:underline"

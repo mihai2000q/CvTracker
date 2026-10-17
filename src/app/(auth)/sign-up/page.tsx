@@ -15,7 +15,8 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Marker, MarkerContent } from '@/components/ui/marker.tsx';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { FieldError, FieldGroup } from '@/components/ui/field';
+import FormField from '@/components/form/form-field';
 import { signUp } from '@/features/auth/sign-up/actions/sign-up';
 import { SignUpForm, signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
 
@@ -43,29 +44,38 @@ const SignUp = () => {
 
           <CardContent>
             <FieldGroup>
-              <Field data-invalid={!!fields.name.errors}>
-                <FieldLabel htmlFor={fields.name.id}>Name</FieldLabel>
+              <FormField
+                field={fields.name}
+                label="Name"
+                hideIndicator
+                data-invalid={!!fields.name.errors}
+              >
                 <Input {...getInputProps(fields.name, { type: 'text' })} placeholder="Example" />
-                <FieldError errors={fields.name.errors} />
-              </Field>
+              </FormField>
 
-              <Field data-invalid={!!fields.email.errors}>
-                <FieldLabel htmlFor={fields.email.id}>Email</FieldLabel>
+              <FormField
+                field={fields.email}
+                label="Email"
+                hideIndicator
+                data-invalid={!!fields.email.errors}
+              >
                 <Input
                   {...getInputProps(fields.email, { type: 'email' })}
                   placeholder="m@example.com"
                 />
-                <FieldError errors={fields.email.errors} />
-              </Field>
+              </FormField>
 
-              <Field data-invalid={!!fields.password.errors}>
-                <FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
+              <FormField
+                field={fields.password}
+                label="Password"
+                hideIndicator
+                data-invalid={!!fields.password.errors}
+              >
                 <Input
                   {...getInputProps(fields.password, { type: 'password' })}
                   placeholder="Your password"
                 />
-                <FieldError errors={fields.password.errors} />
-              </Field>
+              </FormField>
 
               {form.errors && <FieldError errors={form.errors} />}
             </FieldGroup>
