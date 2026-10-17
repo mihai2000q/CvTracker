@@ -2,7 +2,7 @@
 
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { Popover, PopoverContent } from '@/components/ui/popover.tsx';
-import { format, isValid, parse } from 'date-fns';
+import { format, isValid, parse, parseISO } from 'date-fns';
 import { RiArrowDownSLine, RiCalendarLine } from '@remixicon/react';
 import DatePicker, { isFutureDate, isPastDate } from '@/components/date/date-picker.tsx';
 import { InputGroup, InputGroupInput } from '@/components/ui/input-group.tsx';
@@ -20,19 +20,22 @@ interface Props {
   blur?: () => void;
   id?: string;
   invalid?: boolean;
+  // The date it starts with, as yyyy-MM-dd
+  defaultValue?: string;
   // Which side of today can't be picked: a date there is replaced by today
   disable?: 'past' | 'future';
 }
 
-const DateInput = ({ change, blur, id, invalid, disable }: Props) => {
+const DateInput = ({ change, blur, id, invalid, disable, defaultValue }: Props) => {
+  const initialDate = defaultValue ? parseISO(defaultValue) : undefined;
   const disableFuture = disable === 'future';
   const disablePast = disable === 'past';
   const [open, setOpen] = useState(false);
-  const [text, setText] = useState(TEMPLATE);
+  const [text, setText] = useState(initialDate ? format(initialDate, DISPLAY_FORMAT) : TEMPLATE);
   const [position, setPosition] = useState(0);
   // What the calendar shows for whatever is typed so far
-  const [viewMonth, setViewMonth] = useState<Date>();
-  const [preview, setPreview] = useState<Date>();
+  const [viewMonth, setViewMonth] = useState<Date | undefined>(initialDate);
+  const [preview, setPreview] = useState<Date | undefined>(initialDate);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 

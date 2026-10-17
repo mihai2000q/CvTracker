@@ -10,13 +10,18 @@ import { JOB_SOURCES, OTHER_SOURCE } from '@/features/job-applications/constants
 const sources = [...JOB_SOURCES, OTHER_SOURCE];
 
 interface Props {
+  defaultValue?: string;
   change: (source: string) => void;
   blur?: () => void;
 }
 
-const SourceGroup = ({ change, blur }: Props) => {
-  const [selected, setSelected] = useState<string>();
-  const [other, setOther] = useState('');
+const SourceGroup = ({ defaultValue, change, blur }: Props) => {
+  const isKnown =
+    defaultValue !== undefined && JOB_SOURCES.some((source) => source === defaultValue);
+  const [selected, setSelected] = useState<string | undefined>(
+    defaultValue ? (isKnown ? defaultValue : OTHER_SOURCE) : undefined
+  );
+  const [other, setOther] = useState(defaultValue && !isKnown ? defaultValue : '');
 
   const handleSelectedChange = ([label]: string[]) => {
     setSelected(label);

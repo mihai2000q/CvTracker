@@ -17,19 +17,21 @@ const roundTypes = Object.values(RoundType);
 
 interface Props {
   name: string;
+  defaultValue?: RoundType;
   change: (roundType: string) => void;
   blur?: () => void;
   id?: string;
   invalid?: boolean;
 }
 
-const RoundTypeCombobox = ({ name, change, blur, id, invalid }: Props) => {
+const RoundTypeCombobox = ({ name, defaultValue, change, blur, id, invalid }: Props) => {
   const anchor = useComboboxAnchor();
 
   return (
     <Combobox
       items={roundTypes}
       name={name}
+      defaultValue={defaultValue}
       itemToStringLabel={(roundType: RoundType) => ROUND_TYPE_LABELS[roundType]}
       onValueChange={(roundType) => change(roundType ?? '')}
     >

@@ -23,12 +23,13 @@ import { Contact } from '@/features/organizations/types/contact.ts';
 
 interface Props {
   organizationId: string;
+  defaultValue?: Contact[];
   change: (ids: string[]) => void;
   blur?: () => void;
 }
 
-const ContactCombobox = ({ organizationId, change, blur }: Props) => {
-  const [selected, setSelected] = useState<Contact[]>([]);
+const ContactCombobox = ({ organizationId, defaultValue, change, blur }: Props) => {
+  const [selected, setSelected] = useState<Contact[]>(defaultValue ?? []);
   const anchor = useComboboxAnchor();
 
   const { data: contacts, isPending } = useQuery({

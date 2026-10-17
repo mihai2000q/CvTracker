@@ -26,6 +26,7 @@ import { DocumentType } from '@/features/documents/types/enums/document-type.ts'
 
 interface Props {
   documentType: DocumentType;
+  defaultValue?: DocumentSummary | null;
   change: (id: string) => void;
   blur?: () => void;
   id?: string;
@@ -33,15 +34,25 @@ interface Props {
   inputProps?: ComboboxInputProps;
 }
 
-const DocumentCombobox = ({ documentType, change, blur, id, invalid, inputProps }: Props) => {
-  const [selectedDocument, setSelectedDocument] = useState<DocumentSummary | null>(null);
+const DocumentCombobox = ({
+  documentType,
+  defaultValue,
+  change,
+  blur,
+  id,
+  invalid,
+  inputProps,
+}: Props) => {
+  const [selectedDocument, setSelectedDocument] = useState<DocumentSummary | null>(
+    defaultValue ?? null
+  );
   const handleValueChange = (next: DocumentSummary | null) => {
     setSelectedDocument(next);
     change(next?.id ?? '');
   };
 
   const anchor = useComboboxAnchor();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(defaultValue?.name ?? '');
   const debouncedSearch = useDebouncedValue(search);
 
   const { data, fetchNextPage, hasNextPage, isFetching } = useInfiniteQuery({
