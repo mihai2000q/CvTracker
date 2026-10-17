@@ -2,7 +2,10 @@ import { getJobApplicationSummaries } from '@/features/job-applications/queries/
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const result = await getJobApplicationSummaries(Object.fromEntries(searchParams));
+  const result = await getJobApplicationSummaries({
+    ...Object.fromEntries(searchParams),
+    sortBy: searchParams.getAll('sortBy'),
+  });
   if (!result.success) {
     return Response.json({ errors: result.errors }, { status: 400 });
   }

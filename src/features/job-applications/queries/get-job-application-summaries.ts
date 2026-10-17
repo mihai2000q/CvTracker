@@ -39,7 +39,7 @@ export async function getJobApplicationSummaries(
 
 async function getJobApplicationSummariesQuery(
   userId: string,
-  { countryId, documentId, organizationId, page, pageSize }: GetJobApplicationSummariesQuery
+  { countryId, documentId, organizationId, sortBy, page, pageSize }: GetJobApplicationSummariesQuery
 ): Promise<Page<JobApplicationSummary>> {
   'use cache';
   cacheTag(cacheTags.jobApplications(userId), cacheTags.organizations(userId));
@@ -56,7 +56,7 @@ async function getJobApplicationSummariesQuery(
   const modelsQuery = paginate(filteredQuery, { page, pageSize })
     .orderBy(
       buildOrderBy(
-        DEFAULT_JOB_APPLICATION_SORT_BY,
+        sortBy.length > 0 ? sortBy : DEFAULT_JOB_APPLICATION_SORT_BY,
         jobApplicationSorters,
         JOB_APPLICATION_TIEBREAKERS
       )
