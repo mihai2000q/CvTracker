@@ -11,7 +11,7 @@ const NoResults = ({ noun, clearHref }: Props) => {
   return (
     <div className={'text-muted-foreground flex flex-col p-12 pt-28 items-center gap-1 text-sm'}>
       No {noun} match your filters.
-      <Button variant={'ghost'} render={<Link href={clearHref} />}>
+      <Button variant={'ghost'} nativeButton={false} render={<Link href={clearHref} />}>
         Clear filters
       </Button>
     </div>
