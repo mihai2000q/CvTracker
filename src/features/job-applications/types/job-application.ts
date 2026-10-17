@@ -59,3 +59,24 @@ export const isInterviewing = ({
   currentStatus: JobApplicationStatus;
   interviewRounds: InterviewRound[];
 }) => currentStatus === JobApplicationStatus.Interview && interviewRounds.length > 0;
+
+export interface StatusChange {
+  id: string;
+  status: JobApplicationStatus;
+  note: string | null;
+  // An exact instant (ISO)
+  changedAt: string;
+}
+
+export interface JobApplicationDetail extends JobApplication {
+  statusHistory: StatusChange[];
+}
+
+export const toStatusChange = (
+  row: Omit<StatusChange, 'status'> & { status: string }
+): StatusChange => ({
+  id: row.id,
+  status: row.status as JobApplicationStatus,
+  note: row.note,
+  changedAt: row.changedAt,
+});
