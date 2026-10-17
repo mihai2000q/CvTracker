@@ -10,11 +10,11 @@ import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 import { Page } from '@/lib/pagination.ts';
 import CountryJobApplicationItem from '@/features/countries/components/country-job-application-item.tsx';
 import { COUNTRY_JOB_APPLICATIONS_PAGE_SIZE } from '@/features/countries/constants/country-page.ts';
-import type { CountryJobApplication } from '@/features/countries/types/country-job-application.ts';
+import type { JobApplicationSummary } from '@/features/job-applications/types/job-application-summary.ts';
 
 interface Props {
   countryId: string;
-  initialJobApplications: CountryJobApplication[];
+  initialJobApplications: JobApplicationSummary[];
   totalCount: number;
 }
 
@@ -24,8 +24,8 @@ const CountryJobApplicationsList = ({ countryId, initialJobApplications, totalCo
     totalCount,
     loadPage: async (page) =>
       (
-        await fetchJson<Page<CountryJobApplication>>(
-          `/api/countries/${countryId}/job-applications?${buildSearchParams({ page, pageSize: COUNTRY_JOB_APPLICATIONS_PAGE_SIZE })}`
+        await fetchJson<Page<JobApplicationSummary>>(
+          `/api/job-applications/summaries?${buildSearchParams({ countryId, page, pageSize: COUNTRY_JOB_APPLICATIONS_PAGE_SIZE })}`
         )
       ).items,
     onError: () =>

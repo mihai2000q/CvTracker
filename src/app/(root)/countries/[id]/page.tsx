@@ -25,19 +25,16 @@ import {
 } from '@/features/countries/constants/country-page.ts';
 import { getCountry } from '@/features/countries/queries/get-country.ts';
 import { getCountryOrganizations } from '@/features/countries/queries/get-country-organizations.ts';
-import { getCountryJobApplications } from '@/features/countries/queries/get-country-job-applications.ts';
+import { getJobApplicationSummaries } from '@/features/job-applications/queries/get-job-application-summaries.ts';
 
 const CountryPage = async ({ params }: PageProps<'/countries/[id]'>) => {
   const { id } = await params;
 
-  // The lists don't wait for the country: a missing one is found out together with them.
-  // They are the first page of each, and "Show more" loads the rest from the browser
   const [countryResult, organizationsResult, jobApplicationsResult] = await Promise.all([
     getCountry(id),
     getCountryOrganizations({ countryId: id, pageSize: COUNTRY_ORGANIZATIONS_PAGE_SIZE }),
-    getCountryJobApplications({ countryId: id, pageSize: COUNTRY_JOB_APPLICATIONS_PAGE_SIZE }),
+    getJobApplicationSummaries({ countryId: id, pageSize: COUNTRY_JOB_APPLICATIONS_PAGE_SIZE }),
   ]);
-  // An id that isn't one is as missing as one that matches no country
   if (!countryResult.success || !countryResult.data) {
     notFound();
   }

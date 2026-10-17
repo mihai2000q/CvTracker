@@ -9,12 +9,12 @@ import JobApplicationContextMenu from '@/features/job-applications/components/jo
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
 import InterviewRoundHoverCard from '@/features/job-applications/components/interview/interview-round-hover-card.tsx';
 import { isInterviewing } from '@/features/job-applications/types/job-application.ts';
-import type { CountryJobApplication } from '@/features/countries/types/country-job-application.ts';
+import type { JobApplicationSummary } from '@/features/job-applications/types/job-application-summary.ts';
 
 const CountryJobApplicationItem = ({
   jobApplication,
 }: {
-  jobApplication: CountryJobApplication;
+  jobApplication: JobApplicationSummary;
 }) => {
   return (
     <JobApplicationContextMenu jobApplication={jobApplication}>
