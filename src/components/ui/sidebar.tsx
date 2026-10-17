@@ -688,23 +688,24 @@ function SidebarMenuSubButton({
   });
 }
 
-// A menu button that links to a page and shows as selected while that page, or one under it,
-// is open. The selected one can swap its icon for another (an outline for a filled one).
-function SidebarLink({
-  href,
-  icon,
-  activeIcon = icon,
-  className,
-  children,
-  ...props
-}: Omit<React.ComponentProps<typeof SidebarMenuButton>, 'render' | 'isActive'> & {
+type SidebarLinkProps = Omit<
+  React.ComponentProps<typeof SidebarMenuButton>,
+  'render' | 'isActive'
+> & {
   href: string;
   icon: React.ReactNode;
   activeIcon?: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const isActive = pathname === href || pathname.startsWith(`${href}/`);
+};
 
+function SidebarLinkView({
+  href,
+  icon,
+  activeIcon = icon,
+  isActive,
+  className,
+  children,
+  ...props
+}: SidebarLinkProps & { isActive: boolean }) {
   return (
     <SidebarMenuButton
       isActive={isActive}
@@ -715,6 +716,25 @@ function SidebarLink({
       <span className={'pb-0.5'}>{isActive ? activeIcon : icon}</span>
       <span>{children}</span>
     </SidebarMenuButton>
+  );
+}
+
+function ActiveSidebarLink(props: SidebarLinkProps) {
+  const pathname = usePathname();
+  const isActive = pathname === props.href || pathname.startsWith(`${props.href}/`);
+
+  return <SidebarLinkView isActive={isActive} {...props} />;
+}
+
+// A menu button that links to a page and shows as selected while that page, or one under it,
+// is open. The selected one can swap its icon for another (an outline for a filled one).
+// The pathname isn't known when a page with a dynamic segment is prerendered, so until it is
+// the link shows as not selected, instead of blocking the whole page
+function SidebarLink(props: SidebarLinkProps) {
+  return (
+    <React.Suspense fallback={<SidebarLinkView isActive={false} {...props} />}>
+      <ActiveSidebarLink {...props} />
+    </React.Suspense>
   );
 }
 
