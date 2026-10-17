@@ -27,14 +27,15 @@ import { fetchJson } from '@/lib/http/fetch-json.ts';
 import { buildSearchParams } from '@/lib/http/url-search-params.ts';
 
 interface Props {
+  defaultValue?: CountrySummary[];
   onChange: (ids: string[]) => void;
   onBlur?: () => void;
 }
 
-const CountryMultiCombobox = ({ onChange, onBlur }: Props) => {
+const CountryMultiCombobox = ({ defaultValue, onChange, onBlur }: Props) => {
   const anchor = useComboboxAnchor();
 
-  const [selectedCountries, setSelectedCountries] = useState<CountrySummary[]>([]);
+  const [selectedCountries, setSelectedCountries] = useState<CountrySummary[]>(defaultValue ?? []);
   const handleValueChange = (next: CountrySummary[]) => {
     setSelectedCountries(next);
     onChange(next.map((country) => country.id));

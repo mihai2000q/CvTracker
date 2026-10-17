@@ -15,16 +15,17 @@ import { InputGroupAddon } from '@/components/ui/input-group.tsx';
 import { CONTACT_ROLES } from '@/features/organizations/constants/contact-roles.ts';
 
 interface Props {
+  defaultValue?: string;
   change: (role: string) => void;
   blur?: () => void;
   id?: string;
   invalid?: boolean;
 }
 
-const ContactRoleCombobox = ({ change, blur, id, invalid }: Props) => {
+const ContactRoleCombobox = ({ defaultValue, change, blur, id, invalid }: Props) => {
   const anchor = useComboboxAnchor();
   const [selected, setSelected] = useState<string | null>(null);
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState(defaultValue ?? '');
 
   const handleValueChange = (next: string | null) => {
     if (!next) return;
@@ -33,7 +34,6 @@ const ContactRoleCombobox = ({ change, blur, id, invalid }: Props) => {
     change(next);
   };
 
-  // Only a real keystroke gets here, not the automatic clear when the box loses focus
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRole(event.target.value);
     setSelected(null);
