@@ -476,6 +476,7 @@ const sidebarMenuButtonVariants = cva(
       variant: {
         default: cn(
           'hover:bg-primary/10 hover:text-[oklch(from_var(--primary)_calc(l+0.50)_c_h)]/70',
+          'active:bg-primary/15 active:text-[oklch(from_var(--primary)_calc(l+0.60)_c_h)]/80',
           'data-active:text-[oklch(from_var(--primary)_calc(l+0.25)_c_h)] data-active:bg-primary/20',
           'data-active:hover:bg-primary/25 data-active:hover:text-[oklch(from_var(--primary)_calc(l+0.50)_c_h)]/70'
         ),
@@ -589,6 +590,7 @@ function SidebarMenuBadge({ className, ...props }: React.ComponentProps<'div'>) 
         'right-2 h-5 min-w-5 rounded-md px-1.5 py-2.5 text-xs transition-colors duration-100',
         'bg-primary/30 text-[oklch(from_var(--primary)_calc(l+0.20)_c_h)]',
         'peer-hover/menu-button:bg-primary/60 peer-hover/menu-button:text-primary-foreground/80',
+        'peer-active/menu-button:bg-primary/70 peer-active/menu-button:text-primary-foreground/90',
         'peer-data-active/menu-button:bg-primary peer-data-active/menu-button:text-primary-foreground',
         'peer-data-active/menu-button:peer-hover/menu-button:bg-[oklch(from_var(--primary)_calc(l+0.05)_c_h)] peer-data-active/menu-button:peer-hover/menu-button:text-[oklch(from_var(--primary-foreground)_calc(l+0.05)_c_h)]',
         className
