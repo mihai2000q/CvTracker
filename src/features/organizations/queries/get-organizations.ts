@@ -1,4 +1,4 @@
-import { toJobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
+import { toOrganizationJobApplication } from '@/features/organizations/types/organization-job-application.ts';
 import {
   Organization,
   toOrganizationSummary,
@@ -84,7 +84,7 @@ async function getOrganizationsQuery(
       websiteUrl: organization.websiteUrl,
       notes: organization.notes,
       jobApplications: organization.jobApplications.items.map((jobApplication) =>
-        toJobApplicationSummary(jobApplication, summary)
+        toOrganizationJobApplication(jobApplication)
       ),
       lastActivityAt: organization.jobApplications.lastActivityAt ?? organization.updatedAt,
     };

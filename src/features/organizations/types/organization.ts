@@ -1,10 +1,13 @@
 import { CountrySummary } from '@/features/countries/types/country.ts';
-import { JobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
+import { OrganizationJobApplication } from '@/features/organizations/types/organization-job-application.ts';
 
-export interface Organization extends OrganizationSummary {
+export interface Organization {
+  id: string;
+  name: string;
+  countries: CountrySummary[];
   websiteUrl: string | null;
   notes: string | null;
-  jobApplications: JobApplicationSummary[];
+  jobApplications: OrganizationJobApplication[];
   lastActivityAt: string;
 }
 

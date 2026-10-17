@@ -7,49 +7,47 @@ import {
   toInterviewRound,
 } from '@/features/job-applications/types/interview-round.ts';
 
-export interface JobApplicationSummary {
+export interface JobApplication {
   id: string;
   title: string;
   currentStatus: JobApplicationStatus;
   appliedAt: string;
   source?: string | null;
   postingUrl?: string | null;
+  notes?: string | null;
   organization: OrganizationSummary;
   country: CountrySummary;
   cv: DocumentSummary;
+  coverLetter?: DocumentSummary | null;
   interviewRounds: InterviewRound[];
 }
 
-export interface JobApplication extends JobApplicationSummary {
-  notes?: string | null;
-  coverLetter?: DocumentSummary | null;
-}
-
-export type JobApplicationRow = Omit<
-  JobApplicationSummary,
-  'currentStatus' | 'appliedAt' | 'organization' | 'cv' | 'interviewRounds'
+type JobApplicationRow = Pick<
+  JobApplication,
+  'id' | 'title' | 'source' | 'postingUrl' | 'notes' | 'country'
 > & {
   currentStatus: string;
   appliedAt: { toString(): string };
   cvDocument: Parameters<typeof toDocumentSummary>[0];
+  coverLetterDocument?: Parameters<typeof toDocumentSummary>[0] | null;
   interviewRounds: Parameters<typeof toInterviewRound>[0][];
 };
 
-// The organization is passed in because every page loads it its own way: as the parent of
-// the rows, or as a relation of each of them
-export const toJobApplicationSummary = (
+export const toJobApplication = (
   row: JobApplicationRow,
   organization: OrganizationSummary
-): JobApplicationSummary => ({
+): JobApplication => ({
   id: row.id,
   title: row.title,
   currentStatus: row.currentStatus as JobApplicationStatus,
   appliedAt: row.appliedAt.toString(),
   source: row.source,
   postingUrl: row.postingUrl,
+  notes: row.notes,
   organization,
   country: { id: row.country.id, name: row.country.name, isoCode: row.country.isoCode },
   cv: toDocumentSummary(row.cvDocument),
+  coverLetter: row.coverLetterDocument ? toDocumentSummary(row.coverLetterDocument) : undefined,
   interviewRounds: row.interviewRounds.map(toInterviewRound),
 });
 
@@ -57,5 +55,7 @@ export const toJobApplicationSummary = (
 export const isInterviewing = ({
   currentStatus,
   interviewRounds,
-}: Pick<JobApplicationSummary, 'currentStatus' | 'interviewRounds'>) =>
-  currentStatus === JobApplicationStatus.Interview && interviewRounds.length > 0;
+}: {
+  currentStatus: JobApplicationStatus;
+  interviewRounds: InterviewRound[];
+}) => currentStatus === JobApplicationStatus.Interview && interviewRounds.length > 0;

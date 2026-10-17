@@ -24,10 +24,17 @@ import {
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-import { JobApplicationSummary } from '@/features/job-applications/types/job-application.ts';
+
+type JobApplication = {
+  id: string;
+  title: string;
+  currentStatus: JobApplicationStatus;
+  postingUrl?: string | null;
+  organization: { id: string; name: string };
+}
 
 interface Props {
-  jobApplication: JobApplicationSummary;
+  jobApplication: JobApplication;
   children: React.ReactElement;
 }
 

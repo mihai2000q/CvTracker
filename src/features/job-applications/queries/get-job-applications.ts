@@ -1,6 +1,6 @@
 import {
   JobApplication,
-  toJobApplicationSummary,
+  toJobApplication,
 } from '@/features/job-applications/types/job-application.ts';
 import { toOrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { db } from '@database/db.ts';
@@ -27,7 +27,6 @@ import {
   jobApplicationSorters,
 } from '@/features/job-applications/constants/job-application-sorting.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
-import { toDocumentSummary } from '@/features/documents/types/document.ts';
 
 export async function getJobApplications(
   query: GetJobApplicationsQueryInput
@@ -76,13 +75,9 @@ async function getJobApplicationsQuery(
     filteredQuery.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
   ]);
 
-  const jobApplications = models.map((jobApplication) => ({
-    ...toJobApplicationSummary(jobApplication, toOrganizationSummary(jobApplication.organization!)),
-    notes: jobApplication.notes,
-    coverLetter: jobApplication.coverLetterDocument
-      ? toDocumentSummary(jobApplication.coverLetterDocument)
-      : undefined,
-  }));
+  const jobApplications = models.map((jobApplication) =>
+    toJobApplication(jobApplication, toOrganizationSummary(jobApplication.organization!))
+  );
 
   return { items: jobApplications, totalCount };
 }

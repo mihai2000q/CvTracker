@@ -7,10 +7,8 @@ import {
   RiExternalLinkLine,
   RiFileFill,
 } from '@remixicon/react';
-import {
-  isInterviewing,
-  JobApplicationSummary,
-} from '@/features/job-applications/types/job-application.ts';
+import { isInterviewing } from '@/features/job-applications/types/job-application.ts';
+import type { OrganizationJobApplication } from '@/features/organizations/types/organization-job-application.ts';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
 import JobApplicationSourceIcon from '@/features/job-applications/components/source/job-application-source-icon.tsx';
@@ -22,7 +20,7 @@ import { cn } from '@/lib/utils.ts';
 const OrganizationJobApplicationItem = ({
   jobApplication,
 }: {
-  jobApplication: JobApplicationSummary;
+  jobApplication: OrganizationJobApplication;
 }) => {
   const statusBadge = <JobApplicationStatusBadge status={jobApplication.currentStatus} />;
 

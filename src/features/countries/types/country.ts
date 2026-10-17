@@ -1,4 +1,7 @@
-export interface Country extends CountrySummary {
+export interface Country {
+  id: string;
+  name: string;
+  isoCode: string;
   organizationsCount: number;
   jobApplicationsCount: number;
 }
