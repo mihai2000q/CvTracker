@@ -48,6 +48,7 @@ function ComboboxClear({ className, ...props }: ComboboxPrimitive.Clear.Props) {
 export interface ComboboxInputProps extends ComboboxPrimitive.Input.Props {
   showTrigger?: boolean;
   showClear?: boolean;
+  variant?: React.ComponentProps<typeof InputGroup>['variant'];
   anchorRef?: React.Ref<HTMLDivElement>;
 }
 
@@ -57,12 +58,14 @@ function ComboboxInput({
   disabled = false,
   showTrigger = true,
   showClear = false,
+  variant,
   anchorRef,
   ...props
 }: ComboboxInputProps) {
   return (
     <InputGroup
       ref={anchorRef}
+      variant={variant}
       data-disabled={disabled ? 'true' : undefined}
       className={cn('w-auto', 'data-disabled:cursor-not-allowed', className)}
     >
