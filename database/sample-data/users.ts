@@ -1,16 +1,12 @@
+import bcrypt from 'bcrypt';
 import type { Database } from '../db.ts';
-import { sized } from '../field-values.ts';
+import { sized, uuid } from '../field-values.ts';
 
-const sampleUser = {
-  email: sized<255>('dev@example.com'),
-  name: sized<150>('Dev User'),
-  // Placeholder only, not a real hash
-  passwordHash: 'dev-sample-data-not-a-real-hash',
-};
-
-export async function seedSampleUser(db: Database) {
-  await db.User.where({ email: sampleUser.email }).upsert({
-    create: sampleUser,
-    update: { name: sampleUser.name },
+export async function seedSampleUsers(db: Database) {
+  await db.User.create({
+    id: uuid('00000000-0000-7000-8000-000000000001'),
+    email: sized<255>('dev@example.com'),
+    name: sized<150>('Dev User'),
+    passwordHash: await bcrypt.hash('Password123', 12),
   });
 }

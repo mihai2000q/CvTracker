@@ -15,6 +15,7 @@
     "migrations:down": "prisma migration plan --name rollback --to",
     "db:seed": "node database/seed-reference-data.ts",
     "db:seed:sample": "node database/seed-sample-data.ts",
+    "db:clear:sample": "node database/clear-sample-data.ts",
     "db:setup": "npm run migrations:up && npm run db:seed"
   },
   "dependencies": {

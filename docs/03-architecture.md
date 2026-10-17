@@ -263,9 +263,13 @@ audiences and different rules about when they run:
   Run via `npm run db:seed`, which is itself part of `npm run db:setup`
   (`migrations:up` then `db:seed`) — setting up a fresh database is meant
   to be one command, not "migrate, then remember to also seed."
-- **`database/sample-data/`** — genuinely optional dev fixtures (currently
-  one example `User`), for a frontend developer who wants something to
-  render against without hand-creating rows first. Run manually via
+- **`database/sample-data/`** — genuinely optional dev fixtures (one example
+  user with skills, documents, organizations with contacts,
+  and job applications with status history and interviews, covering the
+  app's use cases), for a frontend developer who wants something to
+  render against without hand-creating rows first. Seeds the reference data
+  first when there are no countries yet, and runs once: it does nothing when the dev user already exists, and
+  `npm run db:clear:sample` removes the sample data so it can be seeded again. Run manually via
   `npm run db:seed:sample`, **never** part of `db:setup` — an empty
   database (beyond reference data) is the correct state for anyone not
   explicitly asking for fixtures.
