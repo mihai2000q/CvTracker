@@ -1,7 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { RiArrowDownSLine } from '@remixicon/react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,14 +10,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb.tsx';
 import { Badge } from '@/components/ui/badge.tsx';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible.tsx';
 import FlagIcon from '@/features/countries/components/flag-icon.tsx';
-import CountryOrganizationsList from '@/features/countries/components/country-organizations-list.tsx';
-import CountryJobApplicationsList from '@/features/countries/components/country-job-applications-list.tsx';
+import CountryOrganizationsSection from '@/features/countries/components/country-organizations-section.tsx';
+import CountryJobApplicationsSection from '@/features/countries/components/country-job-applications-section.tsx';
 import {
   COUNTRY_JOB_APPLICATIONS_PAGE_SIZE,
   COUNTRY_ORGANIZATIONS_PAGE_SIZE,
@@ -76,67 +70,20 @@ const CountryPage = async ({ params }: PageProps<'/countries/[id]'>) => {
       </header>
 
       <main className={'flex flex-1 flex-col gap-8'}>
-        <Section
-          title={'Organizations'}
-          count={organizations.totalCount}
-          empty={'No organizations in this country yet'}
-        >
-          <CountryOrganizationsList
-            country={country}
-            initialOrganizations={organizations.items}
-            totalCount={organizations.totalCount}
-          />
-        </Section>
+        <CountryOrganizationsSection
+          country={country}
+          initialOrganizations={organizations.items}
+          totalCount={organizations.totalCount}
+        />
 
-        <Section
-          title={'Job Applications'}
-          count={jobApplicationsCount}
-          empty={'No job applications sent to this country yet'}
-        >
-          <CountryJobApplicationsList
-            countryId={country.id}
-            initialJobApplications={jobApplications}
-            totalCount={jobApplicationsCount}
-          />
-        </Section>
+        <CountryJobApplicationsSection
+          countryId={country.id}
+          initialJobApplications={jobApplications}
+          totalCount={jobApplicationsCount}
+        />
       </main>
     </div>
   );
 };
-
-interface SectionProps {
-  title: string;
-  count: number;
-  empty: string;
-  children: React.ReactNode;
-}
-
-const Section = ({ title, count, empty, children }: SectionProps) => (
-  <Collapsible defaultOpen render={<section className={'flex flex-col gap-3'} />}>
-    <CollapsibleTrigger className={'group/trigger flex w-fit cursor-pointer items-center gap-1.5'}>
-      <RiArrowDownSLine
-        className={
-          'text-muted-foreground size-5 -rotate-90 transition-transform duration-200 group-data-panel-open/trigger:rotate-0'
-        }
-      />
-      <h2 className={'text-lg font-semibold'}>{title}</h2>
-      <span className={'text-muted-foreground text-sm tabular-nums'}>{count}</span>
-    </CollapsibleTrigger>
-
-    <CollapsibleContent>
-      {count > 0 ? (
-        children
-      ) : (
-        <div
-          className={
-            'text-muted-foreground rounded-xl border border-dashed p-8 text-center text-sm'
-          }
-        >
-          {empty}
-        </div>
-      )}
-    </CollapsibleContent>
-  </Collapsible>
-);
 
 export default CountryPage;
