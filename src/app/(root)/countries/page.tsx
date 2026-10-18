@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { readListSearchParams } from '@/lib/search-params.ts';
 import { countriesSearchParamsState } from '@/features/countries/schemas/countries-search-params.ts';
 import { getCountries } from '@/features/countries/queries/get-countries.ts';
@@ -10,6 +11,8 @@ import ListHeader from '@/components/list/list-header.tsx';
 import ListFooter from '@/components/list/list-footer.tsx';
 import NoResults from '@/components/list/no-results.tsx';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
+
+export const metadata: Metadata = { title: 'Countries' };
 
 const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
   const {

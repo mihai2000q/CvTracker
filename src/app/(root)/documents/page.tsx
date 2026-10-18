@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { readListSearchParams } from '@/lib/search-params.ts';
 import { redirect } from 'next/navigation';
 import { getDocuments } from '@/features/documents/queries/get-documents.ts';
@@ -11,6 +12,8 @@ import EmptyDocuments from '@/features/documents/components/empty-documents.tsx'
 import DocumentsToolbar from '@/features/documents/components/documents-toolbar.tsx';
 import NoResults from '@/components/list/no-results.tsx';
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
+
+export const metadata: Metadata = { title: 'Documents' };
 
 const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
   const {

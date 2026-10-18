@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import EmptyJobApplications from '@/features/job-applications/components/empty-job-applications.tsx';
 import ListHeader from '@/components/list/list-header.tsx';
 import ListFooter from '@/components/list/list-footer.tsx';
@@ -11,6 +12,8 @@ import JobApplicationsToolbar from '@/features/job-applications/components/job-a
 import { countJobApplicationsByStatus } from '@/features/job-applications/queries/count-job-applications-by-status.ts';
 import { getJobApplicationFiltersMetadata } from '@/features/job-applications/queries/get-job-application-filters-metadata.ts';
 import JobApplicationTabs from '@/features/job-applications/components/job-application-tabs.tsx';
+
+export const metadata: Metadata = { title: 'Jobs' };
 
 const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
   const {

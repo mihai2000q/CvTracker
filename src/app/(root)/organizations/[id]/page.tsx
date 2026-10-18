@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -23,6 +24,19 @@ import { ORGANIZATION_JOB_APPLICATIONS_PAGE_SIZE } from '@/features/organization
 import { getOrganization } from '@/features/organizations/queries/get-organization.ts';
 import { getOrganizationContacts } from '@/features/organizations/queries/get-organization-contacts.ts';
 import { getJobApplicationSummaries } from '@/features/job-applications/queries/get-job-application-summaries.ts';
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/organizations/[id]'>): Promise<Metadata> {
+  const { id } = await params;
+  // Queries are cached, so the page reuses this lookup. A missing entity gets the page's notFound()
+  const result = await getOrganization(id);
+  if (!result.success || !result.data) {
+    return {};
+  }
+  const data = result.data;
+  return { title: data.name };
+}
 
 const OrganizationPage = async ({ params }: PageProps<'/organizations/[id]'>) => {
   const { id } = await params;

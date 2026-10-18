@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -18,6 +19,19 @@ import DocumentJobApplicationsSection from '@/features/documents/components/docu
 import { DOCUMENT_JOB_APPLICATIONS_PAGE_SIZE } from '@/features/documents/constants/document-page.ts';
 import { getDocument } from '@/features/documents/queries/get-document.ts';
 import { getJobApplicationSummaries } from '@/features/job-applications/queries/get-job-application-summaries.ts';
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/documents/[id]'>): Promise<Metadata> {
+  const { id } = await params;
+  // Queries are cached, so the page reuses this lookup. A missing entity gets the page's notFound()
+  const result = await getDocument(id);
+  if (!result.success || !result.data) {
+    return {};
+  }
+  const data = result.data;
+  return { title: data.name };
+}
 
 const DocumentPage = async ({ params }: PageProps<'/documents/[id]'>) => {
   const { id } = await params;

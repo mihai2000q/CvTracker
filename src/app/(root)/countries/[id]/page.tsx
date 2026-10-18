@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
@@ -20,6 +21,19 @@ import {
 import { getCountry } from '@/features/countries/queries/get-country.ts';
 import { getCountryOrganizations } from '@/features/countries/queries/get-country-organizations.ts';
 import { getJobApplicationSummaries } from '@/features/job-applications/queries/get-job-application-summaries.ts';
+
+export async function generateMetadata({
+  params,
+}: PageProps<'/countries/[id]'>): Promise<Metadata> {
+  const { id } = await params;
+  // Queries are cached, so the page reuses this lookup. A missing entity gets the page's notFound()
+  const result = await getCountry(id);
+  if (!result.success || !result.data) {
+    return {};
+  }
+  const data = result.data;
+  return { title: data.name };
+}
 
 const CountryPage = async ({ params }: PageProps<'/countries/[id]'>) => {
   const { id } = await params;

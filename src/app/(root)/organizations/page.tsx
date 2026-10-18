@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import OrganizationsToolbar from '@/features/organizations/components/organizations-toolbar.tsx';
 import { Accordion } from '@/components/ui/accordion.tsx';
 import OrganizationItem from '@/features/organizations/components/organization-item.tsx';
@@ -13,6 +14,8 @@ import { organizationsSearchParamsState } from '@/features/organizations/schemas
 import { SegmentedControl } from '@/components/ui/segmented-control.tsx';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { readListSearchParams } from '@/lib/search-params.ts';
+
+export const metadata: Metadata = { title: 'Organizations' };
 
 const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
   const {

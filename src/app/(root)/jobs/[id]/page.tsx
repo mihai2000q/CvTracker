@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -18,6 +19,17 @@ import JobApplicationDocumentsCard from '@/features/job-applications/components/
 import JobApplicationStatusMenu from '@/features/job-applications/components/job-application-status-menu.tsx';
 import StatusHistoryCard from '@/features/job-applications/components/status-history-card.tsx';
 import { getJobApplication } from '@/features/job-applications/queries/get-job-application.ts';
+
+export async function generateMetadata({ params }: PageProps<'/jobs/[id]'>): Promise<Metadata> {
+  const { id } = await params;
+  // Queries are cached, so the page reuses this lookup. A missing entity gets the page's notFound()
+  const result = await getJobApplication(id);
+  if (!result.success || !result.data) {
+    return {};
+  }
+  const data = result.data;
+  return { title: `${data.title} – ${data.organization.name}` };
+}
 
 const JobApplicationPage = async ({ params }: PageProps<'/jobs/[id]'>) => {
   const { id } = await params;
@@ -56,7 +68,11 @@ const JobApplicationPage = async ({ params }: PageProps<'/jobs/[id]'>) => {
             <h1 className={'text-3xl leading-tight font-bold break-words'}>
               {jobApplication.title}
             </h1>
-            <div className={'text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm leading-tight'}>
+            <div
+              className={
+                'text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm leading-tight'
+              }
+            >
               <Link
                 href={`/organizations/${jobApplication.organization.id}`}
                 prefetch={false}
