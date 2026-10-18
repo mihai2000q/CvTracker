@@ -14,7 +14,8 @@ import {
 import { FieldGroup } from '@/components/ui/field.tsx';
 import FormField from '@/components/form/form-field.tsx';
 import { Input } from '@/components/ui/input';
-import React from 'react';
+import React, { useState } from 'react';
+import { detectSourceFromUrl } from '@/features/job-applications/constants/job-sources.ts';
 import { getInputProps } from '@conform-to/react';
 import FieldControl from '@/components/form/field-control.tsx';
 import { createJobApplication } from '@/features/job-applications/actions/create-job-application.ts';
@@ -72,6 +73,11 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
       },
     });
 
+  // Tied to resetKey so a URL typed before a reset doesn't suggest a source in the fresh form
+  const [postingUrl, setPostingUrl] = useState({ url: '', resetKey });
+  const suggestedSource =
+    postingUrl.resetKey === resetKey ? detectSourceFromUrl(postingUrl.url) : undefined;
+
   return (
     <Dialog {...dialogProps}>
       {children && <DialogTrigger render={children} />}
@@ -106,6 +112,9 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
                     </InputGroupAddon>
                     <InputGroupInput
                       {...getInputProps(fields.postingUrl, { type: 'text' })}
+                      onChange={(event) =>
+                        setPostingUrl({ url: event.target.value, resetKey })
+                      }
                       placeholder="https://"
                     />
                   </InputGroup>
@@ -127,7 +136,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
 
               <FormField field={fields.source} label="Source">
                 <FieldControl form={form} field={fields.source}>
-                  {(source) => <SourceGroup {...source} />}
+                  {(source) => <SourceGroup {...source} suggested={suggestedSource} />}
                 </FieldControl>
               </FormField>
 

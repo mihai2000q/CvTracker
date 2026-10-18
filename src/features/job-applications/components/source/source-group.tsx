@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Input } from '@/components/ui/input.tsx';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group.tsx';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible.tsx';
@@ -11,11 +11,13 @@ const sources = [...JOB_SOURCES, OTHER_SOURCE];
 
 interface Props {
   defaultValue?: string;
+  // Picked for the user until they choose a source themselves
+  suggested?: string;
   change: (source: string) => void;
   blur?: () => void;
 }
 
-const SourceGroup = ({ defaultValue, change, blur }: Props) => {
+const SourceGroup = ({ defaultValue, suggested, change, blur }: Props) => {
   const isKnown =
     defaultValue !== undefined && JOB_SOURCES.some((source) => source === defaultValue);
   const [selected, setSelected] = useState<string | undefined>(
@@ -23,7 +25,16 @@ const SourceGroup = ({ defaultValue, change, blur }: Props) => {
   );
   const [other, setOther] = useState(defaultValue && !isKnown ? defaultValue : '');
 
+  const touched = useRef(false);
+
+  useEffect(() => {
+    if (!suggested || touched.current) return;
+    setSelected(suggested);
+    change(suggested);
+  }, [suggested]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleSelectedChange = ([label]: string[]) => {
+    touched.current = true;
     setSelected(label);
     change(label === OTHER_SOURCE ? other.trim() : (label ?? ''));
   };
@@ -50,6 +61,7 @@ const SourceGroup = ({ defaultValue, change, blur }: Props) => {
           <Input
             value={other}
             onChange={(event) => {
+              touched.current = true;
               setOther(event.target.value);
               change(event.target.value.trim());
             }}
