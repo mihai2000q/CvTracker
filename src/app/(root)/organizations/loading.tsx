@@ -1,17 +1,18 @@
-import { Separator } from '@/components/ui/separator.tsx';
 import { Skeleton } from '@/components/ui/skeleton.tsx';
 import { Card } from '@/components/ui/card.tsx';
 
 const OrganizationsLoading = () => (
-  <div className={'flex flex-1 flex-col'}>
-    <header className={'flex flex-col'}>
-      <Skeleton className={'my-1 h-6 w-40'} />
-      <Skeleton className={'my-0.5 h-3 w-100'} />
+  <div className={'flex flex-1 flex-col gap-6'}>
+    <header className={'flex flex-wrap items-center justify-between gap-3'}>
+      <div className={'flex flex-col'}>
+        <Skeleton className={'my-1 h-6 w-40'} />
+        <Skeleton className={'my-0.5 h-3 w-100 max-w-full'} />
+      </div>
+
+      <Skeleton className={'h-9.5 w-80 rounded-full'} />
     </header>
 
-    <Separator className={'mt-4 mb-3'} />
-
-    <main className={'flex flex-1 flex-col gap-4'}>
+    <main className={'flex flex-1 flex-col gap-6'}>
       <div className={'flex gap-2'}>
         <Skeleton className={'h-8 w-40'} />
         <Skeleton className={'h-8 w-56'} />
@@ -29,6 +30,13 @@ const OrganizationsLoading = () => (
         ))}
       </div>
     </main>
+
+    <div
+      className={'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'}
+    >
+      <Skeleton className={'h-3 w-48'} />
+      <Skeleton className={'h-9 w-64'} />
+    </div>
   </div>
 );
 

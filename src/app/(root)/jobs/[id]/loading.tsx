@@ -32,7 +32,7 @@ const JobApplicationLoading = () => {
       </header>
 
       <div className={'grid flex-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]'}>
-        <main className={'flex flex-col gap-3'} aria-hidden>
+        <main className={'flex flex-col gap-8'} aria-hidden>
           <div className={'flex items-center justify-between gap-2'}>
             <div className={'flex items-center gap-1.5'}>
               <Skeleton className={'h-5 w-36'} />

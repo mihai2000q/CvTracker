@@ -10,7 +10,7 @@ const CountriesLoading = () => {
           <Skeleton className={'my-0.5 h-3 w-96 max-w-full'} />
         </div>
 
-        <Skeleton className={'h-9.5 w-44 rounded-full'} />
+        <Skeleton className={'h-9.5 w-80 rounded-full'} />
       </header>
 
       <main className={'flex flex-1 flex-col gap-6'}>
@@ -28,6 +28,13 @@ const CountriesLoading = () => {
           ))}
         </ul>
       </main>
+
+      <div
+        className={'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'}
+      >
+        <Skeleton className={'h-3 w-48'} />
+        <Skeleton className={'h-9 w-64'} />
+      </div>
     </div>
   );
 };
