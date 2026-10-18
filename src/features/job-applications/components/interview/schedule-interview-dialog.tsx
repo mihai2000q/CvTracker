@@ -15,7 +15,7 @@ import {
 import { FieldGroup } from '@/components/ui/field.tsx';
 import FormField from '@/components/form/form-field.tsx';
 import DateInput from '@/components/form/date-input.tsx';
-import { Input } from '@/components/ui/input';
+import TimeInput from '@/components/form/time-input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import FieldControl from '@/components/form/field-control.tsx';
@@ -42,7 +42,7 @@ type JobApplication = {
   title: string;
   currentStatus: JobApplicationStatus;
   organization: { id: string; name: string };
-}
+};
 
 interface Props {
   jobApplication: JobApplication;
@@ -126,7 +126,11 @@ const ScheduleInterviewDialog = ({ jobApplication, open, onOpenChange }: Props) 
                 </FormField>
 
                 <FormField field={fields.time} label="Time" required>
-                  <Input {...getInputProps(fields.time, { type: 'time' })} />
+                  <FieldControl form={form} field={fields.time}>
+                    {(time) => (
+                      <TimeInput {...time} id={fields.time.id} invalid={!fields.time.valid} />
+                    )}
+                  </FieldControl>
                 </FormField>
               </div>
 

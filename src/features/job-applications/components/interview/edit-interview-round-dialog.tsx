@@ -17,7 +17,7 @@ import { FieldGroup } from '@/components/ui/field.tsx';
 import FieldControl from '@/components/form/field-control.tsx';
 import FormField from '@/components/form/form-field.tsx';
 import DateInput from '@/components/form/date-input.tsx';
-import { Input } from '@/components/ui/input.tsx';
+import TimeInput from '@/components/form/time-input.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
@@ -109,7 +109,16 @@ const EditInterviewRoundDialog = ({ round, organizationId, open, onOpenChange }:
                 </FormField>
 
                 <FormField field={fields.time} label="Time" required>
-                  <Input {...getInputProps(fields.time, { type: 'time' })} />
+                  <FieldControl form={form} field={fields.time}>
+                    {(timeControl) => (
+                      <TimeInput
+                        {...timeControl}
+                        defaultValue={format(scheduledAt, 'HH:mm')}
+                        id={fields.time.id}
+                        invalid={!fields.time.valid}
+                      />
+                    )}
+                  </FieldControl>
                 </FormField>
               </div>
 
