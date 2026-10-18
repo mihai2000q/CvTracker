@@ -95,13 +95,13 @@ const DocumentPage = async ({ params }: PageProps<'/documents/[id]'>) => {
           <DocumentActions document={document} />
         </Card>
 
-        <main className={'min-w-0'}>
+        <div className={'min-w-0'}>
           <DocumentJobApplicationsSection
             documentId={document.id}
             initialJobApplications={jobApplications}
             totalCount={totalCount}
           />
-        </main>
+        </div>
       </div>
     </div>
   );

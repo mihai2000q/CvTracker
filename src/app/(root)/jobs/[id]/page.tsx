@@ -102,7 +102,7 @@ const JobApplicationPage = async ({ params }: PageProps<'/jobs/[id]'>) => {
       </header>
 
       <div className={'grid flex-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]'}>
-        <main className={'flex min-w-0 flex-col gap-8'}>
+        <div className={'flex min-w-0 flex-col gap-8'}>
           <InterviewRoundsSection
             jobApplication={jobApplication}
             rounds={jobApplication.interviewRounds}
@@ -116,7 +116,7 @@ const JobApplicationPage = async ({ params }: PageProps<'/jobs/[id]'>) => {
               </Card>
             </section>
           )}
-        </main>
+        </div>
 
         <aside className={'flex flex-col gap-4'}>
           <JobApplicationDetailsCard jobApplication={jobApplication} />

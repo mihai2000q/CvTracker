@@ -61,7 +61,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
         }
       />
 
-      <main className={'flex flex-1 flex-col gap-6'}>
+      <div className={'flex flex-1 flex-col gap-6'}>
         {allCount > 0 && <DocumentsToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />}
 
         {totalCount > 0 && (
@@ -78,7 +78,7 @@ const Documents = async ({ searchParams }: PageProps<'/documents'>) => {
         {allCount > 0 && totalCount === 0 && (
           <NoResults noun="documents" clearHref={hrefForNoFilters()} />
         )}
-      </main>
+      </div>
 
       <ListFooter
         shown={documents.length}

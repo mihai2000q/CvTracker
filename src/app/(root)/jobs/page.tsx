@@ -41,7 +41,7 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
     <div className={'flex flex-1 flex-col gap-6'}>
       <ListHeader title="Job Applications" description="All your applications, in one place" />
 
-      <main className={'flex flex-1 flex-col gap-4'}>
+      <div className={'flex flex-1 flex-col gap-4'}>
         {allCount > 0 && <JobApplicationTabs counts={statusCounts} filterOption={filterOption} />}
         {allCount > 0 && (
           <JobApplicationsToolbar
@@ -63,7 +63,7 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
         {allCount > 0 && totalCount === 0 && (
           <NoResults noun="applications" clearHref={hrefForNoFilters()} />
         )}
-      </main>
+      </div>
 
       <ListFooter
         shown={jobApplications.length}

@@ -33,7 +33,7 @@ const CountryLoading = () => {
         </div>
       </header>
 
-      <main className={'flex flex-1 flex-col gap-8'} aria-hidden>
+      <div className={'flex flex-1 flex-col gap-8'} aria-hidden>
         <section className={'flex flex-col gap-3'}>
           <SectionHeaderSkeleton titleClassName={'w-28'} />
           <ul className={'grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3'}>
@@ -57,7 +57,7 @@ const CountryLoading = () => {
           </ul>
           <SectionFooterSkeleton />
         </section>
-      </main>
+      </div>
     </div>
   );
 };

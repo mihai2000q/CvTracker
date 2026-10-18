@@ -44,7 +44,7 @@ export default function AppLayout({ children }: LayoutProps<'/'>) {
     >
       <body className="flex min-h-full flex-col">
         <Providers>
-          <main>{children}</main>
+          <div>{children}</div>
         </Providers>
       </body>
     </html>

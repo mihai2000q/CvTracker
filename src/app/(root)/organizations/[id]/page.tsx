@@ -108,7 +108,7 @@ const OrganizationPage = async ({ params }: PageProps<'/organizations/[id]'>) =>
           <OrganizationActions organization={organization} />
         </Card>
 
-        <main className={'flex min-w-0 flex-col gap-8'}>
+        <div className={'flex min-w-0 flex-col gap-8'}>
           <section className={'flex flex-col gap-3'}>
             <div className={'flex items-center justify-between gap-2'}>
               <div className={'flex items-baseline gap-1.5'}>
@@ -152,7 +152,7 @@ const OrganizationPage = async ({ params }: PageProps<'/organizations/[id]'>) =>
             initialJobApplications={jobApplications}
             totalCount={totalCount}
           />
-        </main>
+        </div>
       </div>
     </div>
   );

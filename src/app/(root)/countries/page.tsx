@@ -74,7 +74,7 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
         }
       />
 
-      <main className={'flex flex-1 flex-col gap-6'}>
+      <div className={'flex flex-1 flex-col gap-6'}>
         <CountriesToolbar sortBy={sortBy} hrefForSortBy={hrefForSortBy} />
 
         {totalCount > 0 && (
@@ -91,7 +91,7 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
         {totalCount === 0 && search && (
           <NoResults noun="countries" clearHref={hrefForNoFilters()} />
         )}
-      </main>
+      </div>
 
       <ListFooter
         shown={countries.length}

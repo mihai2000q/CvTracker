@@ -83,7 +83,7 @@ const CountryPage = async ({ params }: PageProps<'/countries/[id]'>) => {
         </div>
       </header>
 
-      <main className={'flex flex-1 flex-col gap-8'}>
+      <div className={'flex flex-1 flex-col gap-8'}>
         <CountryOrganizationsSection
           country={country}
           initialOrganizations={organizations.items}
@@ -95,7 +95,7 @@ const CountryPage = async ({ params }: PageProps<'/countries/[id]'>) => {
           initialJobApplications={jobApplications}
           totalCount={jobApplicationsCount}
         />
-      </main>
+      </div>
     </div>
   );
 };

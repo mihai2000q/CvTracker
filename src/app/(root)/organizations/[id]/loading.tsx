@@ -29,7 +29,7 @@ const OrganizationLoading = () => {
           <Skeleton className={'h-9 w-full rounded-lg'} />
         </Card>
 
-        <main className={'flex flex-col gap-8'} aria-hidden>
+        <div className={'flex flex-col gap-8'} aria-hidden>
           <section className={'flex flex-col gap-3'}>
             <SectionHeaderSkeleton titleClassName={'w-20'} />
             <ul className={'grid grid-cols-[repeat(auto-fill,minmax(16rem,1fr))] gap-3'}>
@@ -57,7 +57,7 @@ const OrganizationLoading = () => {
               <Skeleton className={'h-8 w-28 rounded-lg'} />
             </div>
           </section>
-        </main>
+        </div>
       </div>
     </div>
   );

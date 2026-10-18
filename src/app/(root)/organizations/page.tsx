@@ -76,7 +76,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
         }
       />
 
-      <main className={'flex flex-1 flex-col gap-6'}>
+      <div className={'flex flex-1 flex-col gap-6'}>
         {allCount > 0 && (
           <OrganizationsToolbar
             filtersMetadata={filtersMetadata}
@@ -99,7 +99,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
         {allCount > 0 && totalCount === 0 && (
           <NoResults noun="organizations" clearHref={hrefForNoFilters()} />
         )}
-      </main>
+      </div>
 
       <ListFooter
         shown={organizations.length}

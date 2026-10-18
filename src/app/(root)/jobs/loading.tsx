@@ -25,7 +25,7 @@ const JobApplicationsLoading = () => {
         <Skeleton className={'my-0.5 h-3 w-60'} />
       </header>
 
-      <main className={'flex flex-1 flex-col gap-4'}>
+      <div className={'flex flex-1 flex-col gap-4'}>
         <div className={'flex h-9 items-center gap-6 border-b'}>
           {TAB_VISIBILITY.map((visibility, index) => (
             <Skeleton key={index} className={`h-4 w-20 ${visibility}`} />
@@ -73,7 +73,7 @@ const JobApplicationsLoading = () => {
             </div>
           ))}
         </div>
-      </main>
+      </div>
 
       <div className={'flex flex-wrap items-center justify-between gap-2 pt-4'}>
         <Skeleton className={'h-3 w-48'} />

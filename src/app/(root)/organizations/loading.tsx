@@ -12,7 +12,7 @@ const OrganizationsLoading = () => (
       <Skeleton className={'h-9.5 w-80 rounded-full'} />
     </header>
 
-    <main className={'flex flex-1 flex-col gap-6'}>
+    <div className={'flex flex-1 flex-col gap-6'}>
       <div className={'flex gap-2'}>
         <Skeleton className={'h-8 w-40'} />
         <Skeleton className={'h-8 w-56'} />
@@ -29,7 +29,7 @@ const OrganizationsLoading = () => (
           </Card>
         ))}
       </div>
-    </main>
+    </div>
 
     <div
       className={'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'}

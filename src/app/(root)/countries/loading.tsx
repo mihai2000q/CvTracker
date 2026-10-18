@@ -13,7 +13,7 @@ const CountriesLoading = () => {
         <Skeleton className={'h-9.5 w-80 rounded-full'} />
       </header>
 
-      <main className={'flex flex-1 flex-col gap-6'}>
+      <div className={'flex flex-1 flex-col gap-6'}>
         <Skeleton className={'h-17 w-full rounded-xl'} />
 
         <ul
@@ -27,7 +27,7 @@ const CountriesLoading = () => {
             </li>
           ))}
         </ul>
-      </main>
+      </div>
 
       <div
         className={'flex flex-wrap items-center justify-between gap-2 max-md:flex-col max-md:gap-4'}

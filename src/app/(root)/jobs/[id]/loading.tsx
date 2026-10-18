@@ -32,7 +32,7 @@ const JobApplicationLoading = () => {
       </header>
 
       <div className={'grid flex-1 items-start gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]'}>
-        <main className={'flex flex-col gap-8'} aria-hidden>
+        <div className={'flex flex-col gap-8'} aria-hidden>
           <div className={'flex items-center justify-between gap-2'}>
             <div className={'flex items-center gap-1.5'}>
               <Skeleton className={'h-5 w-36'} />
@@ -43,7 +43,7 @@ const JobApplicationLoading = () => {
           {Array.from({ length: 2 }, (_, index) => (
             <Skeleton key={index} className={'h-28 w-full rounded-xl'} />
           ))}
-        </main>
+        </div>
 
         <aside className={'flex flex-col gap-4'} aria-hidden>
           <SideCardSkeleton rows={5} />
