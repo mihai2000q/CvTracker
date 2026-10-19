@@ -27,13 +27,16 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
     filterToggle,
   } = readListSearchParams(organizationsSearchParamsState, '/organizations', await searchParams);
 
-  const [result, allCount, appliedCount, interviewCount, offerCount, filtersMetadata] =
+  // Pending covers every stage before an interview, where the company hasn't decided yet
+  const PENDING = [JobApplicationStatus.Applied, JobApplicationStatus.Screening];
+
+  const [result, allCount, pendingCount, interviewCount, offerCount, filtersMetadata] =
     await Promise.all([
       getOrganizations({ page, sortBy, filterBy, search }),
       countOrganizations(),
-      countOrganizations(JobApplicationStatus.Applied),
-      countOrganizations(JobApplicationStatus.Interview),
-      countOrganizations(JobApplicationStatus.Offer),
+      countOrganizations(PENDING),
+      countOrganizations([JobApplicationStatus.Interview]),
+      countOrganizations([JobApplicationStatus.Offer]),
       getOrganizationFiltersMetadata(),
     ]);
   if (!result.success) {
@@ -41,8 +44,9 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
   }
 
   const { items: organizations, totalCount } = result.data;
-  const statusOption = (status: JobApplicationStatus | undefined) =>
-    filterOption('status', 'eq', status);
+  // Every segment is an `in` filter, so picking one replaces the one before it
+  const statusOption = (statuses: JobApplicationStatus[] | undefined) =>
+    filterOption('status', 'in', statuses);
 
   return (
     <div className={'flex flex-1 flex-col gap-6'}>
@@ -56,19 +60,19 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
               items={[
                 { label: 'All', count: allCount, ...statusOption(undefined) },
                 {
-                  label: 'Applied',
-                  count: appliedCount,
-                  ...statusOption(JobApplicationStatus.Applied),
+                  label: 'Pending',
+                  count: pendingCount,
+                  ...statusOption(PENDING),
                 },
                 {
                   label: 'Interview',
                   count: interviewCount,
-                  ...statusOption(JobApplicationStatus.Interview),
+                  ...statusOption([JobApplicationStatus.Interview]),
                 },
                 {
                   label: 'Offer',
                   count: offerCount,
-                  ...statusOption(JobApplicationStatus.Offer),
+                  ...statusOption([JobApplicationStatus.Offer]),
                 },
               ]}
             />

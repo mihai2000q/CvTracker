@@ -35,8 +35,14 @@ export function buildFilterOption<Field extends string>(
   const current = filterBy.find(isThis);
   const others = filterBy.filter((entry) => !isThis(entry));
 
+  // A list is the same filter when it holds the same values, whatever its order
+  const isSame = (a: unknown, b: unknown) =>
+    Array.isArray(a) && Array.isArray(b)
+      ? a.length === b.length && a.every((v) => b.includes(v))
+      : a === b;
+
   return {
-    active: current?.value === value,
+    active: isSame(current?.value, value),
     href: hrefForFilterBy(value === undefined ? others : [...others, { field, operator, value }]),
   };
 }
