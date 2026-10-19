@@ -48,6 +48,12 @@ export const IN_PROGRESS_STATUSES: readonly string[] = [
   JobApplicationStatus.Interview,
 ];
 
+// An application in progress that hasn't been updated for this many months is taken as ghosted
+export const GHOSTED_AFTER_MONTHS = 3;
+
+// What the status history says of a move made by marking the silent applications at once
+export const GHOSTED_NOTE = `No update for ${GHOSTED_AFTER_MONTHS} months`;
+
 // What a move to a status did to the interview rounds
 export interface StatusChangeEffect {
   // The next round, given the outcome the decision means: failed by a rejection,

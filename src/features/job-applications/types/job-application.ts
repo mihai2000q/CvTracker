@@ -80,3 +80,13 @@ export const toStatusChange = (
   note: row.note,
   changedAt: row.changedAt,
 });
+
+// An application in progress that has gone silent long enough to be taken as ghosted
+export interface StaleJobApplication extends Pick<
+  JobApplication,
+  'id' | 'title' | 'currentStatus' | 'country'
+> {
+  organization: Pick<OrganizationSummary, 'id' | 'name'>;
+  // The day of its last status change, or the day it was applied to when it never changed
+  lastUpdate: string;
+}

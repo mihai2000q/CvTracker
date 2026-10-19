@@ -11,6 +11,8 @@ import JobApplicationsTable from '@/features/job-applications/components/job-app
 import JobApplicationsToolbar from '@/features/job-applications/components/job-applications-toolbar.tsx';
 import { countJobApplicationsByStatus } from '@/features/job-applications/queries/count-job-applications-by-status.ts';
 import { getJobApplicationFiltersMetadata } from '@/features/job-applications/queries/get-job-application-filters-metadata.ts';
+import { getStaleJobApplications } from '@/features/job-applications/queries/get-stale-job-applications.ts';
+import GhostedJobApplicationsAlert from '@/features/job-applications/components/ghosted/ghosted-job-applications-alert.tsx';
 import JobApplicationTabs from '@/features/job-applications/components/job-application-tabs.tsx';
 
 export const metadata: Metadata = { title: 'Jobs' };
@@ -25,10 +27,11 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
     filterToggle,
   } = readListSearchParams(jobApplicationsSearchParamsState, '/jobs', await searchParams);
 
-  const [result, statusCounts, filtersMetadata] = await Promise.all([
+  const [result, statusCounts, filtersMetadata, staleJobApplications] = await Promise.all([
     getJobApplications({ page, sortBy, filterBy, search }),
     countJobApplicationsByStatus(),
     getJobApplicationFiltersMetadata(),
+    getStaleJobApplications(),
   ]);
   if (!result.success) {
     redirect('/jobs');
@@ -42,6 +45,7 @@ const JobApplications = async ({ searchParams }: PageProps<'/jobs'>) => {
       <ListHeader title="Job Applications" description="All your applications, in one place" />
 
       <div className={'flex flex-1 flex-col gap-4'}>
+        <GhostedJobApplicationsAlert jobApplications={staleJobApplications} />
         {allCount > 0 && <JobApplicationTabs counts={statusCounts} filterOption={filterOption} />}
         {allCount > 0 && (
           <JobApplicationsToolbar

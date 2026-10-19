@@ -25,6 +25,21 @@ export async function cancelUpcomingRounds(
   return cancelled.length;
 }
 
+// The same for several applications at once, saying which rounds it cancelled and whose they are
+export async function cancelUpcomingRoundsOfApplications(
+  tx: Transaction,
+  jobApplicationIds: string[]
+): Promise<{ id: string; jobApplicationId: string }[]> {
+  const cancelled = await tx.InterviewRound.where((round) =>
+    round.jobApplicationId.in(jobApplicationIds.map(uuid))
+  )
+    .where({ outcome: DbInterviewOutcome.members.Scheduled })
+    .where((round) => round.scheduledAt.gt(new Date().toISOString()))
+    .updateAll({ outcome: DbInterviewOutcome.members.Cancelled });
+
+  return cancelled.map(({ id, jobApplicationId }) => ({ id, jobApplicationId }));
+}
+
 // The next interview round, the earliest one still waiting for an outcome, is the one a decision
 // on the application is about: it gets the outcome that decision means. The rounds after it are
 // not touched here
