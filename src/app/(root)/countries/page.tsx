@@ -23,12 +23,10 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
     hrefForNoFilters,
   } = readListSearchParams(countriesSearchParamsState, '/countries', await searchParams);
 
-  const [result, allCount, appliedCount, interviewCount, offerCount] = await Promise.all([
+  const [result, allCount, appliedCount] = await Promise.all([
     getCountries({ page, sortBy, scope, search }),
     countCountries('all'),
     countCountries('applied'),
-    countCountries('interview'),
-    countCountries('offer'),
   ]);
   if (!result.success) {
     redirect('/countries');
@@ -56,18 +54,6 @@ const Countries = async ({ searchParams }: PageProps<'/countries'>) => {
                 href: hrefForPatch({ scope: 'applied' }),
                 active: scope === 'applied',
                 count: appliedCount,
-              },
-              {
-                label: 'Interview',
-                href: hrefForPatch({ scope: 'interview' }),
-                active: scope === 'interview',
-                count: interviewCount,
-              },
-              {
-                label: 'Offer',
-                href: hrefForPatch({ scope: 'offer' }),
-                active: scope === 'offer',
-                count: offerCount,
               },
             ]}
           />

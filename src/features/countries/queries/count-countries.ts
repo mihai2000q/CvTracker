@@ -7,7 +7,7 @@ import {
   type CountryScope,
 } from '@/features/countries/constants/country-filtering.ts';
 
-// The countries the user has applied to, those with an application in interview or offer, or every country
+// The countries the user has applied to, or every country
 export async function countCountries(scope: CountryScope = 'applied'): Promise<number> {
   const userId = getUserId(await verifySession());
   return countCountriesQuery(userId, scope);
