@@ -11,11 +11,17 @@ interface SegmentedControlItem {
 
 interface Props extends React.ComponentProps<'nav'> {
   items: SegmentedControlItem[];
+  variant?: 'primary' | 'chart';
 }
+
+const ACTIVE_CLASS_NAMES = {
+  primary: 'bg-primary text-primary-foreground',
+  chart: 'bg-(--chart-3) text-white',
+};
 
 // A pill of links, one per view of the same list: each has its own URL, so it renders on the
 // server and the active one comes from the page
-function SegmentedControl({ items, className, ...props }: Props) {
+function SegmentedControl({ items, variant = 'primary', className, ...props }: Props) {
   return (
     <nav
       data-slot="segmented-control"
@@ -32,9 +38,7 @@ function SegmentedControl({ items, className, ...props }: Props) {
           aria-current={active ? 'page' : undefined}
           className={cn(
             'focus-visible:ring-ring/50 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-[0.8125rem] font-semibold transition-colors outline-none focus-visible:ring-3',
-            active
-              ? 'bg-primary text-primary-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+            active ? ACTIVE_CLASS_NAMES[variant] : 'text-muted-foreground hover:text-foreground'
           )}
         >
           {label}
@@ -42,7 +46,6 @@ function SegmentedControl({ items, className, ...props }: Props) {
             <span
               className={cn(
                 'text-xs font-medium tabular-nums',
-                active ? 'text-primary-foreground/70' : 'text-muted-foreground/60'
               )}
             >
               {count}
