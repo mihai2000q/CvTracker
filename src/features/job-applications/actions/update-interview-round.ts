@@ -32,7 +32,7 @@ export async function updateInterviewRound(
     return submission.reply();
   }
 
-  const { id, roundType, date, time, timeZone, contactIds, notes } = submission.value;
+  const { id, roundType, scheduledAt, contactIds, notes } = submission.value;
 
   const existing = await db.InterviewRound.first({ id: uuid(id) });
   if (!existing) {
@@ -45,10 +45,7 @@ export async function updateInterviewRound(
 
       await tx.InterviewRound.where({ id: uuid(id) }).update({
         roundType: DB_ROUND_TYPES[roundType],
-        scheduledAt: Temporal.PlainDateTime.from(`${date}T${time}`)
-          .toZonedDateTime(timeZone)
-          .toInstant()
-          .toString(),
+        scheduledAt,
         notes: notes ?? null,
       });
       // The contacts are replaced as a whole: the ones left out go, the new ones come

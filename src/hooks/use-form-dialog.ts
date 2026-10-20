@@ -1,5 +1,10 @@
 import { useEffect, useState, useTransition } from 'react';
-import { type DefaultValue, type SubmissionResult, useForm } from '@conform-to/react';
+import {
+  type DefaultValue,
+  type Submission,
+  type SubmissionResult,
+  useForm,
+} from '@conform-to/react';
 import type { z } from 'zod';
 import { zodValidator } from '@/components/form/zod-validator.ts';
 
@@ -10,7 +15,8 @@ type FormAction = (
 
 interface Props<Form extends Record<string, unknown>> {
   action: FormAction;
-  schema: z.ZodType<Form>;
+  // Not tied to `Form`: a schema may turn the fields into something else when it parses
+  schema: z.ZodType;
   defaultValue?: DefaultValue<Form>;
   onReset?: () => void;
   onSuccess?: (formData: FormData) => void;
@@ -62,7 +68,8 @@ export function useFormDialog<Form extends Record<string, unknown>>({
     defaultValue,
     shouldValidate: 'onBlur',
     shouldRevalidate: 'onInput',
-    onValidate: zodValidator(schema),
+    // Only the errors are used here, never the parsed value, so it need not be a `Form`
+    onValidate: (context) => zodValidator(schema)(context) as Submission<Form, string[], Form>,
     onSubmit(event, { formData }) {
       event.preventDefault();
       startTransition(async () => {

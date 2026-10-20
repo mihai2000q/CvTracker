@@ -2,7 +2,7 @@
 
 import { db, dbClient } from '@database/db';
 import { sized, uuid } from '@database/field-values';
-import { ApplicationStatus, RoundType as DbRoundType } from '@database/enums';
+import { RoundType as DbRoundType } from '@database/enums';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
@@ -33,7 +33,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
     return submission.reply();
   }
 
-  const { jobApplicationId, roundType, date, time, timeZone, contactIds, newContact, notes } =
+  const { jobApplicationId, roundType, scheduledAt, contactIds, newContact, notes } =
     submission.value;
 
   // Its status and organization decide the status change and where a new contact goes
@@ -48,10 +48,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
     await tx.InterviewRound.create({
       jobApplicationId: uuid(jobApplicationId),
       roundType: DB_ROUND_TYPES[roundType],
-      scheduledAt: Temporal.PlainDateTime.from(`${date}T${time}`)
-        .toZonedDateTime(timeZone)
-        .toInstant()
-        .toString(),
+      scheduledAt,
       notes,
       // Each contact of the round is an id, or a new one created here
       contacts: (roundContacts) =>

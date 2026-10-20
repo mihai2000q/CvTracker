@@ -1,7 +1,11 @@
 import { z } from 'zod';
-import { format } from 'date-fns';
+import { Temporal } from 'temporal-polyfill';
 import { zEmptyToUndefined, zToArray } from '@/lib/zod/fields.ts';
-import { isTimeZone } from '@/lib/time-zone.ts';
+import { todayIn } from '@/lib/time-zone.ts';
+import {
+  scheduledAtFields,
+  toScheduledAt,
+} from '@/features/job-applications/schemas/scheduled-at-fields.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 
 const newContactFields = z.object({
@@ -23,28 +27,33 @@ const newContactSchema = z.preprocess(
   newContactFields
 );
 
-export const scheduleInterviewSchema = z.object({
+const scheduleInterviewFields = z.object({
   jobApplicationId: z.uuid('Job application is invalid'),
   roundType: z.enum(RoundType, 'Round type is required'),
-  date: z
-    .string('Date is required')
-    .min(1, 'Date is required')
-    .pipe(z.iso.date('Date is invalid'))
-    .pipe(
-      z.string().refine((date) => date >= format(new Date(), 'yyyy-MM-dd'), {
-        message: 'Date cannot be in the past',
-      })
-    ),
-  time: z
-    .string('Time is required')
-    .min(1, 'Time is required')
-    .pipe(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Time is invalid')),
-  // The date and time are the user's wall clock: this says where
-  timeZone: z.string().refine(isTimeZone, 'Time zone is invalid'),
+  ...scheduledAtFields,
   contactIds: zToArray(z.array(z.uuid('Contact is invalid'))),
   newContact: newContactSchema.optional(),
   notes: zEmptyToUndefined(z.string().trim().optional()),
 });
 
-export type ScheduleInterviewForm = z.infer<typeof scheduleInterviewSchema>;
+// Only an interview still to come is scheduled, so the moment must not have passed. It is
+// checked once the fields are valid, as it takes all three of the moment's
+export const scheduleInterviewSchema = scheduleInterviewFields.transform(
+  ({ date, time, timeZone, ...round }, ctx) => {
+    const scheduledAt = toScheduledAt({ date, time, timeZone });
+    if (Temporal.Instant.compare(scheduledAt, Temporal.Now.instant()) < 0) {
+      const dayHasPassed = date < todayIn(timeZone);
+      ctx.issues.push({
+        code: 'custom',
+        input: round,
+        path: [dayHasPassed ? 'date' : 'time'],
+        message: dayHasPassed ? 'Date cannot be in the past' : 'Time cannot be in the past',
+      });
+    }
+    return { ...round, scheduledAt };
+  }
+);
+
+// What the form holds, which is not what it submits: the moment comes from three of its fields
+export type ScheduleInterviewForm = z.infer<typeof scheduleInterviewFields>;
 export type NewContactForm = z.infer<typeof newContactFields>;
