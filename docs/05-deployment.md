@@ -26,7 +26,8 @@ flowchart LR
     subgraph Docker Compose
         app["app (Next.js)\nport 3000"]
         db[("postgres\nport 5432")]
-        vol[("document_uploads volume")]
+        vol[(".container-data/uploads/documents
+(bind mount)")]
     end
     app -- "SQL" --> db
     app -- "read/write files" --> vol
@@ -43,13 +44,21 @@ flowchart LR
 - **`db`** — official `postgres` image, with a bind mount
   (`.container-data/postgres-data`, gitignored) for data persistence
   across container restarts.
-- **`document_uploads`** — a separate named volume mounted into `app`,
-  holding the uploaded CV/cover letter files referenced by
-  `documents.file_path`.
+- **Uploaded documents** — written to the directory named by
+  `DOCUMENTS_UPLOADS_DIRECTORY`, one subfolder per user, and referenced by
+  `document.file_path`. In compose, `./.container-data/uploads/documents` on the
+  host (gitignored, like the Postgres data) is bind-mounted into the `app`
+  container at `/app/.container-data/uploads/documents`, and compose sets
+  `DOCUMENTS_UPLOADS_DIRECTORY` to that path. The files survive the container
+  being recreated and can be inspected or backed up directly on disk. The
+  `Dockerfile` creates the directory owned by the non-root `nextjs` user. With
+  `npm run dev` the same relative path is used from `.env`.
 
 The real `docker-compose.yml` at the repo root is authoritative — see it
-directly rather than an illustrative copy here. It doesn't yet have
-`document_uploads`/a `JWT_SECRET` since uploads and auth aren't implemented.
+directly rather than an illustrative copy here. The app reads its settings
+from `.env` (`env_file`): database connection, `APP_PORT`,
+`DOCUMENTS_UPLOADS_DIRECTORY`, `JWT_SECRET` and `JWT_EXPIRES_IN` — see
+`.env.sample`.
 
 ## Explicitly out of scope
 

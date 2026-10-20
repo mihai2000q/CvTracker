@@ -43,6 +43,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+# The uploads directory is bind-mounted by docker-compose; it must be writable by the app user
+RUN mkdir -p /app/uploads/documents && chown -R nextjs:nodejs /app/.container-data
+
 USER nextjs
 EXPOSE 3000
 
