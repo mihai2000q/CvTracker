@@ -14,7 +14,7 @@ const HOST_SOURCES: [RegExp, JobSource][] = [
 ];
 
 // The source a posting URL points to: a known job board by its hostname, any other valid
-// URL is the company's own site. Undefined while the text isn't a URL yet.
+// URL is the organization's own site. Undefined while the text isn't a URL yet.
 export function detectSourceFromUrl(input: string): JobSource | undefined {
   const typed = input.trim();
   if (!typed) return undefined;

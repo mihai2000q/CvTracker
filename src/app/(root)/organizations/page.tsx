@@ -27,7 +27,7 @@ const Organizations = async ({ searchParams }: PageProps<'/organizations'>) => {
     filterToggle,
   } = readListSearchParams(organizationsSearchParamsState, '/organizations', await searchParams);
 
-  // Pending covers every stage before an interview, where the company hasn't decided yet
+  // Pending covers every stage before an interview, where the organization hasn't decided yet
   const PENDING = [JobApplicationStatus.Applied, JobApplicationStatus.Screening];
 
   const [result, allCount, pendingCount, interviewCount, offerCount, filtersMetadata] =

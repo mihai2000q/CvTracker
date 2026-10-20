@@ -35,7 +35,7 @@ export const STATUSES_BEFORE_INTERVIEW: readonly string[] = [
 ];
 
 // Moving an application to one of these ends it from the candidate's side or the silence of the
-// company: the interview rounds that were still to take place won't
+// organization: the interview rounds that were still to take place won't
 export const STATUSES_THAT_CANCEL_UPCOMING_ROUNDS: readonly string[] = [
   JobApplicationStatus.Withdrawn,
   JobApplicationStatus.NoResponse,
