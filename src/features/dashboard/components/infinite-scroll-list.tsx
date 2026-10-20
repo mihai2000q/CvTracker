@@ -66,8 +66,6 @@ function InfiniteScrollList<T extends { id: string }>({
   };
 
   return (
-    // The cap is what makes it scroll, and it is chosen so that the card is as tall as the one
-    // of the outcomes beside it, with every status in it
     <ScrollArea viewportProps={{ onScroll: handleScroll, className: 'max-h-110' }}>
       <ul className="flex flex-col gap-1 pr-3">
         {items.map((item) => (
