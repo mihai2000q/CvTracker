@@ -1,16 +1,8 @@
 import { z } from 'zod';
 import { format } from 'date-fns';
 import { zEmptyToUndefined, zToArray } from '@/lib/zod/fields.ts';
+import { isTimeZone } from '@/lib/time-zone.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
-
-const isTimeZone = (value: string) => {
-  try {
-    new Intl.DateTimeFormat(undefined, { timeZone: value });
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 const newContactFields = z.object({
   name: z.string('Name is required').trim().min(1, 'Name is required').max(150, 'Name is too long'),

@@ -3,6 +3,7 @@
 import React from 'react';
 import { TooltipProvider } from '@/components/ui/tooltip.tsx';
 import { Toaster } from '@/components/ui/toast.tsx';
+import TimeZoneSync from '@/components/layout/time-zone-sync.tsx';
 import { ThemeProvider } from '@/components/theme-provider.tsx';
 import { QueryClient, QueryClientConfig, QueryClientProvider } from '@tanstack/react-query';
 
@@ -22,6 +23,7 @@ const Providers = ({ children }: { children: React.ReactNode }) => {
         <TooltipProvider>
           {children}
           <Toaster />
+          <TimeZoneSync />
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
