@@ -8,6 +8,8 @@ import { constraintViolationReply } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
+import { getTimeZone } from '@/lib/get-time-zone.ts';
+import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
@@ -19,7 +21,11 @@ export async function updateJobApplication(
 ) {
   const userId = getUserId(await verifySession());
 
-  const submission = zodValidateForm({ formData, schema: updateJobApplicationSchema });
+  const timeZone = await getTimeZone();
+  const submission = zodValidateForm({
+    formData,
+    schema: updateJobApplicationSchema(() => todayIn(timeZone)),
+  });
   if (submission.status !== 'success') {
     return submission.reply();
   }

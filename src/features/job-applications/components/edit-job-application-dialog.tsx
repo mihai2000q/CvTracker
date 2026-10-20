@@ -33,6 +33,7 @@ import {
   updateJobApplicationSchema,
 } from '@/features/job-applications/schemas/update-job-application-schema.ts';
 import { JobApplication } from '@/features/job-applications/types/job-application.ts';
+import { format } from 'date-fns';
 
 interface Props {
   jobApplication: JobApplication;
@@ -41,11 +42,13 @@ interface Props {
 }
 
 // Mount it again (a new `key`) to start over from a job application that changed
+const schema = updateJobApplicationSchema(() => format(new Date(), 'yyyy-MM-dd'));
+
 const EditJobApplicationDialog = ({ jobApplication, open, onOpenChange }: Props) => {
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<UpdateJobApplicationForm>({
       action: updateJobApplication,
-      schema: updateJobApplicationSchema,
+      schema,
       defaultValue: {
         id: jobApplication.id,
         title: jobApplication.title,

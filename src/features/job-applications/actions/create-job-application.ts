@@ -8,6 +8,8 @@ import { getUserId, verifySession } from '@/lib/auth/session';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
+import { getTimeZone } from '@/lib/get-time-zone.ts';
+import { todayIn } from '@/lib/time-zone.ts';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
@@ -20,7 +22,11 @@ export async function createJobApplication(
   const session = await verifySession();
   const userId = getUserId(session);
 
-  const submission = zodValidateForm({ formData, schema: createJobApplicationSchema });
+  const timeZone = await getTimeZone();
+  const submission = zodValidateForm({
+    formData,
+    schema: createJobApplicationSchema(() => todayIn(timeZone)),
+  });
   if (submission.status !== 'success') {
     return submission.reply();
   }

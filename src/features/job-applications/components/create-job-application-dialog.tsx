@@ -24,6 +24,7 @@ import {
   createJobApplicationSchema,
 } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import { useQueryClient } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
 import { queryKeys } from '@/lib/query-keys.ts';
 import OrganizationCountrySection from '@/features/job-applications/components/organization-country-section.tsx';
@@ -37,6 +38,8 @@ import DocumentPicker from '@/features/job-applications/components/document-pick
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import SourceGroup from '@/features/job-applications/components/source/source-group.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
+
+const schema = createJobApplicationSchema(() => format(new Date(), 'yyyy-MM-dd'));
 
 interface Props {
   // Opens the dialog; leave it out when the dialog is opened from somewhere else
@@ -52,7 +55,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateJobApplicationForm>({
       action: createJobApplication,
-      schema: createJobApplicationSchema,
+      schema,
       open,
       onOpenChange,
       defaultValue: organization
