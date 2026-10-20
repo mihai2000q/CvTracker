@@ -101,7 +101,7 @@ interface Props {
 
 // The statuses as a ring and as the list beside it. The one the pointer is on, in either, is the
 // one in focus in both
-const OutcomesChart = ({ data, total }: Props) => {
+const StatusBreakdownChart = ({ data, total }: Props) => {
   const [active, setActive] = useState<JobApplicationStatus | null>(null);
   // The tooltip would stay at the middle of the slice it is over, so it is the cursor's instead
   const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>();
@@ -209,4 +209,4 @@ const OutcomesChart = ({ data, total }: Props) => {
   );
 };
 
-export default OutcomesChart;
+export default StatusBreakdownChart;

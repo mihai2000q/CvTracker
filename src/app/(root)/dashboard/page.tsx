@@ -10,7 +10,7 @@ import { getStaleJobApplications } from '@/features/job-applications/queries/get
 import KpiCards from '@/features/dashboard/components/kpi-cards.tsx';
 import ApplicationsOverTimeCard from '@/features/dashboard/components/applications-over-time-card.tsx';
 import PipelineFunnelCard from '@/features/dashboard/components/pipeline-funnel-card.tsx';
-import OutcomesCard from '@/features/dashboard/components/outcomes-card.tsx';
+import StatusBreakdownCard from '@/features/dashboard/components/status-breakdown-card.tsx';
 import UpcomingInterviewsCard from '@/features/dashboard/components/upcoming-interviews-card.tsx';
 import RecentActivityCard from '@/features/dashboard/components/recent-activity-card.tsx';
 import {
@@ -73,7 +73,7 @@ const Dashboard = async ({ searchParams }: PageProps<'/dashboard'>) => {
             </Suspense>
 
             <Suspense fallback={<CardSkeleton className={'h-80 w-full'} />}>
-              <OutcomesCard period={period} />
+              <StatusBreakdownCard period={period} />
             </Suspense>
             <Suspense fallback={<CardSkeleton className={'h-80 w-full'} />}>
               <UpcomingInterviewsCard />
