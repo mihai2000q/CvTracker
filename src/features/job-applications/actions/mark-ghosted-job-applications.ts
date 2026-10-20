@@ -45,32 +45,34 @@ export async function markGhostedJobApplications(): Promise<Result<GhostedUndo>>
   const undo = await dbClient.transaction(async ({ orm }) => {
     const tx = orm.public;
     const jobApplications = await findStaleJobApplications(tx, userId);
-    const undo: GhostedUndo = { applications: [], historyIds: [] };
-    const cancelledRounds = await cancelUpcomingRoundsOfApplications(
-      tx,
-      jobApplications.map(({ id }) => id)
-    );
+    if (jobApplications.length === 0) return { applications: [], historyIds: [] };
 
-    for (const { id, currentStatus } of jobApplications) {
-      await tx.JobApplication.where({ id: uuid(id) }).update({
-        currentStatus: MODEL_APPLICATION_STATUSES[JobApplicationStatus.NoResponse],
-      });
-      const history = await tx.ApplicationStatusHistory.create({
+    const ids = jobApplications.map(({ id }) => id);
+    const cancelledRounds = await cancelUpcomingRoundsOfApplications(tx, ids);
+
+    await tx.JobApplication.where((application) => application.id.in(ids.map(uuid))).updateAll({
+      currentStatus: MODEL_APPLICATION_STATUSES[JobApplicationStatus.NoResponse],
+    });
+    const changedAt = new Date().toISOString();
+    const history = await tx.ApplicationStatusHistory.createAll(
+      ids.map((id) => ({
         jobApplicationId: uuid(id),
         status: MODEL_APPLICATION_STATUSES[JobApplicationStatus.NoResponse],
         note: GHOSTED_NOTE,
-        changedAt: new Date().toISOString(),
-      });
-      undo.applications.push({
+        changedAt,
+      }))
+    );
+
+    return {
+      applications: jobApplications.map(({ id, currentStatus }) => ({
         id,
         previousStatus: currentStatus,
         cancelledRoundIds: cancelledRounds
           .filter((round) => round.jobApplicationId === id)
           .map((round) => round.id),
-      });
-      undo.historyIds.push(history.id);
-    }
-    return undo;
+      })),
+      historyIds: history.map(({ id }) => id),
+    };
   });
 
   updateTag(cacheTags.jobApplications(userId));
