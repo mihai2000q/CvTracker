@@ -25,5 +25,5 @@ export function useSearchParamsState<T>(state: SearchParamsState<T>) {
   const set = (patch: Partial<T>, { history = 'replace', scroll = false }: NavigateOptions = {}) =>
     startTransition(() => router[history](hrefFor(patch), { scroll }));
 
-  return { values, set, isPending };
+  return { values, hrefFor, set, isPending };
 }
