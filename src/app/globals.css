@@ -148,6 +148,13 @@
   }
 }
 
+/* Breakpoints between sm (40rem) and md (48rem), md and lg (64rem), and lg and xl (80rem) */
+@theme {
+  --breakpoint-sm-md: 44rem;
+  --breakpoint-md-lg: 56rem;
+  --breakpoint-lg-xl: 72rem;
+}
+
 /* The colour of each type of document, and the text that goes on it, chosen in one place */
 @theme {
   --color-document-cv: var(--color-amber-600);
