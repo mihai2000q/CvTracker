@@ -22,6 +22,11 @@ call. Each feature owns its folder (`auth`, `countries`, `dashboard`,
 `documents`, `job-applications`, `organizations`); each has its own `schemas/`
 (zod), `types/`, `constants/` and, where needed, `services/`.
 
+The pages for job applications are served under `/jobs` (and `/jobs/[id]`), so
+that is what shows in the address bar. That is only the UI route; everywhere
+else (feature folder, queries, actions, `/api/job-applications/*`, docs) the
+name is job-applications.
+
 ## Conventions shared by queries and actions
 
 - **Authentication.** Every query and action starts with `verifySession()`
@@ -119,7 +124,7 @@ Corrections happen by re-running `npm run db:seed`.
 
 | Query | Purpose |
 |---|---|
-| `getJobApplications` | Paginated list with organization, country, documents and interview rounds; filters, search and sort |
+| `getJobApplications` | Paginated list with organization, country, documents and InterviewRounds; filters, search and sort |
 | `getJobApplication` | Full detail: the list data plus the status history |
 | `getJobApplicationSummaries` | Lightweight paginated list for pickers (route handler) |
 | `countJobApplications` / `countJobApplicationsByStatus` | Totals, and the per-status counts for the status tabs |
@@ -131,9 +136,9 @@ Corrections happen by re-running `npm run db:seed`.
 
 | Query | Purpose |
 |---|---|
-| `getDashboardStats` | KPIs, applications over time, outcomes and the pipeline funnel for a period (`from`/`to` search params) |
+| `getDashboardStats` | KPIs, applications over time, the status breakdown and the pipeline funnel for a period (`from`/`to` search params) |
 | `getRecentActivity` | Cursor-paginated status changes (route handler) |
-| `getUpcomingInterviews` | Cursor-paginated interview rounds still to take place (route handler) |
+| `getUpcomingInterviews` | Cursor-paginated InterviewRounds still to take place (route handler) |
 
 ## Actions
 
@@ -144,7 +149,7 @@ Corrections happen by re-running `npm run db:seed`.
 | `createOrganization` | Creates an organization (`name`, `websiteUrl`, `notes`, `countryIds`) |
 | `updateOrganization` | Updates it and **replaces** its `countryIds` as a whole |
 | `deleteOrganization` | Deletes the organization **together with its job applications**; the database restricts the reverse, so the applications are deleted first |
-| `createContact` / `updateContact` / `deleteContact` | Manage the contacts of an organization. Deleting a contact removes it from its interview rounds; the rounds stay |
+| `createContact` / `updateContact` / `deleteContact` | Manage the contacts of an organization. Deleting a contact removes it from its InterviewRounds; the InterviewRounds stay |
 
 `countryIds` is the organization's `OrganizationCountry` set. It is a plain
 field on the create and update forms, not a sub-resource: each write replaces
@@ -168,13 +173,13 @@ since an application holds it specifically as a CV or as a cover letter.
 |---|---|
 | `createJobApplication` | Creates the application **and its first status-history row** ("applied"). Can create the organization and upload the CV and cover letter in the same submission |
 | `updateJobApplication` | Updates title, URL, source, notes, documents and country. Not the status |
-| `deleteJobApplication` | Deletes it; its history and interview rounds go with it, the organization's contacts stay |
-| `changeJobApplicationStatus` | Appends a status-history entry and updates `currentStatus`, in one transaction. Moving to `withdrawn` or `no_response` cancels the interview rounds still to come, `offer` and `rejected` settle them; the result reports what was affected |
-| `markGhostedJobApplications` / `undoGhostedJobApplications` | Moves every stale application to `no_response` (shown as "Ghosted") and cancels its upcoming rounds; the result carries what the undo needs to put it all back |
-| `scheduleInterview` | Adds an interview round with existing contacts and/or a new one. An application still `applied` or `screening` moves to `interview` in the same transaction |
-| `updateInterviewRound` | Updates type, date and time, notes and contacts of a round (the outcome has its own action) |
-| `setInterviewOutcome` | Sets a round's outcome. A failed round rejects an application in progress, unless another round is still to come, in which case the result only says so |
-| `deleteInterviewRound` | Removes a round |
+| `deleteJobApplication` | Deletes it; its history and InterviewRounds go with it, the organization's contacts stay |
+| `changeJobApplicationStatus` | Appends a status-history entry and updates `currentStatus`, in one transaction. Moving to `withdrawn` or `no_response` cancels the InterviewRounds still to come, `offer` and `rejected` settle them; the result reports what was affected |
+| `markGhostedJobApplications` / `undoGhostedJobApplications` | Moves every stale application to Ghosted (`no_response`) and cancels its upcoming InterviewRounds; the result carries what the undo needs to put it all back |
+| `scheduleInterview` | Adds an InterviewRound with existing contacts and/or a new one. An application still `applied` or `screening` moves to `interview` in the same transaction |
+| `updateInterviewRound` | Updates type, date and time, notes and contacts of an InterviewRound (the outcome has its own action) |
+| `setInterviewOutcome` | Sets an InterviewRound's outcome. A failed InterviewRound rejects an application in progress, unless another InterviewRound is still to come, in which case the result only says so |
+| `deleteInterviewRound` | Removes an InterviewRound |
 
 Status changes are their own action and not part of `updateJobApplication`,
 because creating a history entry is the operation, not overwriting a field.

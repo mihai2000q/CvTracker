@@ -189,7 +189,7 @@ Index: `(job_application_id, scheduled_at)`.
 
 ### `interview_round_has_contact` (join table)
 
-Who is in a round: a round can have several contacts, and a contact can be in several rounds.
+Who is in an InterviewRound: an InterviewRound can have several contacts, and a contact can be in several InterviewRounds.
 
 | Column             | Type    | Constraints                                                  |
 |--------------------|---------|----------------------------------------------------------------|
@@ -263,7 +263,7 @@ future Node/ICU version resolves a name differently.
   `interview_round.job_application_id`,
   `job_application_has_skill.*`, `interview_round_has_contact.*`: `ON DELETE CASCADE` — these are owned by
   the job application; deleting an application should clean up its
-  timeline, interview rounds, and tags. A contact is owned by its
+  timeline, InterviewRounds, and tags. A contact is owned by its
   organization instead (`contact.organization_id`: `ON DELETE CASCADE`), so it
   outlives any one application.
 - `document_has_skill.*`: `ON DELETE CASCADE` — same as the other join

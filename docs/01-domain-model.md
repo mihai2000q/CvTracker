@@ -31,7 +31,7 @@ No flag column: the UI renders each country's flag from `iso_code` via
 nothing to store or keep in sync.
 
 ### Organization
-A company you've applied to. One organization can have **many** job
+An organization you've applied to. One organization can have **many** job
 applications over time (e.g. three different roles at Siemens). Owned by a
 `User` — each user has their own list of organizations.
 
@@ -126,7 +126,7 @@ An append-only timeline of status changes for a job application — this is
 what answers "when did they call me, and what did I say happened next".
 
 - `id`
-- `status` (`applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`; the UI shows `no_response` as "Ghosted")
+- `status` (`applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`, which is the status called **Ghosted**)
 - `note` (optional free text — "recruiter called, phone screen scheduled")
 - `job_application_id` → JobApplication
 - `changed_at` (date/timestamp)
@@ -134,8 +134,8 @@ what answers "when did they call me, and what did I say happened next".
 ### Contact
 A person at an organization — a recruiter, a hiring manager, an engineer you
 interviewed with. A contact belongs to the organization, not to one application, so
-the same person is one record across every application at that company. Which
-applications and rounds they were part of is recorded by the rounds
+the same person is one record across every application at that organization. Which
+applications and InterviewRounds they were part of is recorded by the InterviewRounds
 (`InterviewRoundHasContact`).
 
 - `id`
@@ -148,19 +148,19 @@ applications and rounds they were part of is recorded by the rounds
 ### InterviewRound
 A structured step in an application's interview process — distinct from
 `ApplicationStatusHistory`, which tracks the application's overall state.
-A round records *what kind* of interview and *when*, so "I have a technical
-round with Siemens next Tuesday" is a queryable fact, not buried in a note.
+An InterviewRound records *what kind* of interview and *when*, so "I have a technical
+InterviewRound with Siemens next Tuesday" is a queryable fact, not buried in a note.
 
 - `id`
 - `round_type` (`intro_call`, `technical`, `coding`, `take_home`, `behavioral`). It
-  says what the round is about.
+  says what the InterviewRound is about.
 - `scheduled_at` (date/timestamp)
 - `outcome` (`scheduled`, `passed`, `failed`, `cancelled` — default `scheduled`)
 - `notes` (optional)
 - `job_application_id` → JobApplication
 - contacts → Contact, many-to-many through `InterviewRoundHasContact` — who is in
-  the round (a recruiter and a technical interviewer, two engineers, ...).
-  Deleting a contact only removes it from the rounds; the rounds stay.
+  the InterviewRound (a recruiter and a technical interviewer, two engineers, ...).
+  Deleting a contact only removes it from the InterviewRounds; the InterviewRounds stay.
 
 ### InterviewRoundHasContact (join table)
 - `interview_round_id` → InterviewRound
@@ -207,7 +207,7 @@ erDiagram
     JOB_APPLICATION ||--o{ APPLICATION_STATUS_HISTORY : "has timeline"
     ORGANIZATION ||--o{ CONTACT : "has"
     JOB_APPLICATION ||--o{ INTERVIEW_ROUND : "has"
-    INTERVIEW_ROUND }o--o{ CONTACT : "has in the round"
+    INTERVIEW_ROUND }o--o{ CONTACT : "includes"
     JOB_APPLICATION }o--o{ SKILL : "tagged with"
     DOCUMENT }o--o{ SKILL : "emphasizes"
 ```
@@ -224,18 +224,22 @@ is already scoped. A `Contact` is reached through its `Organization`.
 
 ## Ghosted applications (derived, then recorded)
 
-"Have I been ghosted" is not a stored flag. An application is **stale** when it
-is still in progress (`applied`, `screening` or `interview`) and nothing has
-happened to it for `GHOSTED_AFTER_MONTHS` (3 months, a constant in
+**Ghosted** is a status (stored as `no_response`). Setting it by hand and having
+it set by the bulk action below produce exactly the same thing.
+
+**Stale** is not a status or a stored flag: it is the computed condition that
+makes an application *eligible* to be marked as Ghosted. An application is
+stale when it is in progress (`applied`, `screening` or `interview`) and
+nothing has happened to it for `GHOSTED_AFTER_MONTHS` (3 months, a constant in
 `job-application-statuses.ts`): its `applied_at` and the latest
 `ApplicationStatusHistory.changed_at` are both older than the cutoff. The list
 is computed at read time (`getStaleJobApplications`).
 
-It is a suggestion surfaced to the user, not an automatic status change. The
-user can accept it in bulk with `markGhostedJobApplications`, which moves every
-stale application to `no_response` (displayed as "Ghosted"), writes a history
-row, and cancels the interview rounds still to come. That action can be undone
-right after. A single application can also be moved to `no_response` by hand.
+Being stale is a suggestion surfaced to the user, not an automatic status
+change. The user can accept it in bulk with `markGhostedJobApplications`, which
+moves every stale application to Ghosted, writes a history row, and cancels
+the InterviewRounds still to come. That action can be undone right after,
+which also restores the InterviewRounds it cancelled.
 
 There is no separate "needs follow-up" threshold, and no `daysSinceLastUpdate`
 field; earlier drafts of this document proposed both.
@@ -274,18 +278,38 @@ field; earlier drafts of this document proposed both.
 7. One organization legitimately has many job applications — this is not
    an edge case, it's the normal case the tool is built around.
 8. `InterviewRound` rows belong to exactly one `JobApplication` and are
-   deleted along with it. A round can have several of that application's
-   `Contact`s of that application's organization (and a new one can be created
-   together with the round, on that organization); one contact can be in several
-   rounds, across applications. A round's `outcome` is independent of the
-   application's `current_status` — passing a technical round doesn't by
-   itself change the application's status; you still log that via
-   `ApplicationStatusHistory` (e.g. moving to `offer`). The one exception is
-   scheduling a round: if the application is still `applied` or `screening`,
-   creating the round also moves it to `interview` (a history entry plus
-   `current_status`, in the same transaction). In any other status, including
-   `interview` itself, `offer`, `rejected`, `withdrawn` and `no_response`, the
-   status is left alone.
+   deleted along with it. An InterviewRound can have several `Contact`s of that
+   application's organization (and a new one can be created together with it,
+   on that organization); one contact can be in several InterviewRounds,
+   across applications.
+
+   An InterviewRound's `outcome` and the application's `current_status` are
+   **not** independent. They affect each other in the cases below, each in
+   one transaction, with a status-history row wherever the status changes.
+   An InterviewRound is *upcoming* when its outcome is `scheduled` and its
+   date is in the future.
+
+   - **Scheduling** an InterviewRound moves an application that is `applied`
+     or `screening` to `interview`. In any other status (including
+     `interview` itself, `offer`, `rejected`, `withdrawn` and `no_response`)
+     the status is left alone.
+   - **Setting an outcome** of `failed` on an application still in progress
+     (`applied`, `screening` or `interview`) moves it to `rejected`, with a
+     history note naming the InterviewRound's type — unless another
+     InterviewRound is still upcoming. Then the status is left alone and the
+     user is asked whether to reject. The outcomes `passed`, `scheduled` and
+     `cancelled` never change the status, and a `failed` outcome never changes
+     an application that is not in progress.
+   - **Moving the application to a status** settles its InterviewRounds:
+     `rejected` marks the earliest InterviewRound still `scheduled` as
+     `failed` (unless one already failed, since that is what the rejection
+     was about) and cancels the upcoming ones; `offer` marks the earliest
+     InterviewRound still `scheduled` as `passed` and leaves the others;
+     `withdrawn` and Ghosted cancel the upcoming ones. InterviewRounds in the
+     past that are still `scheduled` are never cancelled automatically: only
+     the user knows how they went. Moving the status back does not restore
+     cancelled InterviewRounds, except through the undo of the bulk
+     Ghosted action.
 9. Every `Organization`, `Document`, `Skill`, and `JobApplication` belongs
    to exactly one `User`. Queries filter by the current user's `user_id`, so
    there is no cross-user visibility when reading. Writes, and foreign ids

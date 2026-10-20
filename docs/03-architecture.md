@@ -57,8 +57,8 @@ flowchart TB
 - **Application logic** — where the domain rules from
   [01-domain-model.md](./01-domain-model.md) live, e.g. "creating a job
   application also creates its first status-history row", "scheduling an
-  interview moves an application to `interview`", "a failed round rejects an
-  application". Queries and actions hold this; reusable pieces go to a
+  interview moves an application to `interview`", "a failed InterviewRound rejects an
+  application when none is left to come". Queries and actions hold this; reusable pieces go to a
   feature's `services/` (e.g. `cancel-upcoming-rounds`, `store-document`).
 - **Data layer** — the Prisma client (`database/db.ts`) and the filesystem.
   Everything above works with typed models, not SQL or file paths directly
