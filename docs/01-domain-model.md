@@ -10,11 +10,11 @@ no profile image, no roles/permissions.
 - `email` (unique)
 - `name`
 - `password_hash` (hashed at signup time — bcrypt/argon2; never plaintext,
-  never returned by any endpoint)
+  never returned by any query)
 - `created_at`, `updated_at`
 
 There is no seeded user — the first account, like every account, is created
-by calling signup. See [04-api-design.md](./04-api-design.md#authentication)
+by calling signup. See [04-data-access.md](./04-data-access.md#authentication)
 for the signup/sign-in/session flow.
 
 ### Country
@@ -50,11 +50,11 @@ organization.
 
 ### OrganizationCountry (join table)
 The set of countries an organization is known to operate in. Maintained as
-part of the organization itself: there's no separate add/remove endpoint
+part of the organization itself: there's no separate add/remove action
 for this —
 creating or updating an `Organization` replaces its full set of countries
 in one write (see
-[04-api-design.md](./04-api-design.md#organizations)). It exists purely to
+[04-data-access.md](./04-data-access.md#actions)). It exists purely to
 narrow the country dropdown when creating a `JobApplication` for this
 organization; it does **not** restrict which country a job application can
 actually use (see business rule 12).
@@ -84,7 +84,7 @@ document — whichever versions were actually sent.
 
 CV and cover letter started as identical, separately-modeled entities; they
 were merged into one `Document` entity specifically because the UI shows
-both in a single grid — one library, one upload flow, one endpoint, filtered
+both in a single grid — one library, one upload flow, one set of actions, filtered
 by type rather than assembled client-side from two lists. The tradeoff: the
 database can no longer guarantee by itself that a `JobApplication`'s CV slot
 holds a `cv`-type document rather than a `cover_letter`-type one — that
@@ -126,7 +126,7 @@ An append-only timeline of status changes for a job application — this is
 what answers "when did they call me, and what did I say happened next".
 
 - `id`
-- `status` (e.g. `applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`)
+- `status` (`applied`, `screening`, `interview`, `offer`, `rejected`, `withdrawn`, `no_response`; the UI shows `no_response` as "Ghosted")
 - `note` (optional free text — "recruiter called, phone screen scheduled")
 - `job_application_id` → JobApplication
 - `changed_at` (date/timestamp)
@@ -170,7 +170,7 @@ round with Siemens next Tuesday" is a queryable fact, not buried in a note.
 ### JobApplicationHasSkill (join table)
 Many-to-many between JobApplication and Skill — which skills/tags were
 relevant to (or emphasized in) a given application. Like
-`OrganizationCountry` and `DocumentHasSkill`, it has no endpoints of its
+`OrganizationCountry` and `DocumentHasSkill`, it has no actions of its
 own: the full set of skills is replaced in one write when the application is
 created or updated.
 
@@ -186,7 +186,7 @@ changes to a document's skills never alter existing applications.
 Many-to-many between Document and Skill — which skills a CV or cover letter
 emphasizes. Used to pre-fill an application's skills when the document is
 selected. Managed as part of creating/updating the document (the full set is
-replaced in one write), not through its own endpoints.
+replaced in one write), not through its own actions.
 
 - `document_id` → Document
 - `skill_id` → Skill
@@ -199,7 +199,6 @@ erDiagram
     USER ||--o{ DOCUMENT : "owns"
     USER ||--o{ SKILL : "owns"
     USER ||--o{ JOB_APPLICATION : "owns"
-    COUNTRY ||--o{ ORGANIZATION : "located in (primary)"
     COUNTRY ||--o{ JOB_APPLICATION : "role located in"
     ORGANIZATION }o--o{ COUNTRY : "operates in"
     ORGANIZATION ||--o{ JOB_APPLICATION : "receives"
@@ -223,26 +222,23 @@ exactly one `User` and must be scoped by `user_id` in every query).
 through their parent (`JobApplication`, `Organization` or `Document`), which
 is already scoped. A `Contact` is reached through its `Organization`.
 
-## Derived / computed fields (not stored)
+## Ghosted applications (derived, then recorded)
 
-Two of your requested features — follow-up reminders and "have I been
-ghosted" — don't need new tables or a manual status. They're both the same
-computation at different thresholds, derived at read time from
-`applied_at` and the latest `ApplicationStatusHistory.changed_at`:
+"Have I been ghosted" is not a stored flag. An application is **stale** when it
+is still in progress (`applied`, `screening` or `interview`) and nothing has
+happened to it for `GHOSTED_AFTER_MONTHS` (3 months, a constant in
+`job-application-statuses.ts`): its `applied_at` and the latest
+`ApplicationStatusHistory.changed_at` are both older than the cutoff. The list
+is computed at read time (`getStaleJobApplications`).
 
-- `daysSinceLastUpdate` = now − `changed_at` of the most recent status
-  history row (or `applied_at` if none exists beyond the initial one).
-- `needsFollowUp` = true when `current_status` is non-terminal (not
-  `rejected`, `offer`, `withdrawn`, or `no_response`) **and**
-  `daysSinceLastUpdate` ≥ a follow-up threshold (suggested default: 14 days).
-- `isGhosted` = same condition, but at a longer threshold (suggested
-  default: 30 days) — a stronger signal meaning "realistically, this one's
-  dead." It's a suggestion surfaced to you, not an automatic status change;
-  you still decide whether to manually log a `no_response` status once you
-  agree with it.
+It is a suggestion surfaced to the user, not an automatic status change. The
+user can accept it in bulk with `markGhostedJobApplications`, which moves every
+stale application to `no_response` (displayed as "Ghosted"), writes a history
+row, and cancels the interview rounds still to come. That action can be undone
+right after. A single application can also be moved to `no_response` by hand.
 
-Thresholds are configuration, not schema — they can be constants for now
-and become user-adjustable later without any migration.
+There is no separate "needs follow-up" threshold, and no `daysSinceLastUpdate`
+field; earlier drafts of this document proposed both.
 
 ## Business rules
 
@@ -271,9 +267,10 @@ and become user-adjustable later without any migration.
    data. Corrections (accurate names/flags) happen as updates in place, so
    `country_id` values on existing job applications and `OrganizationCountry`
    rows remain valid.
-6. `Skill` names are unique; tagging an application with a skill that
-   doesn't exist yet creates it (or the UI offers autocomplete over
-   existing ones — implementation detail, not a schema constraint).
+6. `Skill` names are unique per user. Nothing in the app creates skills yet
+   (see [04-data-access.md](./04-data-access.md#limitations)): the intent is
+   that tagging with a skill that doesn't exist yet creates it, or the UI
+   offers autocomplete over existing ones.
 7. One organization legitimately has many job applications — this is not
    an edge case, it's the normal case the tool is built around.
 8. `InterviewRound` rows belong to exactly one `JobApplication` and are
@@ -290,16 +287,17 @@ and become user-adjustable later without any migration.
    `interview` itself, `offer`, `rejected`, `withdrawn` and `no_response`, the
    status is left alone.
 9. Every `Organization`, `Document`, `Skill`, and `JobApplication` belongs
-   to exactly one `User`. All queries and writes in the application/API
-   layers must filter/scope by the current user's `user_id` — there is no
-   cross-user visibility.
+   to exactly one `User`. Queries filter by the current user's `user_id`, so
+   there is no cross-user visibility when reading. Writes, and foreign ids
+   supplied by the client, are not checked: authorization is out of scope
+   (see [04-data-access.md](./04-data-access.md#known-gaps)).
 10. `Skill.name` uniqueness is scoped to `(user_id, name)`, not global —
     each user can have their own "React" skill row, independent of any
     other user's.
 11. `User` accounts are created only via signup — there is no seed data for
     the `user` table (unlike `Country`). The current user for any request is
     resolved from a signed JWT (see
-    [04-api-design.md](./04-api-design.md#authentication)), never passed
+    [04-data-access.md](./04-data-access.md#authentication)), never passed
     directly by the client and never trusted from anywhere but that
     verified token.
 12. `OrganizationCountry` is advisory, not a constraint: a
@@ -311,6 +309,6 @@ and become user-adjustable later without any migration.
 13. `OrganizationCountry` has full-replace semantics: creating or
     updating an `Organization` with a list of country ids sets its complete
     set of operating countries, replacing whatever was there before — there
-    is no incremental add/remove operation for it (contrast with
-    `JobApplicationHasSkill`, rule per its own section, which is managed
-    incrementally through dedicated endpoints).
+    is no incremental add/remove operation for it (`JobApplicationHasSkill` and
+    `DocumentHasSkill` follow the same rule: the full `skillIds` set is sent
+    with every create or update).

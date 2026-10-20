@@ -74,12 +74,12 @@ instead (closer to how it'd actually be deployed):
 3. App available at `http://localhost:3001` (the `APP_PORT` default —
    deliberately different from local dev's fixed `3000`, so both can run
    side by side without a port clash).
-4. Uploaded documents persist in the `document_uploads` volume; the
-   database persists via its bind mount. Both survive `docker compose down`
-   (without `-v`).
-5. `docker compose down -v` for a full reset (wipes the database and
-   uploaded documents, including all accounts) — re-run `db:setup`
-   afterward.
+4. The database (`.container-data/postgres-data`) and uploaded documents
+   (`.container-data/uploads/documents`) are bind-mounted from the host, so
+   both survive `docker compose down` and container rebuilds.
+5. For a full reset, `docker compose down` and delete `.container-data`
+   (wipes the database, including all accounts, and the uploaded documents)
+   — re-run `db:setup` afterward.
 
 See [`docs/05-deployment.md`](./docs/05-deployment.md) for the deployment
 topology (services, volumes, ports) this maps to.
@@ -95,10 +95,10 @@ topology (services, volumes, ports) this maps to.
 | `npm run migrations:up` | Apply every pending migration |
 | `npm run migrations:down -- <migration-dir>^` | *Plan* a rollback migration (does not apply it — see [`docs/03-architecture.md`](./docs/03-architecture.md)) |
 | `npm run db:seed` | Seed required reference data (countries) |
-| `npm run db:seed:sample` | Seed optional dev fixtures (one example user) — never required |
+| `npm run db:seed:sample` | Seed optional dev fixtures (an example user with data) — never required |
 | `npm run db:setup` | `migrations:up` + `db:seed` — the one command for "give me a working database" |
 
 ## Documentation
 
 See [`docs/`](./docs/00-overview.md) for the domain model, database schema,
-architecture, and API design behind this project's decisions.
+architecture, and data access (queries, actions, route handlers) behind this project's decisions.

@@ -48,12 +48,11 @@ CvTracker exists to answer these questions reliably.
 - **No cloud infrastructure.** No AWS, no managed DB, no object storage.
   Everything runs locally via Docker.
 - **No mobile app, no notifications, no email integration.**
-- **No API routes or UI yet.** The database layer (schema, migrations,
-  seed data — see [02-database-schema.md](./02-database-schema.md) and
-  [03-architecture.md](./03-architecture.md)) is implemented; Next.js route
-  handlers and the frontend itself are not. Exact `app/` folder structure,
-  validation library, etc. are still open — see
-  [03-architecture.md](./03-architecture.md)'s open questions.
+- **No skill management.** Skills exist in the schema and can be attached
+  to documents and applications, but there is nothing yet to create or edit
+  them — see [04-data-access.md](./04-data-access.md#limitations).
+- **No public API.** The server is reached through Server Components,
+  Server Actions and a handful of route handlers built for the UI itself.
 
 ## Tech stack (decided so far)
 
@@ -71,6 +70,6 @@ CvTracker exists to answer these questions reliably.
 
 - [01-domain-model.md](./01-domain-model.md) — entities, relationships, business rules
 - [02-database-schema.md](./02-database-schema.md) — PostgreSQL tables, columns, seed data
-- [03-architecture.md](./03-architecture.md) — how Next.js fits together (UI + API), layering
-- [04-api-design.md](./04-api-design.md) — HTTP API surface
+- [03-architecture.md](./03-architecture.md) — how Next.js fits together, layering, auth, Prisma, seeding
+- [04-data-access.md](./04-data-access.md) — queries, actions and route handlers
 - [05-deployment.md](./05-deployment.md) — local Docker setup

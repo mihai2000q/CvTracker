@@ -2,72 +2,70 @@
 
 ## How Next.js fits together
 
-Yes — Next.js can serve both the UI and the backend from a single project.
-Since this is your first project on it, here's the shape in plain terms:
+Next.js serves both the UI and the backend from one project: **one project,
+one dev server, one Docker image**. There is no separate REST API; the UI
+reaches the server through three mechanisms (details and the full list in
+[04-data-access.md](./04-data-access.md)):
 
-- **Pages/UI** live under `app/` as React components (Server and Client
-  Components). This is what renders in the browser.
-- **HTTP API endpoints** live alongside them as *Route Handlers* — files
-  named `route.ts` under `app/api/**`. Each one exports functions named
-  after HTTP verbs (`GET`, `POST`, `PATCH`, `DELETE`) and Next.js wires them
-  up to a URL automatically based on the folder path (e.g.
-  `app/api/organizations/route.ts` → `GET/POST /api/organizations`).
-- These route handlers are plain HTTP endpoints — the same request/response
-  model as any other backend framework. The React UI calls them with
-  `fetch`, the same way it would call any REST API.
+- **Server Components** render pages under `src/app/` and call **queries**
+  (`src/features/<feature>/queries/`) directly, in the same process. No network
+  hop, no `fetch`.
+- **Server Actions** (`'use server'`, `src/features/<feature>/actions/`) are
+  how every write happens. Forms post to them via `<form action={...}>` /
+  `useActionState`; Next.js turns each into a POST under the hood.
+- **Route Handlers** (`src/app/api/**/route.ts`) exist only for what the two
+  above can't do: fetches the browser makes by itself (infinite scroll,
+  dropdown search, via TanStack Query), file responses (document download,
+  CSV/Excel export), and clearing the session cookie.
 
-So: **one project, one dev server, one Docker image**, but two things
-running inside it — pages and an HTTP API — because Next.js is designed to
-be both a frontend and a backend framework at once.
-
-This document intentionally stops at that level of detail. Exact folder
-conventions, which parts are Server Components vs. Client Components, the
-ORM/query layer, and validation library are **implementation-phase
-decisions** — not fixed here, since the goal right now is agreeing on the
-domain and the API surface, not on Next.js internals.
+Code is organized by feature (`src/features/` has `auth`, `countries`,
+`dashboard`, `documents`, `job-applications` and `organizations`), each with
+its own `queries/`, `actions/`, `schemas/` (zod), `types/`, `constants/`,
+`services/` and `components/` as needed. Shared code is in `src/lib/`, shared UI
+in `src/components/`, and everything database-related (Prisma contract,
+migrations, seeds, query helpers) in `database/`.
 
 ## Logical layers
 
-Regardless of exact file layout, the server side of the app is expected to
-separate into three logical layers. This is a conceptual model to design
-against — not a mandate on folder names.
+The server side separates into three layers. Because queries and actions are
+plain functions called in-process, the first one is not an HTTP layer:
 
 ```mermaid
 flowchart TB
     subgraph Client
-        UI["React UI (Next.js pages / components)"]
+        UI["React UI (Client Components)"]
     end
     subgraph Server["Next.js server (single process)"]
-        API["API layer\n(Route Handlers — app/api/**)\nHTTP concerns: parsing requests,\nstatus codes, request/response shape"]
-        APP["Application layer\n(business logic)\nvalidation, status-history rules,\norchestrating multi-table operations"]
-        DATA["Data layer\n(persistence)\nqueries against PostgreSQL,\nfile storage for CVs"]
+        ENTRY["Entry points\nServer Components, Server Actions,\nRoute Handlers (app/api/**)\nauth, input validation, cache invalidation"]
+        APP["Application logic\nqueries, actions, services\nbusiness rules, status-history rules,\nmulti-table transactions"]
+        DATA["Data layer\ndatabase/ (Prisma 8 client)\nfile storage for documents"]
     end
     DB[(PostgreSQL)]
-    FS[("Local filesystem\n(CV files, Docker volume)")]
+    FS[("Local filesystem\n(document files)")]
 
-    UI -- "fetch() over HTTP" --> API
-    API --> APP
+    UI -- "form actions / fetch (route handlers)" --> ENTRY
+    ENTRY --> APP
     APP --> DATA
     DATA --> DB
     DATA --> FS
 ```
 
-- **API layer** — thin. Receives HTTP requests, validates shape, calls into
-  the application layer, maps results to HTTP responses. No business rules
-  live here.
-- **Application layer** — where domain rules from
-  [01-domain-model.md](./01-domain-model.md) live: e.g. "creating a job
-  application also creates its first status-history row", "a CV can't be
-  deleted while referenced". This layer is framework-agnostic in spirit,
-  even if it happens to be TypeScript functions called directly by route
-  handlers (no network hop needed — it's the same process).
-- **Data layer** — the only layer that talks to PostgreSQL or the
-  filesystem. Everything above it works with domain objects, not SQL rows
-  or file paths directly.
+- **Entry points** — thin. A Server Component awaits a query; a Server Action
+  or Route Handler calls `verifySession()`, validates input with zod, calls
+  into the logic, and returns a result (or, for route handlers, an HTTP
+  response). No business rules here.
+- **Application logic** — where the domain rules from
+  [01-domain-model.md](./01-domain-model.md) live, e.g. "creating a job
+  application also creates its first status-history row", "scheduling an
+  interview moves an application to `interview`", "a failed round rejects an
+  application". Queries and actions hold this; reusable pieces go to a
+  feature's `services/` (e.g. `cancel-upcoming-rounds`, `store-document`).
+- **Data layer** — the Prisma client (`database/db.ts`) and the filesystem.
+  Everything above works with typed models, not SQL or file paths directly
+  (document files go through `store-document` / `read-document`).
 
-This layering exists so that business rules (layer 2) aren't duplicated
-across every route handler, and so persistence details (layer 3) can change
-later (e.g. swapping raw SQL for an ORM) without touching the other two.
+This layering keeps business rules out of components and route handlers, and
+lets persistence details change without touching the other layers.
 
 ## Authentication flow
 
@@ -85,7 +83,7 @@ against a JSON API. Concretely:
    `SameSite=Lax` is sufficient CSRF protection here since the app is
    single-origin (no third-party site ever needs to submit requests to it).
 3. **Every Server Component, query, and Server Action that needs to know
-   who's signed in** calls `verifySession()` (`src/lib/session.ts`). It
+   who's signed in** calls `verifySession()` (`src/lib/auth/session.ts`). It
    reads the `session` cookie and verifies the JWT's signature and expiry.
    It's read-only — it never writes the cookie — so it's safe to call from
    anywhere: on a valid session it returns the claims, otherwise it
@@ -93,7 +91,7 @@ against a JSON API. Concretely:
    out of an already-verified session; it never re-verifies anything
    itself, and the user id is never trusted from client input (see
    [01-domain-model.md](./01-domain-model.md) business rules).
-4. **Logout** clears the cookie via a Server Action (`deleteSession()`).
+4. **Sign-out** clears the cookie via a Server Action (`deleteSession()`).
    Because the JWT is stateless (no sessions table), there's no
    server-side revocation before its natural expiry.
 
@@ -295,12 +293,14 @@ importing anything internal. Any future write path (signup creating a
 `User`, creating an `Organization`, etc.) will hit the same thing and can
 reuse these helpers.
 
-## Open questions for the implementation phase
+## Decisions made during implementation
 
-These are deliberately **not** decided yet:
+These were open in the first drafts and are now settled:
 
-- Server Components vs. Client Components split in the UI
-- Validation library for request payloads (e.g. Zod)
-- Exact `app/` folder structure beyond the `api/` convention described above
-- JWT expiry duration and where the signing secret lives (env var at minimum)
-- Password hashing library (bcrypt vs. argon2)
+- **Server/Client split:** pages are Server Components; interactivity (forms,
+  filters, infinite lists) is in Client Components.
+- **Validation:** zod, with Conform for forms.
+- **Password hashing:** bcrypt. **JWT:** `jose`, HS256; the secret and expiry
+  come from `JWT_SECRET` and `JWT_EXPIRES_IN`.
+- **Folder structure:** feature folders under `src/features/`, as above.
+- **Client data fetching:** TanStack Query on top of the route handlers.
