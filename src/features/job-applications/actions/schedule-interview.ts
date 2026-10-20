@@ -2,7 +2,6 @@
 
 import { db, dbClient } from '@database/db';
 import { sized, uuid } from '@database/field-values';
-import { RoundType as DbRoundType } from '@database/enums';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
@@ -15,15 +14,7 @@ import {
 } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
 import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
-
-const DB_ROUND_TYPES = {
-  [RoundType.IntroCall]: DbRoundType.members.IntroCall,
-  [RoundType.Technical]: DbRoundType.members.Technical,
-  [RoundType.Coding]: DbRoundType.members.Coding,
-  [RoundType.TakeHome]: DbRoundType.members.TakeHome,
-  [RoundType.Behavioral]: DbRoundType.members.Behavioral,
-};
+import { MODEL_ROUND_TYPES } from '@/features/job-applications/types/enums/model-round-type.ts';
 
 export async function scheduleInterview(_state: SubmissionResult | undefined, formData: FormData) {
   const userId = getUserId(await verifySession());
@@ -47,7 +38,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
 
     await tx.InterviewRound.create({
       jobApplicationId: uuid(jobApplicationId),
-      roundType: DB_ROUND_TYPES[roundType],
+      roundType: MODEL_ROUND_TYPES[roundType],
       scheduledAt,
       notes,
       // Each contact of the round is an id, or a new one created here

@@ -3,22 +3,13 @@
 import { updateTag } from 'next/cache';
 import { db, dbClient } from '@database/db';
 import { uuid } from '@database/field-values';
-import { RoundType as DbRoundType } from '@database/enums';
 import { isForeignKeyConstraintError } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { updateInterviewRoundSchema } from '@/features/job-applications/schemas/update-interview-round-schema.ts';
-import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
-
-const DB_ROUND_TYPES = {
-  [RoundType.IntroCall]: DbRoundType.members.IntroCall,
-  [RoundType.Technical]: DbRoundType.members.Technical,
-  [RoundType.Coding]: DbRoundType.members.Coding,
-  [RoundType.TakeHome]: DbRoundType.members.TakeHome,
-  [RoundType.Behavioral]: DbRoundType.members.Behavioral,
-};
+import { MODEL_ROUND_TYPES } from '@/features/job-applications/types/enums/model-round-type.ts';
 
 // Its outcome is set apart, and the status of the application is not touched
 export async function updateInterviewRound(
@@ -44,7 +35,7 @@ export async function updateInterviewRound(
       const tx = orm.public;
 
       await tx.InterviewRound.where({ id: uuid(id) }).update({
-        roundType: DB_ROUND_TYPES[roundType],
+        roundType: MODEL_ROUND_TYPES[roundType],
         scheduledAt,
         notes: notes ?? null,
       });
