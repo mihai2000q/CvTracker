@@ -15,6 +15,8 @@ import {
 import type { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 import type { UpcomingInterview } from '@/features/dashboard/types/upcoming-interview.ts';
 
+const NOW_BUCKET_MS = 60_000;
+
 export async function getUpcomingInterviews(
   query: GetUpcomingInterviewsQueryInput
 ): Promise<Result<CursorPage<UpcomingInterview>>> {
@@ -24,18 +26,22 @@ export async function getUpcomingInterviews(
     return parsed;
   }
 
-  return getUpcomingInterviewsQuery(userId, parsed.data);
+  // "Now" is part of the cache key, so the cached "upcoming" filter is at most one bucket stale.
+  const now = new Date(Math.floor(Date.now() / NOW_BUCKET_MS) * NOW_BUCKET_MS).toISOString();
+
+  return getUpcomingInterviewsQuery(userId, now, parsed.data);
 }
 
 async function getUpcomingInterviewsQuery(
   userId: string,
+  now: string,
   { cursor, limit }: GetUpcomingInterviewsQuery
 ): Promise<Result<CursorPage<UpcomingInterview>>> {
   'use cache';
   cacheTag(cacheTags.jobApplications(userId));
 
   let dbQuery = db.InterviewRound.where({ outcome: DbInterviewOutcome.members.Scheduled })
-    .where((round) => round.scheduledAt.gt(new Date().toISOString()))
+    .where((round) => round.scheduledAt.gt(now))
     .where((round) => round.jobApplication.some((ja) => ja.userId.eq(uuid(userId))))
     .include('jobApplication', (ja) =>
       ja
