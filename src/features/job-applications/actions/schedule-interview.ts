@@ -13,6 +13,8 @@ import {
   NewContactForm,
   scheduleInterviewSchema,
 } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
+import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 
 const DB_ROUND_TYPES = {
@@ -63,14 +65,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
 
     const moveToInterview = STATUSES_BEFORE_INTERVIEW.includes(jobApplication.currentStatus);
     if (!moveToInterview) return;
-    await tx.JobApplication.where({ id: uuid(jobApplicationId) }).update({
-      currentStatus: ApplicationStatus.members.Interview,
-    });
-    await tx.ApplicationStatusHistory.create({
-      jobApplicationId: uuid(jobApplicationId),
-      status: ApplicationStatus.members.Interview,
-      changedAt: new Date().toISOString(),
-    });
+    await recordStatusChange(tx, [jobApplicationId], JobApplicationStatus.Interview);
   });
 
   updateTag(cacheTags.jobApplications(userId));

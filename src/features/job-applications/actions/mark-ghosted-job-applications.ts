@@ -11,6 +11,7 @@ import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
 import { GHOSTED_NOTE } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { cancelUpcomingRoundsOfApplications } from '@/features/job-applications/services/cancel-upcoming-rounds.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { findStaleJobApplications } from '@/features/job-applications/services/find-stale-job-applications.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { MODEL_APPLICATION_STATUSES } from '@/features/job-applications/types/enums/model-application-status.ts';
@@ -50,17 +51,11 @@ export async function markGhostedJobApplications(): Promise<Result<GhostedUndo>>
     const ids = jobApplications.map(({ id }) => id);
     const cancelledRounds = await cancelUpcomingRoundsOfApplications(tx, ids);
 
-    await tx.JobApplication.where((application) => application.id.in(ids.map(uuid))).updateAll({
-      currentStatus: MODEL_APPLICATION_STATUSES[JobApplicationStatus.NoResponse],
-    });
-    const changedAt = new Date().toISOString();
-    const history = await tx.ApplicationStatusHistory.createAll(
-      ids.map((id) => ({
-        jobApplicationId: uuid(id),
-        status: MODEL_APPLICATION_STATUSES[JobApplicationStatus.NoResponse],
-        note: GHOSTED_NOTE,
-        changedAt,
-      }))
+    const history = await recordStatusChange(
+      tx,
+      ids,
+      JobApplicationStatus.NoResponse,
+      GHOSTED_NOTE
     );
 
     return {

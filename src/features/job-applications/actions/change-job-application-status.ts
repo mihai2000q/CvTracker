@@ -18,8 +18,8 @@ import {
   settleRoundsOnOffer,
   settleRoundsOnRejection,
 } from '@/features/job-applications/services/cancel-upcoming-rounds.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-import { MODEL_APPLICATION_STATUSES } from '@/features/job-applications/types/enums/model-application-status.ts';
 
 const changeStatusSchema = z.object({
   jobApplicationId: z.uuid('Job application is invalid'),
@@ -54,15 +54,7 @@ export async function changeJobApplicationStatus(
   const effect = await dbClient.transaction(async ({ orm }) => {
     const tx = orm.public;
 
-    await tx.JobApplication.where({ id: uuid(jobApplicationId) }).update({
-      currentStatus: MODEL_APPLICATION_STATUSES[status],
-    });
-    await tx.ApplicationStatusHistory.create({
-      jobApplicationId: uuid(jobApplicationId),
-      status: MODEL_APPLICATION_STATUSES[status],
-      note: note || undefined,
-      changedAt: new Date().toISOString(),
-    });
+    await recordStatusChange(tx, [jobApplicationId], status, note);
 
     if (status === JobApplicationStatus.Offer) return settleRoundsOnOffer(tx, jobApplicationId);
     if (status === JobApplicationStatus.Rejected)

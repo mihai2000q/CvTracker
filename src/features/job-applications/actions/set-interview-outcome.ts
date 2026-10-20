@@ -10,10 +10,10 @@ import { cacheTags } from '@/lib/cache-tags.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
 import { IN_PROGRESS_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-import { MODEL_APPLICATION_STATUSES } from '@/features/job-applications/types/enums/model-application-status.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 import { InterviewOutcomeEffect } from '@/features/job-applications/types/interview-outcome-effect.ts';
 
@@ -72,15 +72,12 @@ export async function setInterviewOutcome(
       return;
     }
 
-    await tx.JobApplication.where({ id: round.jobApplicationId }).update({
-      currentStatus: MODEL_APPLICATION_STATUSES[JobApplicationStatus.Rejected],
-    });
-    await tx.ApplicationStatusHistory.create({
-      jobApplicationId: round.jobApplicationId,
-      status: MODEL_APPLICATION_STATUSES[JobApplicationStatus.Rejected],
-      note: `${ROUND_TYPE_LABELS[round.roundType as RoundType]} round failed`,
-      changedAt: new Date().toISOString(),
-    });
+    await recordStatusChange(
+      tx,
+      [round.jobApplicationId],
+      JobApplicationStatus.Rejected,
+      `${ROUND_TYPE_LABELS[round.roundType as RoundType]} round failed`
+    );
     effect.rejected = true;
   });
 
