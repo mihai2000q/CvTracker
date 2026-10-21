@@ -20,6 +20,8 @@ import {
 } from '@/features/job-applications/services/resolve-job-application-parts.ts';
 import { updateJobApplicationSchema } from '@/features/job-applications/schemas/update-job-application-schema.ts';
 
+class JobApplicationNotFoundError extends Error {}
+
 export async function updateJobApplication(
   _state: SubmissionResult | undefined,
   formData: FormData
@@ -58,7 +60,7 @@ export async function updateJobApplication(
         const { organizationId, cvDocumentId, coverLetterDocumentId, ...created } =
           await resolveJobApplicationParts(tx, userId, parts, stored);
 
-        await tx.JobApplication.where({ id: uuid(id) }).update({
+        const updated = await tx.JobApplication.where({ id: uuid(id) }).update({
           title: sized<200>(title),
           postingUrl: postingUrl ?? null,
           source: source ? sized<100>(normalizeSource(source)) : null,
@@ -69,11 +71,16 @@ export async function updateJobApplication(
           cvDocumentId: uuid(cvDocumentId),
           coverLetterDocumentId: coverLetterDocumentId ? uuid(coverLetterDocumentId) : null,
         });
+        // Gone since it was read: what was created for it goes with the transaction
+        if (!updated) throw new JobApplicationNotFoundError();
 
         return created;
       })
     );
   } catch (error) {
+    if (error instanceof JobApplicationNotFoundError) {
+      return submission.reply({ formErrors: ['Job application not found'] });
+    }
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;

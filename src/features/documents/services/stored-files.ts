@@ -31,7 +31,13 @@ export function createStoredFiles(adapter: FileAdapter) {
     const extension = path.extname(file.name).toLowerCase();
     const filePath = path.posix.join(userId, `${randomUUID()}${extension}`);
 
-    await adapter.write(filePath, Buffer.from(await file.arrayBuffer()));
+    try {
+      await adapter.write(filePath, Buffer.from(await file.arrayBuffer()));
+    } catch (error) {
+      // A write that failed midway may have left part of the file behind
+      await remove(filePath);
+      throw error;
+    }
 
     return { filePath, originalFilename: truncateFilename(file.name), size: file.size };
   }

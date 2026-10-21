@@ -12,6 +12,8 @@ import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 
+class DocumentNotFoundError extends Error {}
+
 export async function updateDocument(_state: SubmissionResult | undefined, formData: FormData) {
   const userId = getUserId(await verifySession());
 
@@ -44,7 +46,7 @@ export async function updateDocument(_state: SubmissionResult | undefined, formD
       userId,
       { file },
       async ({ file: storedFile }) => {
-        await db.Document.where({ id: uuid(id) }).update({
+        const updated = await db.Document.where({ id: uuid(id) }).update({
           type: MODEL_DOCUMENT_TYPES[type],
           name: sized<150>(name),
           notes: notes ?? null,
@@ -54,10 +56,15 @@ export async function updateDocument(_state: SubmissionResult | undefined, formD
             size: storedFile.size,
           }),
         });
+        // Gone since it was read: the new file goes, and the old one stays
+        if (!updated) throw new DocumentNotFoundError();
       },
       { replacing: [existing.filePath] }
     );
   } catch (error) {
+    if (error instanceof DocumentNotFoundError) {
+      return submission.reply({ formErrors: ['Document not found'] });
+    }
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;
