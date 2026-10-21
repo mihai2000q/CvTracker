@@ -47,3 +47,12 @@ export interface DashboardStats {
   statusCounts: StatusCount[];
   applicationsOverTime: TimeBucket[];
 }
+
+// What the stats are worked out from, for each application of the period
+export interface ApplicationRow {
+  currentStatus: string;
+  // A day, as `YYYY-MM-DD`
+  appliedAt: string;
+  // Every status the application has had, from its history
+  historyStatuses: string[];
+}

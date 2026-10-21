@@ -1,14 +1,5 @@
 import 'server-only';
-import {
-  differenceInCalendarDays,
-  eachDayOfInterval,
-  eachMonthOfInterval,
-  eachWeekOfInterval,
-  format,
-  parseISO,
-  startOfMonth,
-  startOfWeek,
-} from 'date-fns';
+import { parseISO } from 'date-fns';
 import { Temporal } from 'temporal-polyfill';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
@@ -22,39 +13,15 @@ import {
   getDashboardStatsQuerySchema,
 } from '@/features/dashboard/schemas/get-dashboard-stats-schema.ts';
 import { getComparisonPeriod } from '@/features/dashboard/services/dashboard-period.ts';
-import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
+import { bucketApplications } from '@/features/dashboard/queries/get-dashboard-stats/bucket-applications.ts';
 import {
-  IN_PROGRESS_STATUSES,
-  JOB_APPLICATION_STATUS_ORDER,
-} from '@/features/job-applications/constants/job-application-statuses.ts';
+  computeFunnel,
+  furthestStage,
+} from '@/features/dashboard/queries/get-dashboard-stats/compute-funnel.ts';
+import { computeKpis } from '@/features/dashboard/queries/get-dashboard-stats/compute-kpis.ts';
+import { JOB_APPLICATION_STATUS_ORDER } from '@/features/job-applications/constants/job-application-statuses.ts';
 import type { DashboardPeriod } from '@/features/dashboard/types/dashboard-filtering.ts';
-import type {
-  DashboardStats,
-  FunnelStage,
-  TimeBucket,
-} from '@/features/dashboard/types/dashboard-stats.ts';
-
-interface ApplicationRow {
-  currentStatus: string;
-  // A day, as `YYYY-MM-DD`
-  appliedAt: string;
-  // Every status the application has had, from its history
-  historyStatuses: string[];
-}
-
-// The stages an application goes through, in order. How far one got is the furthest of them it
-// ever had, so an application that was rejected after an interview still counts as having
-// reached the interview
-const PIPELINE: readonly JobApplicationStatus[] = [
-  JobApplicationStatus.Applied,
-  JobApplicationStatus.Screening,
-  JobApplicationStatus.Interview,
-  JobApplicationStatus.Offer,
-];
-
-const SCREENING_STAGE = PIPELINE.indexOf(JobApplicationStatus.Screening);
-const INTERVIEW_STAGE = PIPELINE.indexOf(JobApplicationStatus.Interview);
-const OFFER_STAGE = PIPELINE.indexOf(JobApplicationStatus.Offer);
+import type { ApplicationRow, DashboardStats } from '@/features/dashboard/types/dashboard-stats.ts';
 
 export async function getDashboardStats(
   query: GetDashboardStatsQueryInput
@@ -118,128 +85,23 @@ async function getDashboardStatsQuery(
   );
 }
 
-const furthestStage = ({ currentStatus, historyStatuses }: ApplicationRow) =>
-  Math.max(
-    0,
-    ...[currentStatus, ...historyStatuses].map((status) =>
-      PIPELINE.indexOf(status as JobApplicationStatus)
-    )
-  );
-
-const percentage = (part: number, total: number) =>
-  total === 0 ? 0 : Math.round((part / total) * 100);
-
 function computeStats(
   rows: ApplicationRow[],
   comparisonTotal: number | null,
   period: DashboardPeriod
 ): DashboardStats {
-  const total = rows.length;
   const stages = rows.map(furthestStage);
 
-  const rejected = rows.filter((row) => row.currentStatus === JobApplicationStatus.Rejected).length;
-  // A rejection is an answer too, even one that came before any interview
-  const responded = rows.filter(
-    (row, index) =>
-      stages[index] >= SCREENING_STAGE ||
-      row.currentStatus === JobApplicationStatus.Rejected ||
-      row.historyStatuses.includes(JobApplicationStatus.Rejected)
-  ).length;
-  const interviews = stages.filter((stage) => stage >= INTERVIEW_STAGE).length;
-  const offers = stages.filter((stage) => stage >= OFFER_STAGE).length;
-  const ghosted = rows.filter(
-    (row) => row.currentStatus === JobApplicationStatus.NoResponse
-  ).length;
-
-  const funnel: FunnelStage[] = PIPELINE.map((status, index) => ({
-    status,
-    count: stages.filter((stage) => stage >= index).length,
-  }));
-
-  const statusCounts = JOB_APPLICATION_STATUS_ORDER.map((status) => ({
-    status,
-    count: rows.filter((row) => row.currentStatus === status).length,
-  }));
-
   return {
-    kpis: {
-      total,
-      thisMonth: rows.filter((row) => row.appliedAt.startsWith(period.today.slice(0, 7))).length,
-      comparisonTotal,
-      active: rows.filter((row) => IN_PROGRESS_STATUSES.includes(row.currentStatus)).length,
-      awaitingReply: rows.filter((row) => row.currentStatus === JobApplicationStatus.Applied)
-        .length,
-      responseRate: percentage(responded, total),
-      rejectionRate: percentage(rejected, total),
-      interviews,
-      interviewRate: percentage(interviews, total),
-      offers,
-      offerRate: percentage(offers, total),
-      ghosted,
-      ghostedRate: percentage(ghosted, total),
-    },
-    funnel,
-    statusCounts,
+    kpis: computeKpis(rows, stages, comparisonTotal, period.today),
+    funnel: computeFunnel(stages),
+    statusCounts: JOB_APPLICATION_STATUS_ORDER.map((status) => ({
+      status,
+      count: rows.filter((row) => row.currentStatus === status).length,
+    })),
     applicationsOverTime: bucketApplications(
       rows.map((row) => parseISO(row.appliedAt)),
       period
     ),
   };
-}
-
-type BucketUnit = 'day' | 'week' | 'month';
-
-// Days for a month or less, weeks for up to about six months, months for what is longer
-const bucketUnitFor = (days: number): BucketUnit =>
-  days <= 31 ? 'day' : days <= 183 ? 'week' : 'month';
-
-function bucketApplications(appliedDates: Date[], period: DashboardPeriod): TimeBucket[] {
-  const earliest = appliedDates.reduce<Date | null>(
-    (min, date) => (min === null || date < min ? date : min),
-    null
-  );
-  // A period with no start begins with the first application
-  const start = period.from ? parseISO(period.from) : earliest;
-  if (start === null) return [];
-  const end = parseISO(period.to ?? period.today);
-
-  const unit = bucketUnitFor(differenceInCalendarDays(end, start) + 1);
-  const bucketStart = (date: Date) =>
-    unit === 'month'
-      ? startOfMonth(date)
-      : unit === 'week'
-        ? startOfWeek(date, { weekStartsOn: 1 })
-        : date;
-  const key = (date: Date) => format(date, 'yyyy-MM-dd');
-
-  const starts =
-    unit === 'month'
-      ? eachMonthOfInterval({ start, end })
-      : unit === 'week'
-        ? eachWeekOfInterval({ start, end }, { weekStartsOn: 1 })
-        : eachDayOfInterval({ start, end });
-
-  const buckets = new Map<string, TimeBucket>(
-    starts.map((date) => [
-      key(date),
-      {
-        key: key(date),
-        label: format(date, unit === 'month' ? 'MMM yy' : 'd MMM'),
-        fullLabel:
-          unit === 'month'
-            ? format(date, 'MMMM yyyy')
-            : unit === 'week'
-              ? `Week of ${format(date, 'd MMM yyyy')}`
-              : format(date, 'EEEE d MMMM yyyy'),
-        count: 0,
-      },
-    ])
-  );
-
-  appliedDates.forEach((date) => {
-    const bucket = buckets.get(key(bucketStart(date)));
-    if (bucket) bucket.count += 1;
-  });
-
-  return [...buckets.values()];
 }
