@@ -60,9 +60,24 @@ name is job-applications.
 - **Caching.** Queries are wrapped in `'use cache'` and tagged with
   `cacheTag(cacheTags.<entity>(userId))` (`src/lib/cache-tags.ts`: `documents`,
   `jobApplications`, `organizations`, and `contacts` per organization). Every
-  action that writes calls `updateTag(...)` for the tags it affects, which is
-  what makes the next read fresh. A new query must tag everything it reads; a
-  new action must invalidate everything it writes.
+  action that writes calls `updateTag(...)`, which is what makes the next read
+  fresh. Two rules keep the two sides in step:
+  - A query tags every entity whose data affects its output: the columns it
+    shows, but also what it counts, filters, sorts or searches by. One that
+    doesn't depend on an entity doesn't tag it.
+  - An action invalidates the entities whose rows it writes (a row created or
+    cascade-deleted counts), and only when it is certain it wrote one: a
+    new organization or document is tagged only when one was created. It also
+    invalidates what depends on them in a way the query can't tag for itself:
+    the contacts shown in an application's rounds belong to `contacts` per
+    organization, which a list of applications can't subscribe to, so a
+    contact write also invalidates `jobApplications`. When in doubt it
+    invalidates the extra tag: an extra refetch costs little, a missed one is
+    stale data.
+
+  The browser has a second cache, TanStack Query, for what the comboboxes fetch
+  (`src/lib/query-keys.ts`). A dialog invalidates the keys of the entities its
+  action created, changed or deleted, in the same way.
 - **Lists.** List queries are paginated by `page`/`pageSize` and return
   `{ items, totalCount }`, with `sortBy`, `filterBy` and `search` as inputs
   (`src/lib/pagination.ts`, `database/paginate.ts`, `database/sort.ts`,
@@ -264,3 +279,9 @@ This is a deliberate scope decision for a personal, local-only tool whose ids
 are unguessable UUIDv7 values and which has no sharing between users. It would
 have to be closed (add `userId` to those `where` clauses and verify every
 foreign id) before the app is exposed to users who don't trust each other.
+
+**Cache tags are coarse.** There is one tag per entity and user, so a write
+invalidates every cached read of that entity, not only the rows that changed. A
+finer strategy (tags per row, or per list) would invalidate less, at the cost
+of more tags to keep in step. For one user's data the extra refetches are
+cheap, so it is not worth it for now.

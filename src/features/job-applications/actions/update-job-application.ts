@@ -109,8 +109,8 @@ export async function updateJobApplication(
   }
 
   updateTag(cacheTags.jobApplications(userId));
-  updateTag(cacheTags.documents(userId));
-  updateTag(cacheTags.organizations(userId));
+  if (!organizationId) updateTag(cacheTags.organizations(userId));
+  if (cvDocumentFile || coverLetterDocumentFile) updateTag(cacheTags.documents(userId));
   return submission.reply({ resetForm: true });
 }
 

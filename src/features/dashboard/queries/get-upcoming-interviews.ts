@@ -34,7 +34,7 @@ async function getUpcomingInterviewsQuery(
   { cursor, limit }: GetUpcomingInterviewsQuery
 ): Promise<Result<CursorPage<UpcomingInterview>>> {
   'use cache';
-  cacheTag(cacheTags.jobApplications(userId));
+  cacheTag(cacheTags.jobApplications(userId), cacheTags.organizations(userId));
   // What is upcoming depends on the time, not only on writes: the list is good for a minute, and
   // "now" is the moment it is made, so it is not part of the cache key
   cacheLife('minutes');

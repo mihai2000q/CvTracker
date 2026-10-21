@@ -33,7 +33,7 @@ async function getRecentActivityQuery(
   { cursor, limit, from, to }: GetRecentActivityQuery
 ): Promise<Result<CursorPage<RecentActivityItem>>> {
   'use cache';
-  cacheTag(cacheTags.jobApplications(userId));
+  cacheTag(cacheTags.jobApplications(userId), cacheTags.organizations(userId));
 
   let dbQuery = db.ApplicationStatusHistory.where((change) =>
     change.jobApplication.some((ja) => ja.userId.eq(uuid(userId)))

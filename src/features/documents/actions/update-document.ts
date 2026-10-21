@@ -64,6 +64,5 @@ export async function updateDocument(_state: SubmissionResult | undefined, formD
   }
 
   updateTag(cacheTags.documents(userId));
-  updateTag(cacheTags.jobApplications(userId));
   return submission.reply({ resetForm: true });
 }

@@ -48,7 +48,11 @@ async function getOrganizationsQuery(
   { page, pageSize, sortBy, filterBy, search }: GetOrganizationsQuery
 ): Promise<Page<Organization>> {
   'use cache';
-  cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
+  cacheTag(
+    cacheTags.organizations(userId),
+    cacheTags.jobApplications(userId),
+    cacheTags.documents(userId)
+  );
 
   const filteredQuery = db.Organization.where({ userId: uuid(userId) })
     .where(buildWhere(filterBy, ORGANIZATION_FILTERS))

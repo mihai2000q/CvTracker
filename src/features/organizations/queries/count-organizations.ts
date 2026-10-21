@@ -16,7 +16,8 @@ async function countOrganizationsQuery(
   statuses?: JobApplicationStatus[]
 ): Promise<number> {
   'use cache';
-  cacheTag(cacheTags.organizations(userId), cacheTags.jobApplications(userId));
+  cacheTag(cacheTags.organizations(userId));
+  if (statuses) cacheTag(cacheTags.jobApplications(userId));
 
   const organizations = db.Organization.where({ userId: uuid(userId) });
   const { total } = await (

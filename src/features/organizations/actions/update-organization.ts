@@ -51,6 +51,5 @@ export async function updateOrganization(_state: SubmissionResult | undefined, f
   }
 
   updateTag(cacheTags.organizations(userId));
-  updateTag(cacheTags.jobApplications(userId));
   return submission.reply({ resetForm: true });
 }

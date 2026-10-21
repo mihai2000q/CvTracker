@@ -14,7 +14,7 @@ export async function getStaleJobApplications(): Promise<StaleJobApplication[]> 
 async function getStaleJobApplicationsQuery(userId: string): Promise<StaleJobApplication[]> {
   'use cache';
   // Time makes an application silent without a write, so the list is only good for a while
-  cacheTag(cacheTags.jobApplications(userId));
+  cacheTag(cacheTags.jobApplications(userId), cacheTags.organizations(userId));
   cacheLife('hours');
 
   return findStaleJobApplications(db, userId);
