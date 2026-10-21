@@ -16,7 +16,7 @@ import { cacheTags } from '@/lib/cache-tags.ts';
 import { uuid } from '@database/field-values.ts';
 import { CursorPage, decodeCursor, encodeCursor } from '@/lib/pagination.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
-import { DocumentType as DbDocumentType } from '@database/enums.ts';
+import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
 
 export async function searchDocuments(
   query: SearchDocumentsQueryParams
@@ -40,8 +40,7 @@ export async function searchDocumentsQuery(
   let dbQuery = db.Document.select('id', 'name', 'originalFilename', 'type', 'size', 'uploadedAt')
     .where({
       userId: uuid(userId),
-      type:
-        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
+      type: MODEL_DOCUMENT_TYPES[type],
     })
     .orderBy([(c) => c.uploadedAt.desc(), (c) => c.name.asc(), (c) => c.id.desc()])
     .limit(limit + 1);

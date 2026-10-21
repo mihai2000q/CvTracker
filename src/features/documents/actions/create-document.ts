@@ -3,11 +3,10 @@
 import { updateTag } from 'next/cache';
 import { db } from '@database/db';
 import { sized, uuid } from '@database/field-values';
-import { DocumentType as DbDocumentType } from '@database/enums';
 import { constraintViolationReply } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
-import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
 import { storeDocument } from '@/features/documents/services/store-document.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
@@ -28,8 +27,7 @@ export async function createDocument(_state: SubmissionResult | undefined, formD
 
   try {
     await db.Document.create({
-      type:
-        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
+      type: MODEL_DOCUMENT_TYPES[type],
       name: sized<150>(name),
       originalFilename: sized<255>(storedFile.originalFilename),
       filePath: storedFile.filePath,

@@ -1,10 +1,10 @@
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
-import { DocumentType as DbDocumentType } from '@database/enums';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
 
 // The user's documents, or only one type of them
 export async function countDocuments(type?: DocumentType): Promise<number> {
@@ -18,10 +18,7 @@ async function countDocumentsQuery(userId: string, type?: DocumentType): Promise
 
   const { total } = await db.Document.where({
     userId: uuid(userId),
-    ...(type && {
-      type:
-        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
-    }),
+    ...(type && { type: MODEL_DOCUMENT_TYPES[type] }),
   }).aggregate((aggregate) => ({ total: aggregate.count() }));
   return total;
 }

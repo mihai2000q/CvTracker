@@ -25,3 +25,18 @@ export const toDocumentSummary = (
   size: row.size,
   uploadedAt: row.uploadedAt,
 });
+
+export const toDocument = (
+  row: Omit<Document, 'type' | 'jobApplicationsCount'> & {
+    type: string;
+    coverLetterForJobApplications: number;
+    cvForJobApplications: number;
+  }
+): Document => ({
+  ...toDocumentSummary(row),
+  filePath: row.filePath,
+  notes: row.notes,
+  // A document is used as a CV or as a cover letter, per its type, so only one of the two counts
+  // is above zero
+  jobApplicationsCount: row.coverLetterForJobApplications || row.cvForJobApplications,
+});

@@ -1,9 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { requireEnv } from '@/lib/env.ts';
-
-const UPLOADS_DIR = path.resolve(requireEnv('DOCUMENTS_UPLOADS_DIRECTORY'));
+import { resolveStoredPath } from '@/features/documents/services/stored-document-path.ts';
 
 export interface StoredDocument {
   filePath: string;
@@ -16,7 +14,7 @@ export interface StoredDocument {
 export async function storeDocument(userId: string, file: File): Promise<StoredDocument> {
   const extension = path.extname(file.name).toLowerCase();
   const filePath = path.posix.join(userId, `${randomUUID()}${extension}`);
-  const absolutePath = path.join(UPLOADS_DIR, ...filePath.split('/'));
+  const absolutePath = resolveStoredPath(filePath);
 
   await mkdir(path.dirname(absolutePath), { recursive: true });
   await writeFile(absolutePath, Buffer.from(await file.arrayBuffer()));
@@ -36,5 +34,5 @@ function truncateFilename(filename: string) {
 }
 
 export async function removeStoredDocument(filePath: string) {
-  await rm(path.join(UPLOADS_DIR, ...filePath.split('/')), { force: true });
+  await rm(resolveStoredPath(filePath), { force: true });
 }

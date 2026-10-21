@@ -3,11 +3,10 @@
 import { updateTag } from 'next/cache';
 import { db } from '@database/db';
 import { sized, uuid } from '@database/field-values';
-import { DocumentType as DbDocumentType } from '@database/enums';
 import { constraintViolationReply } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import { updateDocumentSchema } from '@/features/documents/schemas/update-document-schema.ts';
-import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
+import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
 import {
   removeStoredDocument,
   storeDocument,
@@ -46,8 +45,7 @@ export async function updateDocument(_state: SubmissionResult | undefined, formD
 
   try {
     await db.Document.where({ id: uuid(id) }).update({
-      type:
-        type === DocumentType.CV ? DbDocumentType.members.Cv : DbDocumentType.members.CoverLetter,
+      type: MODEL_DOCUMENT_TYPES[type],
       name: sized<150>(name),
       notes: notes ?? null,
       ...(storedFile && {

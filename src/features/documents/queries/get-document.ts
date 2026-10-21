@@ -1,4 +1,4 @@
-import { Document } from '@/features/documents/types/document.ts';
+import { Document, toDocument } from '@/features/documents/types/document.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
@@ -7,7 +7,6 @@ import { cacheTags } from '@/lib/cache-tags.ts';
 import { z } from 'zod';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
-import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 
 export async function getDocument(id: string): Promise<Result<Document | null>> {
   const userId = getUserId(await verifySession());
@@ -33,15 +32,5 @@ async function getDocumentQuery(userId: string, id: string): Promise<Document | 
     return null;
   }
 
-  return {
-    id: document.id,
-    name: document.name,
-    type: document.type as DocumentType,
-    filePath: document.filePath,
-    originalFilename: document.originalFilename,
-    size: document.size,
-    notes: document.notes,
-    uploadedAt: document.uploadedAt,
-    jobApplicationsCount: document.coverLetterForJobApplications || document.cvForJobApplications,
-  };
+  return toDocument(document);
 }

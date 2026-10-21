@@ -1,4 +1,4 @@
-import { Document } from '@/features/documents/types/document.ts';
+import { Document, toDocument } from '@/features/documents/types/document.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
@@ -13,7 +13,6 @@ import { Page } from '@/lib/pagination.ts';
 import { Result } from '@/types/result.ts';
 import { paginate } from '@database/paginate.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
-import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 import { buildOrderBy } from '@database/sort.ts';
 import { buildSearch, buildWhere } from '@database/filter.ts';
 import {
@@ -57,17 +56,5 @@ async function getDocumentsQuery(
     filteredQuery.aggregate((aggregate) => ({ totalCount: aggregate.count() })),
   ]);
 
-  const documents = models.map((document) => ({
-    id: document.id,
-    name: document.name,
-    type: document.type as DocumentType,
-    filePath: document.filePath,
-    originalFilename: document.originalFilename,
-    size: document.size,
-    notes: document.notes,
-    uploadedAt: document.uploadedAt,
-    jobApplicationsCount: document.coverLetterForJobApplications || document.cvForJobApplications,
-  }));
-
-  return { items: documents, totalCount };
+  return { items: models.map(toDocument), totalCount };
 }
