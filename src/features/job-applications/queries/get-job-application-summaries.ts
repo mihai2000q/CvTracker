@@ -1,3 +1,4 @@
+import 'server-only';
 import { all, or } from '@prisma/orm-postgres/orm-client';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';

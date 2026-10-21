@@ -1,3 +1,4 @@
+import 'server-only';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';

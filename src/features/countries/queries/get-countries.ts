@@ -1,3 +1,4 @@
+import 'server-only';
 import { Country } from '@/features/countries/types/country.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';

@@ -1,3 +1,4 @@
+import 'server-only';
 import { db } from '@database/db.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheLife, cacheTag } from 'next/cache';

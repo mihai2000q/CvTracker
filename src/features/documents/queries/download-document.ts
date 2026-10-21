@@ -1,3 +1,4 @@
+import 'server-only';
 import path from 'node:path';
 import { z } from 'zod';
 import { db } from '@database/db';

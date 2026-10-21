@@ -1,3 +1,4 @@
+import 'server-only';
 import ExcelJS from 'exceljs';
 import { format as formatDate } from 'date-fns';
 import { db } from '@database/db.ts';

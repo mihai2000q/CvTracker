@@ -1,3 +1,4 @@
+import 'server-only';
 import { Document, toDocument } from '@/features/documents/types/document.ts';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';

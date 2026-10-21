@@ -1,3 +1,4 @@
+import 'server-only';
 import { db } from '@database/db.ts';
 import { DocumentType as DbDocumentType } from '@database/enums';
 import { uuid } from '@database/field-values';

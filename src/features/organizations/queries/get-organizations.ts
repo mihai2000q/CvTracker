@@ -1,3 +1,4 @@
+import 'server-only';
 import { toOrganizationJobApplication } from '@/features/organizations/types/organization-job-application.ts';
 import {
   Organization,
