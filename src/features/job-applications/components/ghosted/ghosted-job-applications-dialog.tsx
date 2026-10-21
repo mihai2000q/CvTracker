@@ -70,11 +70,12 @@ const GhostedJobApplicationsDialog = ({ jobApplications, children }: Props) => {
     setSelected(checked ? new Set(jobApplications.map(({ id }) => id)) : new Set());
   }
 
-  const selectedCount = jobApplications.filter(({ id }) => selected.has(id)).length;
+  const selectedIds = jobApplications.map(({ id }) => id).filter((id) => selected.has(id));
+  const selectedCount = selectedIds.length;
   const allSelected = selectedCount === jobApplications.length;
 
   function handleMark() {
-    run(() => markGhostedJobApplications([...selected]), {
+    run(() => markGhostedJobApplications(selectedIds), {
       onSuccess: (undoData) => {
         setOpen(false);
         if (!undoData || undoData.applications.length === 0) {
