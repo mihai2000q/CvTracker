@@ -35,7 +35,6 @@ const DeleteOrganizationAlertDialog = ({
 }: Props) => {
   const queryClient = useQueryClient();
   const [isPending, run] = useResultTransition();
-  const jobsCount = jobApplicationsCount;
 
   function handleDelete() {
     run(() => deleteOrganization(organization.id), {
@@ -58,11 +57,12 @@ const DeleteOrganizationAlertDialog = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Delete {organization.name}?</AlertDialogTitle>
           <AlertDialogDescription>
-            {jobsCount > 0 ? (
+            {jobApplicationsCount > 0 ? (
               <>
                 This will also permanently delete{' '}
                 <b>
-                  {jobsCount} job {jobsCount === 1 ? 'application' : 'applications'}
+                  {jobApplicationsCount} job{' '}
+                  {jobApplicationsCount === 1 ? 'application' : 'applications'}
                 </b>{' '}
                 sent to this organization, with their interview rounds. This action cannot be
                 undone.
