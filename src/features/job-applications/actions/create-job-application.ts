@@ -14,6 +14,7 @@ import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
+import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 
 export async function createJobApplication(
@@ -47,6 +48,11 @@ export async function createJobApplication(
     notes,
     skillIds,
   } = submission.value;
+
+  const documentTypeErrors = await checkDocumentTypes({ cvDocumentId, coverLetterDocumentId });
+  if (documentTypeErrors) {
+    return submission.reply({ fieldErrors: documentTypeErrors });
+  }
 
   let storedCv: StoredDocument | undefined;
   let storedCoverLetter: StoredDocument | undefined;

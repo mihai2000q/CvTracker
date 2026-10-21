@@ -13,6 +13,7 @@ import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
+import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 import { updateJobApplicationSchema } from '@/features/job-applications/schemas/update-job-application-schema.ts';
 
@@ -50,6 +51,11 @@ export async function updateJobApplication(
   const existing = await db.JobApplication.first({ id: uuid(id) });
   if (!existing) {
     return submission.reply({ formErrors: ['Job application not found'] });
+  }
+
+  const documentTypeErrors = await checkDocumentTypes({ cvDocumentId, coverLetterDocumentId });
+  if (documentTypeErrors) {
+    return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
   let storedCv: StoredDocument | undefined;
