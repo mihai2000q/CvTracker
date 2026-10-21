@@ -2,7 +2,10 @@ import 'server-only';
 import { db } from '@database/db.ts';
 import { Result } from '@/types/result.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
-import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
+import {
+  OrganizationSummary,
+  toOrganizationSummary,
+} from '@/features/organizations/types/organization.ts';
 import {
   SearchOrganizationsQuery,
   SearchOrganizationsQueryInput,
@@ -56,11 +59,7 @@ export async function searchOrganizationsQuery(
   const last = models[models.length - 1];
   const nextCursor = hasMore ? encodeCursor(last.updatedAt, last.name, last.id) : null;
 
-  const items: OrganizationSummary[] = models.map(({ id, name, organizationCountries }) => ({
-    id,
-    name,
-    countries: organizationCountries.map((c) => c.country),
-  }));
+  const items: OrganizationSummary[] = models.map(toOrganizationSummary);
 
   return {
     success: true,
