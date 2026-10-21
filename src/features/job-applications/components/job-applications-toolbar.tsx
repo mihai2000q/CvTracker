@@ -2,6 +2,7 @@ import React from 'react';
 import { RiBuildingLine, RiFileFill, RiFileLine, RiGlobalLine, RiLink } from '@remixicon/react';
 import LinkMultiCombobox from '@/components/combobox/link-multi-combobox.tsx';
 import FlagIcon from '@/features/countries/components/flag-icon.tsx';
+import AppliedAtFilter from '@/features/job-applications/components/applied-at-filter.tsx';
 import JobApplicationSourceIcon from '@/features/job-applications/components/source/job-application-source-icon.tsx';
 import JobApplicationsSearchInput from '@/features/job-applications/components/job-applications-search-input.tsx';
 import { JOB_SOURCES } from '@/features/job-applications/constants/job-sources.ts';
@@ -61,7 +62,9 @@ const JobApplicationsToolbar = ({
         }))}
         allLabel="All countries"
         clearHref={clearHref('country')}
-        inputProps={{ className: 'w-full sm:w-50' }}
+        contentClassName={'w-55'}
+        contentAlign={'center'}
+        inputProps={{ className: 'w-full sm:w-45' }}
       />
 
       <LinkMultiCombobox
@@ -93,6 +96,8 @@ const JobApplicationsToolbar = ({
         contentClassName={WIDE_DROPDOWN}
         inputProps={{ className: 'w-full sm:w-45' }}
       />
+
+      <AppliedAtFilter className={'w-full sm:w-48'} />
     </div>
   );
 };
