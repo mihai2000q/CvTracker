@@ -1,12 +1,9 @@
 import { z } from 'zod';
 import { Temporal } from 'temporal-polyfill';
-import { zEmptyToUndefined, zToArray } from '@/lib/zod/fields.ts';
+import { zEmptyToUndefined } from '@/lib/zod/fields.ts';
 import { todayIn } from '@/lib/time-zone.ts';
-import {
-  scheduledAtFields,
-  toScheduledAt,
-} from '@/features/job-applications/schemas/scheduled-at-fields.ts';
-import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
+import { interviewRoundSchema } from '@/features/job-applications/schemas/interview-round-schema.ts';
+import { toScheduledAt } from '@/features/job-applications/schemas/scheduled-at-fields.ts';
 
 const newContactFields = z.object({
   name: z.string('Name is required').trim().min(1, 'Name is required').max(150, 'Name is too long'),
@@ -27,13 +24,9 @@ const newContactSchema = z.preprocess(
   newContactFields
 );
 
-const scheduleInterviewFields = z.object({
+const scheduleInterviewFields = interviewRoundSchema.extend({
   jobApplicationId: z.uuid('Job application is invalid'),
-  roundType: z.enum(RoundType, 'Round type is required'),
-  ...scheduledAtFields,
-  contactIds: zToArray(z.array(z.uuid('Contact is invalid'))),
   newContact: newContactSchema.optional(),
-  notes: zEmptyToUndefined(z.string().trim().optional()),
 });
 
 // Only an interview still to come is scheduled, so the moment must not have passed. It is

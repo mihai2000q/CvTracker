@@ -1,18 +1,10 @@
 import { z } from 'zod';
-import { zEmptyToUndefined, zToArray } from '@/lib/zod/fields.ts';
-import {
-  scheduledAtFields,
-  toScheduledAt,
-} from '@/features/job-applications/schemas/scheduled-at-fields.ts';
-import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
+import { interviewRoundSchema } from '@/features/job-applications/schemas/interview-round-schema.ts';
+import { toScheduledAt } from '@/features/job-applications/schemas/scheduled-at-fields.ts';
 
-const updateInterviewRoundFields = z.object({
+// A round that has happened is edited too, so its moment can be in the past
+const updateInterviewRoundFields = interviewRoundSchema.extend({
   id: z.uuid('Interview round is invalid'),
-  roundType: z.enum(RoundType, 'Round type is required'),
-  // A round that has happened is edited too, so its moment can be in the past
-  ...scheduledAtFields,
-  contactIds: zToArray(z.array(z.uuid('Contact is invalid'))),
-  notes: zEmptyToUndefined(z.string().trim().optional()),
 });
 
 export const updateInterviewRoundSchema = updateInterviewRoundFields.transform(
