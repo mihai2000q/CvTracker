@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { type FieldMetadata } from '@conform-to/react';
 import FormField from '@/components/form/form-field.tsx';

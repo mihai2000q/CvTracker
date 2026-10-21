@@ -1,3 +1,5 @@
+'use client';
+
 import React, { type ComponentProps, useRef, useState } from 'react';
 import {
   Attachment,
