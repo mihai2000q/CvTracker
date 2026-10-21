@@ -9,10 +9,8 @@ import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import {
-  NewContactForm,
-  scheduleInterviewSchema,
-} from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { scheduleInterviewSchema } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { ContactForm } from '@/features/organizations/schemas/contact-schema.ts';
 import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { MODEL_ROUND_TYPES } from '@/features/job-applications/types/enums/model-round-type.ts';
@@ -73,7 +71,7 @@ type JoinInput = Parameters<typeof db.InterviewRoundHasContact.create>[0];
 type NewContactRelation = Extract<NonNullable<JoinInput['contact']>, (...args: never[]) => unknown>;
 
 function createNewContact(
-  { name, email, phone, role }: NewContactForm,
+  { name, email, phone, role }: ContactForm,
   organizationId: string
 ): NewContactRelation {
   return (contact) =>

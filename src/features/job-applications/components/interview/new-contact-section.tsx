@@ -15,17 +15,15 @@ import { Input } from '@/components/ui/input.tsx';
 import { useFieldControl } from '@/hooks/use-field-control.ts';
 import ContactRoleCombobox from '@/features/organizations/components/contact/contact-role-combobox.tsx';
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group.tsx';
-import {
-  NewContactForm,
-  ScheduleInterviewForm,
-} from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { ScheduleInterviewForm } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
+import { ContactForm } from '@/features/organizations/schemas/contact-schema.ts';
 import { cn } from '@/lib/utils.ts';
 
 const NewContactSection = ({
   contact,
   onClose,
 }: {
-  contact: FieldMetadata<NewContactForm | undefined, ScheduleInterviewForm>;
+  contact: FieldMetadata<ContactForm | undefined, ScheduleInterviewForm>;
   onClose: () => void;
 }) => {
   const [open, setOpen] = useState(false);

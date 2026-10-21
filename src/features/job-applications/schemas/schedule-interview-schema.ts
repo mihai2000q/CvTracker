@@ -1,16 +1,9 @@
 import { z } from 'zod';
 import { Temporal } from 'temporal-polyfill';
-import { zEmptyToUndefined } from '@/lib/zod/fields.ts';
 import { todayIn } from '@/lib/time-zone.ts';
+import { contactSchema } from '@/features/organizations/schemas/contact-schema.ts';
 import { interviewRoundSchema } from '@/features/job-applications/schemas/interview-round-schema.ts';
 import { toScheduledAt } from '@/features/job-applications/schemas/scheduled-at-fields.ts';
-
-const newContactFields = z.object({
-  name: z.string('Name is required').trim().min(1, 'Name is required').max(150, 'Name is too long'),
-  email: zEmptyToUndefined(z.email('Email is invalid').max(255, 'Email is too long').optional()),
-  phone: zEmptyToUndefined(z.string().trim().max(50, 'Phone is too long').optional()),
-  role: zEmptyToUndefined(z.string().trim().max(100, 'Role is too long').optional()),
-});
 
 // A section left open but empty is no contact at all, so it becomes undefined before the
 // fields are checked. Anything typed in it makes the name required
@@ -21,7 +14,7 @@ const newContactSchema = z.preprocess(
     Object.values(value).every((field) => field === '' || field === undefined)
       ? undefined
       : value,
-  newContactFields
+  contactSchema
 );
 
 const scheduleInterviewFields = interviewRoundSchema.extend({
@@ -49,4 +42,3 @@ export const scheduleInterviewSchema = scheduleInterviewFields.transform(
 
 // What the form holds, which is not what it submits: the moment comes from three of its fields
 export type ScheduleInterviewForm = z.infer<typeof scheduleInterviewFields>;
-export type NewContactForm = z.infer<typeof newContactFields>;
