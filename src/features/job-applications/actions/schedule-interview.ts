@@ -2,6 +2,7 @@
 
 import { db, dbClient } from '@database/db';
 import { sized, uuid } from '@database/field-values';
+import { isForeignKeyConstraintError } from '@database/sql-error';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
@@ -33,28 +34,35 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
     return submission.reply({ formErrors: ['Job application not found'] });
   }
 
-  await dbClient.transaction(async ({ orm }) => {
-    const tx = orm.public;
+  try {
+    await dbClient.transaction(async ({ orm }) => {
+      const tx = orm.public;
 
-    await tx.InterviewRound.create({
-      jobApplicationId: uuid(jobApplicationId),
-      roundType: MODEL_ROUND_TYPES[roundType],
-      scheduledAt,
-      notes,
-      // Each contact of the round is an id, or a new one created here
-      contacts: (roundContacts) =>
-        roundContacts.create([
-          ...[...new Set(contactIds)].map((contactId) => ({ contactId: uuid(contactId) })),
-          ...(newContact
-            ? [{ contact: createNewContact(newContact, jobApplication.organizationId) }]
-            : []),
-        ]),
+      await tx.InterviewRound.create({
+        jobApplicationId: uuid(jobApplicationId),
+        roundType: MODEL_ROUND_TYPES[roundType],
+        scheduledAt,
+        notes,
+        // Each contact of the round is an id, or a new one created here
+        contacts: (roundContacts) =>
+          roundContacts.create([
+            ...[...new Set(contactIds)].map((contactId) => ({ contactId: uuid(contactId) })),
+            ...(newContact
+              ? [{ contact: createNewContact(newContact, jobApplication.organizationId) }]
+              : []),
+          ]),
+      });
+
+      const moveToInterview = STATUSES_BEFORE_INTERVIEW.includes(jobApplication.currentStatus);
+      if (!moveToInterview) return;
+      await recordStatusChange(tx, [jobApplicationId], JobApplicationStatus.Interview);
     });
-
-    const moveToInterview = STATUSES_BEFORE_INTERVIEW.includes(jobApplication.currentStatus);
-    if (!moveToInterview) return;
-    await recordStatusChange(tx, [jobApplicationId], JobApplicationStatus.Interview);
-  });
+  } catch (error) {
+    if (isForeignKeyConstraintError(error)) {
+      return submission.reply({ formErrors: ['One of the selected contacts no longer exists.'] });
+    }
+    throw error;
+  }
 
   updateTag(cacheTags.jobApplications(userId));
   if (newContact) updateTag(cacheTags.contacts(jobApplication.organizationId));
