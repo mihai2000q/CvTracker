@@ -15,11 +15,7 @@ interface Options {
   title?: string;
 }
 
-export function useChangeJobApplicationStatus({
-  jobApplicationId,
-  currentStatus,
-  title,
-}: Options) {
+export function useChangeJobApplicationStatus({ jobApplicationId, currentStatus, title }: Options) {
   const [isPending, run] = useResultTransition();
 
   function changeStatus(status: JobApplicationStatus, note?: string) {
