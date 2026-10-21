@@ -49,7 +49,7 @@ function TableRow({ className, ...props }: React.ComponentProps<'tr'>) {
     <tr
       data-slot="table-row"
       className={cn(
-        'not-in-data-[slot=table-header]:hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted transition-colors',
+        'not-in-data-[slot=table-header]:hover:bg-muted/50 has-aria-expanded:bg-muted/50 aria-selected:bg-muted transition-colors',
         className
       )}
       {...props}

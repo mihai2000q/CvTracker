@@ -264,7 +264,8 @@ function ComboboxChipsInput({ className, disabled, ...props }: ComboboxPrimitive
   return (
     <ComboboxPrimitive.Input
       data-slot="combobox-chip-input"
-      data-disabled={disabled}
+      disabled={disabled}
+      data-disabled={disabled ? '' : undefined}
       className={cn('min-w-16 flex-1 outline-none', 'data-disabled:cursor-not-allowed', className)}
       {...props}
     />

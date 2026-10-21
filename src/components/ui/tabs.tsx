@@ -10,6 +10,7 @@ function Tabs({ className, orientation = 'horizontal', ...props }: TabsPrimitive
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
+      orientation={orientation}
       data-orientation={orientation}
       // The line variant carries its own separator, so nothing is spaced between it and the panels
       className={cn(
