@@ -60,14 +60,17 @@ export async function findStaleJobApplications(
     }));
 }
 
-// Moves every stale application to Ghosted, records the move in each one's history and cancels
-// the interview rounds still to come. The list is worked out again here, not taken from the
-// page, so it is the one the user is looking at only if nothing changed since. It says what it
-// takes to put them back
-export async function ghost(userId: string): Promise<GhostedUndo> {
+// Moves the chosen stale applications to Ghosted, records the move in each one's history and
+// cancels the interview rounds still to come. The stale list is worked out again here, not taken
+// from the page, so one that is no longer stale is left alone. It says what it takes to put them
+// back
+export async function ghost(userId: string, chosenIds: string[]): Promise<GhostedUndo> {
   return dbClient.transaction(async ({ orm }) => {
     const tx = orm.public;
-    const jobApplications = await findStaleJobApplications(tx, userId);
+    const chosen = new Set(chosenIds);
+    const jobApplications = (await findStaleJobApplications(tx, userId)).filter(({ id }) =>
+      chosen.has(id)
+    );
     if (jobApplications.length === 0) return { applications: [], historyIds: [] };
 
     const ids = jobApplications.map(({ id }) => id);

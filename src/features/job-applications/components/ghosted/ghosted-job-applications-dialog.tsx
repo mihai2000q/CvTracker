@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog.tsx';
+import { Checkbox } from '@/components/ui/checkbox.tsx';
 import { toast } from '@/components/ui/toast.tsx';
 import OrganizationAvatar from '@/features/organizations/components/organization/organization-avatar.tsx';
 import StaleJobApplicationHoverCard from '@/features/job-applications/components/ghosted/stale-job-application-hover-card.tsx';
@@ -34,6 +35,7 @@ interface Props {
 
 const GhostedJobApplicationsDialog = ({ jobApplications, children }: Props) => {
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isPending, run] = useResultTransition();
   const [isUndoing, runUndo] = useResultTransition();
 
@@ -49,8 +51,30 @@ const GhostedJobApplicationsDialog = ({ jobApplications, children }: Props) => {
     });
   }
 
+  function handleOpenChange(nextOpen: boolean) {
+    // Every application starts checked, whatever was unchecked last time
+    if (nextOpen) setSelected(new Set(jobApplications.map(({ id }) => id)));
+    setOpen(nextOpen);
+  }
+
+  function toggle(id: string, checked: boolean) {
+    setSelected((current) => {
+      const next = new Set(current);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  function toggleAll(checked: boolean) {
+    setSelected(checked ? new Set(jobApplications.map(({ id }) => id)) : new Set());
+  }
+
+  const selectedCount = jobApplications.filter(({ id }) => selected.has(id)).length;
+  const allSelected = selectedCount === jobApplications.length;
+
   function handleMark() {
-    run(markGhostedJobApplications, {
+    run(() => markGhostedJobApplications([...selected]), {
       onSuccess: (undoData) => {
         setOpen(false);
         if (!undoData || undoData.applications.length === 0) {
@@ -77,12 +101,12 @@ const GhostedJobApplicationsDialog = ({ jobApplications, children }: Props) => {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogTrigger render={children} />
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>
-            Mark {jobApplications.length}{' '}
+            Mark {selectedCount} of {jobApplications.length}{' '}
             {jobApplications.length === 1 ? 'application' : 'applications'} as ghosted?
           </AlertDialogTitle>
           <AlertDialogDescription>
@@ -92,34 +116,54 @@ const GhostedJobApplicationsDialog = ({ jobApplications, children }: Props) => {
           </AlertDialogDescription>
         </AlertDialogHeader>
 
+        <label className={'flex cursor-pointer items-center gap-2.5 text-sm font-medium'}>
+          <Checkbox
+            className={'mb-0.5'}
+            checked={allSelected}
+            indeterminate={selectedCount > 0 && !allSelected}
+            onCheckedChange={toggleAll}
+          />
+          Select all
+        </label>
+
         <ul className={'flex max-h-60 flex-col gap-2 overflow-y-auto text-sm'}>
           {jobApplications.map((jobApplication) => (
-            <li key={jobApplication.id} className={'flex items-center gap-2.5'}>
-              <StaleJobApplicationHoverCard jobApplication={jobApplication}>
-                <OrganizationAvatar
-                  organization={jobApplication.organization}
-                  variant={'outline'}
-                  className={'size-7 shrink-0 rounded-md'}
-                  letterClassName={'text-xs'}
+            <li key={jobApplication.id}>
+              <label className={'flex cursor-pointer items-center gap-2.5'}>
+                <Checkbox
+                  checked={selected.has(jobApplication.id)}
+                  onCheckedChange={(checked) => toggle(jobApplication.id, checked)}
                 />
-              </StaleJobApplicationHoverCard>
-              <div className={'flex min-w-0 flex-1 flex-col leading-tight'}>
-                <span className={'truncate'}>{jobApplication.title}</span>
-                <span className={'text-muted-foreground truncate text-xs'}>
-                  {jobApplication.organization.name}
-                </span>
-              </div>
-              <PastDate
-                date={jobApplication.lastUpdate}
-                className={'text-muted-foreground shrink-0 text-xs'}
-              />
+                <StaleJobApplicationHoverCard jobApplication={jobApplication}>
+                  <OrganizationAvatar
+                    organization={jobApplication.organization}
+                    variant={'outline'}
+                    className={'size-7 shrink-0 rounded-md'}
+                    letterClassName={'text-xs'}
+                  />
+                </StaleJobApplicationHoverCard>
+                <div className={'flex min-w-0 flex-1 flex-col leading-tight'}>
+                  <span className={'truncate'}>{jobApplication.title}</span>
+                  <span className={'text-muted-foreground truncate text-xs'}>
+                    {jobApplication.organization.name}
+                  </span>
+                </div>
+                <PastDate
+                  date={jobApplication.lastUpdate}
+                  className={'text-muted-foreground shrink-0 text-xs'}
+                />
+              </label>
             </li>
           ))}
         </ul>
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction loading={isPending} onClick={handleMark}>
+          <AlertDialogAction
+            loading={isPending}
+            disabled={selectedCount === 0}
+            onClick={handleMark}
+          >
             Mark as {JOB_APPLICATION_STATUSES[JobApplicationStatus.NoResponse]}
           </AlertDialogAction>
         </AlertDialogFooter>
