@@ -97,7 +97,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
 
           <ScrollArea>
             <FieldGroup key={resetKey} className={'max-h-[55vh] px-6 pt-4'}>
-              <FormField field={fields.title} label="Name" required>
+              <FormField field={fields.title} label="Title" required>
                 <Input
                   {...getInputProps(fields.title, { type: 'text' })}
                   placeholder="e.g. Software Engineer"
