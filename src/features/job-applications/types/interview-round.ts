@@ -12,6 +12,11 @@ export interface InterviewRound {
   contacts: Contact[];
 }
 
+// Upcoming: still Scheduled, and yet to take place. A round that was settled by hand or by a
+// decision on the application is not, even when its date has not come
+export const isUpcoming = (round: InterviewRound, now: Date) =>
+  round.outcome === InterviewOutcome.Scheduled && new Date(round.scheduledAt) >= now;
+
 export const toInterviewRound = (
   row: Omit<InterviewRound, 'roundType' | 'outcome' | 'contacts'> & {
     roundType: string;

@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator.tsx';
 import InterviewOutcomeBadge from '@/features/job-applications/components/interview/interview-outcome-badge.tsx';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
-import { InterviewRound } from '@/features/job-applications/types/interview-round.ts';
+import { InterviewRound, isUpcoming } from '@/features/job-applications/types/interview-round.ts';
 
 // The year is only worth saying when it isn't this one
 const formatDate = (date: Date) =>
@@ -21,9 +21,7 @@ const MAX_CONTACTS = 2;
 // The rounds to show, starting at the next one still to come (or ending at the last when it is
 // near the end), and how many are left out
 function pickRounds(rounds: InterviewRound[], now: Date) {
-  const upcoming = rounds.findIndex(
-    (round) => round.outcome !== InterviewOutcome.Cancelled && new Date(round.scheduledAt) >= now
-  );
+  const upcoming = rounds.findIndex((round) => isUpcoming(round, now));
   const next = upcoming === -1 ? rounds.length - 1 : upcoming;
   const start = Math.min(next, Math.max(rounds.length - MAX_ROUNDS, 0));
   const shown = rounds.slice(start, start + MAX_ROUNDS);
