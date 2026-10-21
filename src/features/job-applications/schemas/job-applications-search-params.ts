@@ -17,7 +17,15 @@ const jobApplicationsSearchParamsSchema = z.object({
   sortBy: getJobApplicationsQuerySchema.shape.sortBy
     .catch([])
     .transform((sortBy) => (sortBy.length > 0 ? sortBy : DEFAULT_JOB_APPLICATION_SORT_BY)),
-  filterBy: getJobApplicationsQuerySchema.shape.filterBy.catch([]),
+  // The applied-at control sets the two ends of a range, so any other comparison of it in the URL
+  // is left out, rather than filtering with nothing in the toolbar to show it
+  filterBy: getJobApplicationsQuerySchema.shape.filterBy
+    .catch([])
+    .transform((filterBy) =>
+      filterBy.filter(
+        ({ field, operator }) => field !== 'appliedAt' || operator === 'gte' || operator === 'lte'
+      )
+    ),
   search: getJobApplicationsQuerySchema.shape.search.catch(undefined),
 });
 
