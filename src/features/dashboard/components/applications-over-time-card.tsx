@@ -11,7 +11,11 @@ import { getDashboardStats } from '@/features/dashboard/queries/get-dashboard-st
 import type { DashboardPeriod } from '@/features/dashboard/types/dashboard-filtering.ts';
 
 const ApplicationsOverTimeCard = async ({ period }: { period: DashboardPeriod }) => {
-  const { applicationsOverTime } = await getDashboardStats(period);
+  const result = await getDashboardStats(period);
+  if (!result.success) {
+    throw new Error('The dashboard stats could not be loaded');
+  }
+  const { applicationsOverTime } = result.data;
   const total = applicationsOverTime.reduce((sum, bucket) => sum + bucket.count, 0);
 
   return (

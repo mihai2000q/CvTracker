@@ -14,6 +14,12 @@ import { uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
+import { zodValidate } from '@/lib/zod/parse.ts';
+import { Result } from '@/types/result.ts';
+import {
+  GetDashboardStatsQueryInput,
+  getDashboardStatsQuerySchema,
+} from '@/features/dashboard/schemas/get-dashboard-stats-schema.ts';
 import { getComparisonPeriod } from '@/features/dashboard/services/dashboard-period.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import {
@@ -49,9 +55,17 @@ const SCREENING_STAGE = PIPELINE.indexOf(JobApplicationStatus.Screening);
 const INTERVIEW_STAGE = PIPELINE.indexOf(JobApplicationStatus.Interview);
 const OFFER_STAGE = PIPELINE.indexOf(JobApplicationStatus.Offer);
 
-export async function getDashboardStats(period: DashboardPeriod): Promise<DashboardStats> {
+export async function getDashboardStats(
+  query: GetDashboardStatsQueryInput
+): Promise<Result<DashboardStats>> {
   const userId = getUserId(await verifySession());
-  return getDashboardStatsQuery(userId, period);
+
+  const parsed = zodValidate(query, getDashboardStatsQuerySchema);
+  if (!parsed.success) {
+    return parsed;
+  }
+
+  return { success: true, data: await getDashboardStatsQuery(userId, parsed.data) };
 }
 
 // The applications of a user that were applied to between two days, both included, or from the

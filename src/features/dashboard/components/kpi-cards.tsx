@@ -79,7 +79,11 @@ const joinLabels = (statuses: readonly string[]) => {
 };
 
 const KpiCards = async ({ period }: { period: DashboardPeriod }) => {
-  const { kpis } = await getDashboardStats(period);
+  const result = await getDashboardStats(period);
+  if (!result.success) {
+    throw new Error('The dashboard stats could not be loaded');
+  }
+  const { kpis } = result.data;
 
   return (
     <div className="grid gap-4 max-sm:grid-cols-2 sm:grid-cols-3 xl:grid-cols-6">

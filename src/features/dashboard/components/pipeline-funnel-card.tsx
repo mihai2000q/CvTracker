@@ -44,7 +44,11 @@ const StatusBar = ({
 };
 
 const PipelineFunnelCard = async ({ period }: { period: DashboardPeriod }) => {
-  const { funnel, statusCounts, kpis } = await getDashboardStats(period);
+  const result = await getDashboardStats(period);
+  if (!result.success) {
+    throw new Error('The dashboard stats could not be loaded');
+  }
+  const { funnel, statusCounts, kpis } = result.data;
   const closed = statusCounts.filter(({ status }) => CLOSED_STATUSES.includes(status));
 
   return (

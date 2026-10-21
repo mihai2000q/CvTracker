@@ -11,7 +11,11 @@ import { getDashboardStats } from '@/features/dashboard/queries/get-dashboard-st
 import type { DashboardPeriod } from '@/features/dashboard/types/dashboard-filtering.ts';
 
 const StatusBreakdownCard = async ({ period }: { period: DashboardPeriod }) => {
-  const { statusCounts, kpis } = await getDashboardStats(period);
+  const result = await getDashboardStats(period);
+  if (!result.success) {
+    throw new Error('The dashboard stats could not be loaded');
+  }
+  const { statusCounts, kpis } = result.data;
   const present = statusCounts.filter(({ count }) => count > 0);
 
   return (
