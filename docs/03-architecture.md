@@ -63,10 +63,10 @@ flowchart TB
   application also creates its first status-history row", "scheduling an
   interview moves an application to `interview`", "a failed InterviewRound rejects an
   application when none is left to come". Queries and actions hold this; reusable pieces go to a
-  feature's `services/` (e.g. `cancel-upcoming-rounds`, `store-document`).
+  feature's `services/`, or a module named for the rule it keeps: `job-applications/lifecycle/` (status, status history and round outcomes) and `documents/stored-files/` (the files of the documents).
 - **Data layer** — the Prisma client (`database/db.ts`) and the filesystem.
   Everything above works with typed models, not SQL or file paths directly
-  (document files go through `store-document` / `read-document`).
+  (document files go through `documents/stored-files/`, behind a file adapter).
 
 This layering keeps business rules out of components and route handlers, and
 lets persistence details change without touching the other layers.
