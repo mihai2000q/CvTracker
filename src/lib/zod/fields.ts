@@ -8,12 +8,21 @@ export const ALLOWED_FILE_TYPES = [
   'application/vnd.oasis.opendocument.text',
 ];
 
+export const ALLOWED_FILE_EXTENSIONS = ['.pdf', '.doc', '.docx', '.odt'];
+
+// The type a browser reports is only what the sender claims, and the extension is what the file
+// is stored and served with, so both have to be allowed
 export const zFile = (name: string = 'File') =>
   z
     .file(`${name} is required`)
     .min(1, `${name} cannot be empty`)
     .max(MAX_FILE_SIZE, `${name} must be 10 MB or smaller`)
-    .mime(ALLOWED_FILE_TYPES, `${name} must be a PDF, Word or OpenDocument (.odt) file`);
+    .mime(ALLOWED_FILE_TYPES, `${name} must be a PDF, Word or OpenDocument (.odt) file`)
+    .refine(
+      (file) =>
+        ALLOWED_FILE_EXTENSIONS.some((extension) => file.name.toLowerCase().endsWith(extension)),
+      `${name} must be a PDF, Word or OpenDocument (.odt) file`
+    );
 
 // Conform strips an empty form field to `undefined` before validation —
 // that's what makes `.optional()` fields work correctly over FormData
