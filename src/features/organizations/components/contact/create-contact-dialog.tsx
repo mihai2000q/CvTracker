@@ -27,7 +27,7 @@ import ContactRoleCombobox from '@/features/organizations/components/contact/con
 import {
   CreateContactForm,
   createContactSchema,
-} from '@/features/organizations/schemas/contact-schema.ts';
+} from '@/features/organizations/schemas/create-contact-schema.ts';
 
 interface Props {
   organizationId: string;

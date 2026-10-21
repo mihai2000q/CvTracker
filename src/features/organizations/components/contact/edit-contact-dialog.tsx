@@ -26,7 +26,7 @@ import ContactRoleCombobox from '@/features/organizations/components/contact/con
 import {
   UpdateContactForm,
   updateContactSchema,
-} from '@/features/organizations/schemas/contact-schema.ts';
+} from '@/features/organizations/schemas/update-contact-schema.ts';
 import { Contact } from '@/features/organizations/types/contact.ts';
 
 interface Props {

@@ -6,7 +6,7 @@ import { sized, uuid } from '@database/field-values';
 import { getUserId, verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
-import { updateContactSchema } from '@/features/organizations/schemas/contact-schema.ts';
+import { updateContactSchema } from '@/features/organizations/schemas/update-contact-schema.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 
 export async function updateContact(_state: SubmissionResult | undefined, formData: FormData) {

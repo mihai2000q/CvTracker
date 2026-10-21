@@ -6,7 +6,7 @@ import { sized, uuid } from '@database/field-values';
 import { verifySession } from '@/lib/auth/session';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
-import { createContactSchema } from '@/features/organizations/schemas/contact-schema.ts';
+import { createContactSchema } from '@/features/organizations/schemas/create-contact-schema.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 
 export async function createContact(_state: SubmissionResult | undefined, formData: FormData) {
