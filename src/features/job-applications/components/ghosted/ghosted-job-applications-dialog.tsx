@@ -17,11 +17,9 @@ import OrganizationAvatar from '@/features/organizations/components/organization
 import StaleJobApplicationHoverCard from '@/features/job-applications/components/ghosted/stale-job-application-hover-card.tsx';
 import PastDate from '@/components/date/past-date.tsx';
 import { useResultTransition } from '@/hooks/use-result-transition.ts';
-import {
-  markGhostedJobApplications,
-  undoGhostedJobApplications,
-  type GhostedUndo,
-} from '@/features/job-applications/actions/mark-ghosted-job-applications.ts';
+import { markGhostedJobApplications } from '@/features/job-applications/actions/mark-ghosted-job-applications.ts';
+import { undoGhostedJobApplications } from '@/features/job-applications/actions/undo-ghosted-job-applications.ts';
+import type { GhostedUndo } from '@/features/job-applications/schemas/undo-ghosted-job-applications-schema.ts';
 import {
   GHOSTED_AFTER_MONTHS,
   JOB_APPLICATION_STATUSES,
