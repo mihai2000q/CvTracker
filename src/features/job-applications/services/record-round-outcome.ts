@@ -5,10 +5,10 @@ import { IN_PROGRESS_STATUSES } from '@/features/job-applications/constants/job-
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import {
-  DB_OUTCOMES,
-  readRounds,
+  applyRoundChanges,
+  readRoundsOf,
   type RoundState,
-} from '@/features/job-applications/services/read-rounds.ts';
+} from '@/features/job-applications/services/rounds.ts';
 import { isUpcoming } from '@/features/job-applications/services/upcoming.ts';
 import { InterviewOutcomeEffect } from '@/features/job-applications/types/interview-outcome-effect.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
@@ -53,14 +53,14 @@ export async function recordRoundOutcome(
     const round = await tx.InterviewRound.first({ id: uuid(interviewRoundId) });
     if (!round) return null;
 
-    await tx.InterviewRound.where({ id: round.id }).update({ outcome: DB_OUTCOMES[outcome] });
+    await applyRoundChanges(tx, [{ roundId: round.id, outcome }]);
 
     const jobApplication = await tx.JobApplication.first({ id: round.jobApplicationId });
     const { rejectionNote, effect } = planRoundOutcome(
       { id: round.id, roundType: round.roundType as RoundState['roundType'] },
       outcome,
       jobApplication?.currentStatus ?? '',
-      await readRounds(tx, round.jobApplicationId),
+      await readRoundsOf(tx, round.jobApplicationId),
       new Date()
     );
 

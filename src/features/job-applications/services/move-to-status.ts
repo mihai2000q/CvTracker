@@ -8,19 +8,14 @@ import {
 } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import {
-  DB_OUTCOMES,
-  readRounds,
+  applyRoundChanges,
+  readRoundsOf,
+  type RoundChange,
   type RoundState,
-} from '@/features/job-applications/services/read-rounds.ts';
-import type { Transaction } from '@database/db.ts';
+} from '@/features/job-applications/services/rounds.ts';
 import { isUpcoming } from '@/features/job-applications/services/upcoming.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-
-export interface RoundChange {
-  roundId: string;
-  outcome: InterviewOutcome.Passed | InterviewOutcome.Failed | InterviewOutcome.Cancelled;
-}
 
 // What moving an application to a status does to its rounds, which are given by date
 export function planStatusChange(
@@ -93,7 +88,7 @@ export async function moveToStatus(
 
     const { roundChanges, effect } = planStatusChange(
       status,
-      await readRounds(tx, jobApplicationId),
+      await readRoundsOf(tx, jobApplicationId),
       new Date()
     );
 
@@ -101,13 +96,4 @@ export async function moveToStatus(
     await applyRoundChanges(tx, roundChanges);
     return effect;
   });
-}
-
-async function applyRoundChanges(tx: Transaction, changes: RoundChange[]) {
-  for (const outcome of new Set(changes.map((change) => change.outcome))) {
-    const ids = changes.filter((change) => change.outcome === outcome).map((c) => c.roundId);
-    await tx.InterviewRound.where((round) => round.id.in(ids.map(uuid))).updateAll({
-      outcome: DB_OUTCOMES[outcome],
-    });
-  }
 }
