@@ -25,12 +25,11 @@ import { toast } from '@/components/ui/toast.tsx';
 import LocalDateTime from '@/components/date/local-date-time.tsx';
 import { useResultTransition } from '@/hooks/use-result-transition.ts';
 import { cn } from '@/lib/utils.ts';
-import { changeJobApplicationStatus } from '@/features/job-applications/actions/change-job-application-status.ts';
 import { setInterviewOutcome } from '@/features/job-applications/actions/set-interview-outcome.ts';
 import DeleteInterviewRoundAlertDialog from '@/features/job-applications/components/interview/delete-interview-round-alert-dialog.tsx';
 import EditInterviewRoundDialog from '@/features/job-applications/components/interview/edit-interview-round-dialog.tsx';
 import InterviewOutcomeBadge from '@/features/job-applications/components/interview/interview-outcome-badge.tsx';
-import { describeStatusChange } from '@/features/job-applications/constants/job-application-statuses.ts';
+import { useChangeJobApplicationStatus } from '@/features/job-applications/hooks/use-change-job-application-status.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { INTERVIEW_OUTCOME_LABELS } from '@/features/job-applications/constants/interview-outcomes.ts';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
@@ -45,6 +44,7 @@ interface Props {
 
 const InterviewRoundItem = ({ round, organizationId, jobApplicationId }: Props) => {
   const [isPending, run] = useResultTransition();
+  const [, changeStatus] = useChangeJobApplicationStatus({ jobApplicationId });
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const isCancelled = round.outcome === InterviewOutcome.Cancelled;
@@ -59,19 +59,8 @@ const InterviewRoundItem = ({ round, organizationId, jobApplicationId }: Props) 
   const roundName = ROUND_TYPE_LABELS[round.roundType];
 
   // The round failed and another is still to come: it is up to the user
-  async function rejectAfterFailedRound() {
-    const result = await changeJobApplicationStatus({
-      jobApplicationId,
-      status: JobApplicationStatus.Rejected,
-      note: `${roundName} round failed`,
-    });
-    toast.add({
-      type: result.success ? 'success' : 'error',
-      title: result.success ? 'Status changed' : 'Something went wrong',
-      description: result.success
-        ? describeStatusChange(JobApplicationStatus.Rejected, result.data)
-        : Object.values(result.errors).flat().join(' '),
-    });
+  function rejectAfterFailedRound() {
+    changeStatus(JobApplicationStatus.Rejected, `${roundName} round failed`);
   }
 
   function handleOutcome(outcome: InterviewOutcome) {
@@ -96,7 +85,7 @@ const InterviewRoundItem = ({ round, organizationId, jobApplicationId }: Props) 
               onClick: () => {
                 // The question is answered, so it goes away
                 toast.close(suggestionId);
-                void rejectAfterFailedRound();
+                rejectAfterFailedRound();
               },
             },
           });

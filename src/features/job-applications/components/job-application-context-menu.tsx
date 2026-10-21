@@ -2,9 +2,7 @@
 
 import React, { useState } from 'react';
 import DeleteJobApplicationAlertDialog from '@/features/job-applications/components/delete-job-application-alert-dialog.tsx';
-import { toast } from '@/components/ui/toast.tsx';
-import { useResultTransition } from '@/hooks/use-result-transition.ts';
-import { changeJobApplicationStatus } from '@/features/job-applications/actions/change-job-application-status.ts';
+import { useChangeJobApplicationStatus } from '@/features/job-applications/hooks/use-change-job-application-status.ts';
 import ScheduleInterviewDialog from '@/features/job-applications/components/interview/schedule-interview-dialog.tsx';
 import Link from 'next/link';
 import {
@@ -26,11 +24,7 @@ import {
   ContextMenuTrigger,
 } from '@/components/ui/context-menu.tsx';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
-import {
-  describeStatusChange,
-  JOB_APPLICATION_STATUSES,
-  NO_STATUS_CHANGE_EFFECT,
-} from '@/features/job-applications/constants/job-application-statuses.ts';
+import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 type JobApplication = {
@@ -49,19 +43,11 @@ interface Props {
 const JobApplicationContextMenu = ({ jobApplication, children }: Props) => {
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [, run] = useResultTransition();
-
-  function handleStatusChange(status: JobApplicationStatus) {
-    if (status === jobApplication.currentStatus) return;
-    run(() => changeJobApplicationStatus({ jobApplicationId: jobApplication.id, status }), {
-      onSuccess: (data) =>
-        toast.add({
-          type: 'success',
-          title: 'Status changed',
-          description: `${jobApplication.title}: ${describeStatusChange(status, data ?? NO_STATUS_CHANGE_EFFECT)}`,
-        }),
-    });
-  }
+  const [, changeStatus] = useChangeJobApplicationStatus({
+    jobApplicationId: jobApplication.id,
+    currentStatus: jobApplication.currentStatus,
+    title: jobApplication.title,
+  });
 
   return (
     <>
@@ -97,7 +83,7 @@ const JobApplicationContextMenu = ({ jobApplication, children }: Props) => {
               {Object.entries(JOB_APPLICATION_STATUSES).map(([status, label]) => (
                 <ContextMenuItem
                   key={status}
-                  onClick={() => handleStatusChange(status as JobApplicationStatus)}
+                  onClick={() => changeStatus(status as JobApplicationStatus)}
                 >
                   <JobApplicationStatusIndicator status={status as JobApplicationStatus} />
                   {label}

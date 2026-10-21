@@ -8,17 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
-import { toast } from '@/components/ui/toast.tsx';
-import { useResultTransition } from '@/hooks/use-result-transition.ts';
 import { cn } from '@/lib/utils.ts';
-import { changeJobApplicationStatus } from '@/features/job-applications/actions/change-job-application-status.ts';
+import { useChangeJobApplicationStatus } from '@/features/job-applications/hooks/use-change-job-application-status.ts';
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
-import {
-  describeStatusChange,
-  JOB_APPLICATION_STATUSES,
-  NO_STATUS_CHANGE_EFFECT,
-} from '@/features/job-applications/constants/job-application-statuses.ts';
+import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 interface Props {
@@ -27,19 +21,10 @@ interface Props {
 }
 
 const JobApplicationStatusMenu = ({ jobApplicationId, status }: Props) => {
-  const [isPending, run] = useResultTransition();
-
-  function handleChange(next: JobApplicationStatus) {
-    if (next === status) return;
-    run(() => changeJobApplicationStatus({ jobApplicationId, status: next }), {
-      onSuccess: (data) =>
-        toast.add({
-          type: 'success',
-          title: 'Status changed',
-          description: describeStatusChange(next, data ?? NO_STATUS_CHANGE_EFFECT),
-        }),
-    });
-  }
+  const [isPending, changeStatus] = useChangeJobApplicationStatus({
+    jobApplicationId,
+    currentStatus: status,
+  });
 
   return (
     <DropdownMenu>
@@ -61,7 +46,7 @@ const JobApplicationStatusMenu = ({ jobApplicationId, status }: Props) => {
       />
       <DropdownMenuContent align={'start'}>
         {Object.entries(JOB_APPLICATION_STATUSES).map(([value, label]) => (
-          <DropdownMenuItem key={value} onClick={() => handleChange(value as JobApplicationStatus)}>
+          <DropdownMenuItem key={value} onClick={() => changeStatus(value as JobApplicationStatus)}>
             <JobApplicationStatusIndicator status={value as JobApplicationStatus} />
             {label}
             {value === status && <RiCheckLine className={'ml-auto'} />}
