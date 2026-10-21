@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill';
 import { all, and, or } from '@prisma/orm-postgres/orm-client';
 import { RawExpr, toExpr } from '@prisma/orm-postgres/relational-core';
 import type { AnyExpression } from '@prisma/orm-postgres/relational-core/ast';
@@ -10,6 +11,28 @@ type Comparable = object;
 // (`organization` filtering `organizationId`)
 export interface FilterColumn<Row> {
   column: (row: Row) => Comparable;
+}
+
+// A date column to filter by the `YYYY-MM-DD` days a URL holds: every comparison takes them as
+// they are and compares them as the dates they are
+export function dateColumn<Row>(field: (row: Row) => Comparable): (row: Row) => Comparable {
+  const toDate = (value: unknown) => Temporal.PlainDate.from(value as string);
+  return (row) => {
+    const column = field(row) as Record<string, (value: unknown) => AnyExpression>;
+    const compare = (operator: string) => (value: unknown) => column[operator](toDate(value));
+    const compareAll = (operator: string) => (values: unknown) =>
+      column[operator]((values as string[]).map(toDate));
+    return {
+      eq: compare('eq'),
+      neq: compare('neq'),
+      gt: compare('gt'),
+      gte: compare('gte'),
+      lt: compare('lt'),
+      lte: compare('lte'),
+      in: compareAll('in'),
+      notIn: compareAll('notIn'),
+    };
+  };
 }
 
 // The `where` selector for a filter: every entry has to match. A field is the model field of
