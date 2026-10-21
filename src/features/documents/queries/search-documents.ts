@@ -47,8 +47,8 @@ export async function searchDocumentsQuery(
     .limit(limit + 1);
   const decoded = cursor ? decodeCursor(cursor, 3) : null;
   if (decoded) {
-    const [uploadedAt, id] = decoded;
-    dbQuery = dbQuery.cursor({ uploadedAt, id: uuid(id) });
+    const [uploadedAt, name, id] = decoded;
+    dbQuery = dbQuery.cursor({ uploadedAt, name, id: uuid(id) });
   }
   dbQuery = dbQuery.where(buildSearch(search, DOCUMENT_NAME_SEARCH_COLUMNS));
 
@@ -57,7 +57,7 @@ export async function searchDocumentsQuery(
   const hasMore = documents.length > limit;
   const models = hasMore ? documents.slice(0, limit) : documents;
   const last = models[models.length - 1];
-  const nextCursor = hasMore ? encodeCursor(last.uploadedAt, last.id) : null;
+  const nextCursor = hasMore ? encodeCursor(last.uploadedAt, last.name, last.id) : null;
 
   const items: DocumentSummary[] = models.map((model) => ({
     ...model,
