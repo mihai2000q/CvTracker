@@ -5,7 +5,7 @@ import type { SubmissionResult } from '@conform-to/react';
 import { db } from '@database/db';
 import { sized } from '@database/field-values';
 import { createAuthToken } from '@/lib/auth/jwt';
-import { verifyPassword } from '@/lib/auth/password';
+import { UNKNOWN_USER_PASSWORD_HASH, verifyPassword } from '@/lib/auth/password';
 import { createSession } from '@/lib/auth/session';
 import { signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
@@ -25,7 +25,11 @@ export async function signIn(
 
   const user = await db.User.first({ email: sized<255>(email) });
 
-  if (!user || !(await verifyPassword(password, user.passwordHash))) {
+  // The password is checked either way, so an unknown email takes as long as a wrong password
+  const passwordHash = user?.passwordHash ?? (await UNKNOWN_USER_PASSWORD_HASH);
+  const passwordMatches = await verifyPassword(password, passwordHash);
+
+  if (!user || !passwordMatches) {
     return submission.reply({ formErrors: [INVALID_CREDENTIALS_MESSAGE] });
   }
 
