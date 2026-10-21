@@ -12,7 +12,7 @@ import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
+import { storedFiles, type StoredFile } from '@/features/documents/stored-files/stored-files.ts';
 import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 import { updateJobApplicationSchema } from '@/features/job-applications/schemas/update-job-application-schema.ts';
@@ -58,55 +58,51 @@ export async function updateJobApplication(
     return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
-  let storedCv: StoredDocument | undefined;
-  let storedCoverLetter: StoredDocument | undefined;
-
   try {
-    if (cvDocumentFile) storedCv = await storeDocument(userId, cvDocumentFile);
-    if (coverLetterDocumentFile) {
-      storedCoverLetter = await storeDocument(userId, coverLetterDocumentFile);
-    }
+    await storedFiles.withStored(
+      userId,
+      { cv: cvDocumentFile, coverLetter: coverLetterDocumentFile },
+      async ({ cv: storedCv, coverLetter: storedCoverLetter }) => {
+        // What is new (an organization, the documents) is written with the application, or not at all
+        await dbClient.transaction(async ({ orm }) => {
+          const tx = orm.public;
 
-    // What is new (an organization, the documents) is written with the application, or not at all
-    await dbClient.transaction(async ({ orm }) => {
-      const tx = orm.public;
+          const newOrganization = organizationId
+            ? undefined
+            : await tx.Organization.create({
+                name: sized<200>(organizationName),
+                organizationCountries: (organizationCountries) =>
+                  organizationCountries.create([{ countryId: uuid(countryId) }]),
+                userId: uuid(userId),
+              });
+          const newCv = storedCv
+            ? await tx.Document.create(newDocument(DbDocumentType.members.Cv, storedCv, userId))
+            : undefined;
+          const newCoverLetter = storedCoverLetter
+            ? await tx.Document.create(
+                newDocument(DbDocumentType.members.CoverLetter, storedCoverLetter, userId)
+              )
+            : undefined;
 
-      const newOrganization = organizationId
-        ? undefined
-        : await tx.Organization.create({
-            name: sized<200>(organizationName),
-            organizationCountries: (organizationCountries) =>
-              organizationCountries.create([{ countryId: uuid(countryId) }]),
-            userId: uuid(userId),
+          await tx.JobApplication.where({ id: uuid(id) }).update({
+            title: sized<200>(title),
+            postingUrl: postingUrl ?? null,
+            source: source ? sized<100>(normalizeSource(source)) : null,
+            appliedAt: Temporal.PlainDate.from(appliedAt),
+            notes: notes ?? null,
+            organizationId: organizationId ? uuid(organizationId) : uuid(newOrganization!.id),
+            countryId: uuid(countryId),
+            cvDocumentId: newCv ? uuid(newCv.id) : uuid(cvDocumentId!),
+            coverLetterDocumentId: newCoverLetter
+              ? uuid(newCoverLetter.id)
+              : coverLetterDocumentId
+                ? uuid(coverLetterDocumentId)
+                : null,
           });
-      const newCv = storedCv
-        ? await tx.Document.create(newDocument(DbDocumentType.members.Cv, storedCv, userId))
-        : undefined;
-      const newCoverLetter = storedCoverLetter
-        ? await tx.Document.create(
-            newDocument(DbDocumentType.members.CoverLetter, storedCoverLetter, userId)
-          )
-        : undefined;
-
-      await tx.JobApplication.where({ id: uuid(id) }).update({
-        title: sized<200>(title),
-        postingUrl: postingUrl ?? null,
-        source: source ? sized<100>(normalizeSource(source)) : null,
-        appliedAt: Temporal.PlainDate.from(appliedAt),
-        notes: notes ?? null,
-        organizationId: organizationId ? uuid(organizationId) : uuid(newOrganization!.id),
-        countryId: uuid(countryId),
-        cvDocumentId: newCv ? uuid(newCv.id) : uuid(cvDocumentId!),
-        coverLetterDocumentId: newCoverLetter
-          ? uuid(newCoverLetter.id)
-          : coverLetterDocumentId
-            ? uuid(coverLetterDocumentId)
-            : null,
-      });
-    });
+        });
+      }
+    );
   } catch (error) {
-    // Don't leave orphaned files behind if the rows couldn't be written
-    await Promise.all([storedCv?.discard(), storedCoverLetter?.discard()]);
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;
@@ -122,7 +118,7 @@ type DocumentInput = Parameters<Database['Document']['create']>[0];
 
 function newDocument(
   type: (typeof DbDocumentType.members)[keyof typeof DbDocumentType.members],
-  stored: StoredDocument,
+  stored: StoredFile,
   userId: string
 ): DocumentInput {
   const name = stored.originalFilename.replace(/\.[^.]+$/, '').slice(0, 150);

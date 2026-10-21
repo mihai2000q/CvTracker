@@ -14,7 +14,7 @@ import { todayIn } from '@/lib/time-zone.ts';
 import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { StoredDocument, storeDocument } from '@/features/documents/services/store-document.ts';
+import { storedFiles, type StoredFile } from '@/features/documents/stored-files/stored-files.ts';
 import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 
@@ -55,40 +55,39 @@ export async function createJobApplication(
     return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
-  let storedCv: StoredDocument | undefined;
-  let storedCoverLetter: StoredDocument | undefined;
-
   try {
-    if (cvDocumentFile) storedCv = await storeDocument(userId, cvDocumentFile);
-    if (coverLetterDocumentFile) {
-      storedCoverLetter = await storeDocument(userId, coverLetterDocumentFile);
-    }
-
-    await db.JobApplication.create({
-      title: sized<200>(title),
-      countryId: uuid(countryId),
-      postingUrl,
-      source: source ? sized<100>(normalizeSource(source)) : undefined,
-      appliedAt: Temporal.PlainDate.from(appliedAt),
-      notes,
-      userId: uuid(userId),
-      skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-      statusHistory: initialStatusHistory,
-      ...(organizationId
-        ? { organizationId: uuid(organizationId) }
-        : { organization: createNewOrganization(organizationName, countryId, userId) }),
-      ...(storedCv
-        ? { cvDocument: createNewCv(storedCv, userId, skillIds) }
-        : { cvDocumentId: uuid(cvDocumentId!) }),
-      ...(storedCoverLetter
-        ? { coverLetterDocument: createNewCoverLetter(storedCoverLetter, userId, skillIds) }
-        : {
-            coverLetterDocumentId: coverLetterDocumentId ? uuid(coverLetterDocumentId) : undefined,
-          }),
-    });
+    await storedFiles.withStored(
+      userId,
+      { cv: cvDocumentFile, coverLetter: coverLetterDocumentFile },
+      async ({ cv: storedCv, coverLetter: storedCoverLetter }) => {
+        await db.JobApplication.create({
+          title: sized<200>(title),
+          countryId: uuid(countryId),
+          postingUrl,
+          source: source ? sized<100>(normalizeSource(source)) : undefined,
+          appliedAt: Temporal.PlainDate.from(appliedAt),
+          notes,
+          userId: uuid(userId),
+          skills: (skills) =>
+            skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
+          statusHistory: initialStatusHistory,
+          ...(organizationId
+            ? { organizationId: uuid(organizationId) }
+            : { organization: createNewOrganization(organizationName, countryId, userId) }),
+          ...(storedCv
+            ? { cvDocument: createNewCv(storedCv, userId, skillIds) }
+            : { cvDocumentId: uuid(cvDocumentId!) }),
+          ...(storedCoverLetter
+            ? { coverLetterDocument: createNewCoverLetter(storedCoverLetter, userId, skillIds) }
+            : {
+                coverLetterDocumentId: coverLetterDocumentId
+                  ? uuid(coverLetterDocumentId)
+                  : undefined,
+              }),
+        });
+      }
+    );
   } catch (error) {
-    // Don't leave orphaned files behind if the rows couldn't be written
-    await Promise.all([storedCv?.discard(), storedCoverLetter?.discard()]);
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;
@@ -123,7 +122,7 @@ function createNewOrganization(
 }
 
 function createNewCv(
-  stored: StoredDocument,
+  stored: StoredFile,
   userId: string,
   skillIds: string[]
 ): NewRelation<'cvDocument'> {
@@ -134,7 +133,7 @@ function createNewCv(
 }
 
 function createNewCoverLetter(
-  stored: StoredDocument,
+  stored: StoredFile,
   userId: string,
   skillIds: string[]
 ): NewRelation<'coverLetterDocument'> {
@@ -147,7 +146,7 @@ function createNewCoverLetter(
 // A document uploaded along with the application is named after its file and shares its skills
 function newDocumentData(
   type: (typeof DbDocumentType.members)[keyof typeof DbDocumentType.members],
-  stored: StoredDocument,
+  stored: StoredFile,
   skillIds: string[],
   userId: string
 ): DocumentInput {
