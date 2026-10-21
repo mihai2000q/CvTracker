@@ -15,7 +15,10 @@ import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
-import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import {
+  checkDocumentTypes,
+  DocumentTypesError,
+} from '@/features/job-applications/services/check-document-types.ts';
 import {
   filesOf,
   resolveJobApplicationParts,
@@ -38,12 +41,7 @@ export async function createJobApplication(
   }
 
   const { title, postingUrl, source, appliedAt, notes, skillIds, ...parts } = submission.value;
-  const { countryId, cvDocumentId, coverLetterDocumentId } = parts;
-
-  const documentTypeErrors = await checkDocumentTypes({ cvDocumentId, coverLetterDocumentId });
-  if (documentTypeErrors) {
-    return submission.reply({ fieldErrors: documentTypeErrors });
-  }
+  const { countryId } = parts;
 
   // What is new (an organization, the documents) is written with the application, or not at all
   let created;
@@ -51,6 +49,8 @@ export async function createJobApplication(
     created = await storedFiles.withStored(userId, filesOf(parts), (stored) =>
       dbClient.transaction(async ({ orm }) => {
         const tx = orm.public;
+
+        await checkDocumentTypes(tx, parts);
 
         const { organizationId, cvDocumentId, coverLetterDocumentId, ...created } =
           await resolveJobApplicationParts(tx, userId, parts, stored, skillIds);
@@ -75,6 +75,9 @@ export async function createJobApplication(
       })
     );
   } catch (error) {
+    if (error instanceof DocumentTypesError) {
+      return submission.reply({ fieldErrors: error.errors });
+    }
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;

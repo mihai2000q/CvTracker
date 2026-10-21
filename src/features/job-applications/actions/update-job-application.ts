@@ -13,7 +13,10 @@ import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
-import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import {
+  checkDocumentTypes,
+  DocumentTypesError,
+} from '@/features/job-applications/services/check-document-types.ts';
 import {
   filesOf,
   resolveJobApplicationParts,
@@ -38,16 +41,11 @@ export async function updateJobApplication(
   }
 
   const { id, title, postingUrl, source, appliedAt, notes, ...parts } = submission.value;
-  const { countryId, cvDocumentId, coverLetterDocumentId } = parts;
+  const { countryId } = parts;
 
   const existing = await db.JobApplication.first({ id: uuid(id) });
   if (!existing) {
     return submission.reply({ formErrors: ['Job application not found'] });
-  }
-
-  const documentTypeErrors = await checkDocumentTypes({ cvDocumentId, coverLetterDocumentId });
-  if (documentTypeErrors) {
-    return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
   // What is new (an organization, the documents) is written with the application, or not at all
@@ -56,6 +54,8 @@ export async function updateJobApplication(
     created = await storedFiles.withStored(userId, filesOf(parts), (stored) =>
       dbClient.transaction(async ({ orm }) => {
         const tx = orm.public;
+
+        await checkDocumentTypes(tx, parts);
 
         const { organizationId, cvDocumentId, coverLetterDocumentId, ...created } =
           await resolveJobApplicationParts(tx, userId, parts, stored);
@@ -78,6 +78,9 @@ export async function updateJobApplication(
       })
     );
   } catch (error) {
+    if (error instanceof DocumentTypesError) {
+      return submission.reply({ fieldErrors: error.errors });
+    }
     if (error instanceof JobApplicationNotFoundError) {
       return submission.reply({ formErrors: ['Job application not found'] });
     }

@@ -2,6 +2,7 @@ import 'server-only';
 import type { Transaction } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { DocumentType as DbDocumentType } from '@database/enums.ts';
+import { buildDocumentRow } from '@/features/documents/services/build-document-row.ts';
 import type { StoredFile } from '@/features/documents/services/stored-files.ts';
 
 // What the form says about the organization and the documents of a job application: an existing
@@ -85,15 +86,5 @@ interface NewDocument {
 // A document uploaded along with a job application is named after its file
 function createNewDocument(tx: Transaction, { type, stored, userId, skillIds }: NewDocument) {
   const name = stored.originalFilename.replace(/\.[^.]+$/, '').slice(0, 150);
-  return tx.Document.create({
-    type,
-    name: sized<150>(name),
-    originalFilename: sized<255>(stored.originalFilename),
-    filePath: stored.filePath,
-    size: stored.size,
-    userId: uuid(userId),
-    ...(skillIds && {
-      skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-    }),
-  });
+  return tx.Document.create(buildDocumentRow({ type, name, stored, userId, skillIds }));
 }

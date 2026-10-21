@@ -2,11 +2,11 @@
 
 import { updateTag } from 'next/cache';
 import { db } from '@database/db.ts';
-import { sized, uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
 import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
+import { buildDocumentRow } from '@/features/documents/services/build-document-row.ts';
 import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
@@ -25,16 +25,16 @@ export async function createDocument(_state: SubmissionResult | undefined, formD
 
   try {
     await storedFiles.withStored(userId, { file }, async ({ file: storedFile }) => {
-      await db.Document.create({
-        type: MODEL_DOCUMENT_TYPES[type],
-        name: sized<150>(name),
-        originalFilename: sized<255>(storedFile.originalFilename),
-        filePath: storedFile.filePath,
-        size: storedFile.size,
-        notes,
-        skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-        userId: uuid(userId),
-      });
+      await db.Document.create(
+        buildDocumentRow({
+          type: MODEL_DOCUMENT_TYPES[type],
+          name,
+          notes,
+          stored: storedFile,
+          userId,
+          skillIds,
+        })
+      );
     });
   } catch (error) {
     const reply = constraintViolationReply(error);
