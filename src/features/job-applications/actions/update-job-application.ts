@@ -2,9 +2,8 @@
 
 import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
-import { db, dbClient, type Database } from '@database/db.ts';
+import { db, dbClient } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
-import { DocumentType as DbDocumentType } from '@database/enums.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import type { SubmissionResult } from '@conform-to/react';
@@ -12,9 +11,13 @@ import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { storedFiles, type StoredFile } from '@/features/documents/services/stored-files.ts';
-import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
+import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import {
+  filesOf,
+  resolveJobApplicationParts,
+} from '@/features/job-applications/services/resolve-job-application-parts.ts';
 import { updateJobApplicationSchema } from '@/features/job-applications/schemas/update-job-application-schema.ts';
 
 export async function updateJobApplication(
@@ -32,21 +35,8 @@ export async function updateJobApplication(
     return submission.reply();
   }
 
-  const {
-    id,
-    title,
-    postingUrl,
-    source,
-    appliedAt,
-    notes,
-    organizationName,
-    organizationId,
-    countryId,
-    cvDocumentId,
-    coverLetterDocumentId,
-    cvDocumentFile,
-    coverLetterDocumentFile,
-  } = submission.value;
+  const { id, title, postingUrl, source, appliedAt, notes, ...parts } = submission.value;
+  const { countryId, cvDocumentId, coverLetterDocumentId } = parts;
 
   const existing = await db.JobApplication.first({ id: uuid(id) });
   if (!existing) {
@@ -58,49 +48,30 @@ export async function updateJobApplication(
     return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
+  // What is new (an organization, the documents) is written with the application, or not at all
+  let created;
   try {
-    await storedFiles.withStored(
-      userId,
-      { cv: cvDocumentFile, coverLetter: coverLetterDocumentFile },
-      async ({ cv: storedCv, coverLetter: storedCoverLetter }) => {
-        // What is new (an organization, the documents) is written with the application, or not at all
-        await dbClient.transaction(async ({ orm }) => {
-          const tx = orm.public;
+    created = await storedFiles.withStored(userId, filesOf(parts), (stored) =>
+      dbClient.transaction(async ({ orm }) => {
+        const tx = orm.public;
 
-          const newOrganization = organizationId
-            ? undefined
-            : await tx.Organization.create({
-                name: sized<200>(organizationName),
-                organizationCountries: (organizationCountries) =>
-                  organizationCountries.create([{ countryId: uuid(countryId) }]),
-                userId: uuid(userId),
-              });
-          const newCv = storedCv
-            ? await tx.Document.create(newDocument(DbDocumentType.members.Cv, storedCv, userId))
-            : undefined;
-          const newCoverLetter = storedCoverLetter
-            ? await tx.Document.create(
-                newDocument(DbDocumentType.members.CoverLetter, storedCoverLetter, userId)
-              )
-            : undefined;
+        const { organizationId, cvDocumentId, coverLetterDocumentId, ...created } =
+          await resolveJobApplicationParts(tx, userId, parts, stored);
 
-          await tx.JobApplication.where({ id: uuid(id) }).update({
-            title: sized<200>(title),
-            postingUrl: postingUrl ?? null,
-            source: source ? sized<100>(normalizeSource(source)) : null,
-            appliedAt: Temporal.PlainDate.from(appliedAt),
-            notes: notes ?? null,
-            organizationId: organizationId ? uuid(organizationId) : uuid(newOrganization!.id),
-            countryId: uuid(countryId),
-            cvDocumentId: newCv ? uuid(newCv.id) : uuid(cvDocumentId!),
-            coverLetterDocumentId: newCoverLetter
-              ? uuid(newCoverLetter.id)
-              : coverLetterDocumentId
-                ? uuid(coverLetterDocumentId)
-                : null,
-          });
+        await tx.JobApplication.where({ id: uuid(id) }).update({
+          title: sized<200>(title),
+          postingUrl: postingUrl ?? null,
+          source: source ? sized<100>(normalizeSource(source)) : null,
+          appliedAt: Temporal.PlainDate.from(appliedAt),
+          notes: notes ?? null,
+          organizationId: uuid(organizationId),
+          countryId: uuid(countryId),
+          cvDocumentId: uuid(cvDocumentId),
+          coverLetterDocumentId: coverLetterDocumentId ? uuid(coverLetterDocumentId) : null,
         });
-      }
+
+        return created;
+      })
     );
   } catch (error) {
     const reply = constraintViolationReply(error);
@@ -109,25 +80,7 @@ export async function updateJobApplication(
   }
 
   updateTag(cacheTags.jobApplications(userId));
-  if (!organizationId) updateTag(cacheTags.organizations(userId));
-  if (cvDocumentFile || coverLetterDocumentFile) updateTag(cacheTags.documents(userId));
+  if (created.createdOrganization) updateTag(cacheTags.organizations(userId));
+  if (created.createdDocuments) updateTag(cacheTags.documents(userId));
   return submission.reply({ resetForm: true });
-}
-
-type DocumentInput = Parameters<Database['Document']['create']>[0];
-
-function newDocument(
-  type: (typeof DbDocumentType.members)[keyof typeof DbDocumentType.members],
-  stored: StoredFile,
-  userId: string
-): DocumentInput {
-  const name = stored.originalFilename.replace(/\.[^.]+$/, '').slice(0, 150);
-  return {
-    type,
-    name: sized<150>(name),
-    originalFilename: sized<255>(stored.originalFilename),
-    filePath: stored.filePath,
-    size: stored.size,
-    userId: uuid(userId),
-  };
 }

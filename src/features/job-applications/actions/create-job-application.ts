@@ -1,22 +1,25 @@
 'use server';
 
-import { db, type Database } from '@database/db.ts';
+import { Temporal } from 'temporal-polyfill';
+import { dbClient } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
-import { DocumentType as DbDocumentType } from '@database/enums.ts';
-import { initialStatusHistory } from '@/features/job-applications/services/initial-status.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
-import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { storedFiles, type StoredFile } from '@/features/documents/services/stored-files.ts';
-import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
+import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
+import { initialStatusHistory } from '@/features/job-applications/services/initial-status.ts';
+import {
+  filesOf,
+  resolveJobApplicationParts,
+} from '@/features/job-applications/services/resolve-job-application-parts.ts';
 
 export async function createJobApplication(
   _state: SubmissionResult | undefined,
@@ -34,33 +37,25 @@ export async function createJobApplication(
     return submission.reply();
   }
 
-  const {
-    title,
-    organizationName,
-    organizationId,
-    countryId,
-    cvDocumentId,
-    coverLetterDocumentId,
-    cvDocumentFile,
-    coverLetterDocumentFile,
-    postingUrl,
-    source,
-    appliedAt,
-    notes,
-    skillIds,
-  } = submission.value;
+  const { title, postingUrl, source, appliedAt, notes, skillIds, ...parts } = submission.value;
+  const { countryId, cvDocumentId, coverLetterDocumentId } = parts;
 
   const documentTypeErrors = await checkDocumentTypes({ cvDocumentId, coverLetterDocumentId });
   if (documentTypeErrors) {
     return submission.reply({ fieldErrors: documentTypeErrors });
   }
 
+  // What is new (an organization, the documents) is written with the application, or not at all
+  let created;
   try {
-    await storedFiles.withStored(
-      userId,
-      { cv: cvDocumentFile, coverLetter: coverLetterDocumentFile },
-      async ({ cv: storedCv, coverLetter: storedCoverLetter }) => {
-        await db.JobApplication.create({
+    created = await storedFiles.withStored(userId, filesOf(parts), (stored) =>
+      dbClient.transaction(async ({ orm }) => {
+        const tx = orm.public;
+
+        const { organizationId, cvDocumentId, coverLetterDocumentId, ...created } =
+          await resolveJobApplicationParts(tx, userId, parts, stored, skillIds);
+
+        await tx.JobApplication.create({
           title: sized<200>(title),
           countryId: uuid(countryId),
           postingUrl,
@@ -71,21 +66,13 @@ export async function createJobApplication(
           skills: (skills) =>
             skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
           statusHistory: initialStatusHistory,
-          ...(organizationId
-            ? { organizationId: uuid(organizationId) }
-            : { organization: createNewOrganization(organizationName, countryId, userId) }),
-          ...(storedCv
-            ? { cvDocument: createNewCv(storedCv, userId, skillIds) }
-            : { cvDocumentId: uuid(cvDocumentId!) }),
-          ...(storedCoverLetter
-            ? { coverLetterDocument: createNewCoverLetter(storedCoverLetter, userId, skillIds) }
-            : {
-                coverLetterDocumentId: coverLetterDocumentId
-                  ? uuid(coverLetterDocumentId)
-                  : undefined,
-              }),
+          organizationId: uuid(organizationId),
+          cvDocumentId: uuid(cvDocumentId),
+          coverLetterDocumentId: coverLetterDocumentId ? uuid(coverLetterDocumentId) : undefined,
         });
-      }
+
+        return created;
+      })
     );
   } catch (error) {
     const reply = constraintViolationReply(error);
@@ -94,70 +81,7 @@ export async function createJobApplication(
   }
 
   updateTag(cacheTags.jobApplications(userId));
-  if (!organizationId) updateTag(cacheTags.organizations(userId));
-  if (cvDocumentFile || coverLetterDocumentFile) updateTag(cacheTags.documents(userId));
+  if (created.createdOrganization) updateTag(cacheTags.organizations(userId));
+  if (created.createdDocuments) updateTag(cacheTags.documents(userId));
   return submission.reply({ resetForm: true });
-}
-
-type DocumentInput = Parameters<Database['Document']['create']>[0];
-type JobApplicationInput = Parameters<Database['JobApplication']['create']>[0];
-type NewRelation<Key extends 'organization' | 'cvDocument' | 'coverLetterDocument'> = Extract<
-  NonNullable<JobApplicationInput[Key]>,
-  (...args: never[]) => unknown
->;
-
-// New organization, located in the same country as the application
-function createNewOrganization(
-  name: string,
-  countryId: string,
-  userId: string
-): NewRelation<'organization'> {
-  return (organization) =>
-    organization.create({
-      name: sized<200>(name),
-      organizationCountries: (organizationCountries) =>
-        organizationCountries.create([{ countryId: uuid(countryId) }]),
-      userId: uuid(userId),
-    });
-}
-
-function createNewCv(
-  stored: StoredFile,
-  userId: string,
-  skillIds: string[]
-): NewRelation<'cvDocument'> {
-  return (cv) =>
-    cv.create({
-      ...newDocumentData(DbDocumentType.members.Cv, stored, skillIds, userId),
-    });
-}
-
-function createNewCoverLetter(
-  stored: StoredFile,
-  userId: string,
-  skillIds: string[]
-): NewRelation<'coverLetterDocument'> {
-  return (coverLetter) =>
-    coverLetter.create({
-      ...newDocumentData(DbDocumentType.members.CoverLetter, stored, skillIds, userId),
-    });
-}
-
-// A document uploaded along with the application is named after its file and shares its skills
-function newDocumentData(
-  type: (typeof DbDocumentType.members)[keyof typeof DbDocumentType.members],
-  stored: StoredFile,
-  skillIds: string[],
-  userId: string
-): DocumentInput {
-  const name = stored.originalFilename.replace(/\.[^.]+$/, '').slice(0, 150);
-  return {
-    type,
-    name: sized<150>(name),
-    originalFilename: sized<255>(stored.originalFilename),
-    filePath: stored.filePath,
-    size: stored.size,
-    userId: uuid(userId),
-    skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-  };
 }
