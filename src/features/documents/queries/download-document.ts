@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
 import { verifySession } from '@/lib/auth/session.ts';
-import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
+import { storedFiles } from '@/features/documents/services/stored-files.ts';
 
 // Null when there is no such document or its file is gone
 export async function downloadDocument(id: string) {

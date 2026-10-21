@@ -8,8 +8,8 @@ import { Result } from '@/types/result.ts';
 import {
   GhostedUndo,
   ghostedUndoSchema,
-} from '@/features/job-applications/lifecycle/ghosted-undo.ts';
-import { undoGhost } from '@/features/job-applications/lifecycle/ghosting.ts';
+} from '@/features/job-applications/schemas/ghosted-undo-schema.ts';
+import { undoGhost } from '@/features/job-applications/services/ghosting.ts';
 
 // Puts back the applications that were just marked as ghosted. One that was moved on since is
 // left alone

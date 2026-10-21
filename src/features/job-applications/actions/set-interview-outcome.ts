@@ -5,7 +5,7 @@ import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
-import { recordRoundOutcome } from '@/features/job-applications/lifecycle/record-round-outcome.ts';
+import { recordRoundOutcome } from '@/features/job-applications/services/record-round-outcome.ts';
 import {
   setInterviewOutcomeSchema,
   SetInterviewOutcomeInput,

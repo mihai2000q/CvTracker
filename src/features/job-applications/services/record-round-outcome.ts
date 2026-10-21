@@ -3,13 +3,13 @@ import { dbClient } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
 import { IN_PROGRESS_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
-import { recordStatusChange } from '@/features/job-applications/lifecycle/record-status-change.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import {
   DB_OUTCOMES,
   readRounds,
   type RoundState,
-} from '@/features/job-applications/lifecycle/rounds.ts';
-import { isUpcoming } from '@/features/job-applications/lifecycle/upcoming.ts';
+} from '@/features/job-applications/services/read-rounds.ts';
+import { isUpcoming } from '@/features/job-applications/services/upcoming.ts';
 import { InterviewOutcomeEffect } from '@/features/job-applications/types/interview-outcome-effect.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';

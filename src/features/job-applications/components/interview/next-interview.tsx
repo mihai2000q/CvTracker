@@ -5,7 +5,7 @@ import FutureDateTime from '@/components/date/future-date-time.tsx';
 import InterviewRoundHoverCard from '@/features/job-applications/components/interview/interview-round-hover-card.tsx';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
-import { isUpcoming } from '@/features/job-applications/lifecycle/upcoming.ts';
+import { isUpcoming } from '@/features/job-applications/services/upcoming.ts';
 import { InterviewRound } from '@/features/job-applications/types/interview-round.ts';
 
 const NextInterview = ({ rounds }: { rounds: InterviewRound[] }) => {

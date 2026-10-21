@@ -12,7 +12,7 @@ import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { storedFiles, type StoredFile } from '@/features/documents/stored-files/stored-files.ts';
+import { storedFiles, type StoredFile } from '@/features/documents/services/stored-files.ts';
 import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 import { updateJobApplicationSchema } from '@/features/job-applications/schemas/update-job-application-schema.ts';

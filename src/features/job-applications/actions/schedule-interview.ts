@@ -10,7 +10,7 @@ import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { scheduleInterviewSchema } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
 import { ContactForm } from '@/features/organizations/schemas/contact-schema.ts';
-import { moveToInterviewOnScheduling } from '@/features/job-applications/lifecycle/schedule-round.ts';
+import { moveToInterviewOnScheduling } from '@/features/job-applications/services/schedule-round.ts';
 import { MODEL_ROUND_TYPES } from '@/features/job-applications/types/enums/model-round-type.ts';
 
 export async function scheduleInterview(_state: SubmissionResult | undefined, formData: FormData) {

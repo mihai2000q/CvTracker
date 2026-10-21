@@ -4,7 +4,7 @@ import { db, type Database } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { DocumentType as DbDocumentType } from '@database/enums.ts';
-import { initialStatusHistory } from '@/features/job-applications/lifecycle/initial-status.ts';
+import { initialStatusHistory } from '@/features/job-applications/services/initial-status.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import type { SubmissionResult } from '@conform-to/react';
@@ -14,7 +14,7 @@ import { todayIn } from '@/lib/time-zone.ts';
 import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { storedFiles, type StoredFile } from '@/features/documents/stored-files/stored-files.ts';
+import { storedFiles, type StoredFile } from '@/features/documents/services/stored-files.ts';
 import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 

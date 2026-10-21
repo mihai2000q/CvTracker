@@ -6,7 +6,7 @@ import { uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { updateTag } from 'next/cache';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
-import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
+import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { Result } from '@/types/result.ts';
 

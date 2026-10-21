@@ -6,14 +6,14 @@ import {
   STATUSES_THAT_CANCEL_UPCOMING_ROUNDS,
   type StatusChangeEffect,
 } from '@/features/job-applications/constants/job-application-statuses.ts';
-import { recordStatusChange } from '@/features/job-applications/lifecycle/record-status-change.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import {
   DB_OUTCOMES,
   readRounds,
   type RoundState,
-} from '@/features/job-applications/lifecycle/rounds.ts';
+} from '@/features/job-applications/services/read-rounds.ts';
 import type { Transaction } from '@database/db.ts';
-import { isUpcoming } from '@/features/job-applications/lifecycle/upcoming.ts';
+import { isUpcoming } from '@/features/job-applications/services/upcoming.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 

@@ -7,7 +7,7 @@ import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
 import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
-import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
+import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';

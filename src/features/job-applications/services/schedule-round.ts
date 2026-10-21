@@ -1,6 +1,6 @@
 import 'server-only';
 import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
-import { recordStatusChange } from '@/features/job-applications/lifecycle/record-status-change.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import type { Transaction } from '@database/db.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 

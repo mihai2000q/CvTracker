@@ -3,7 +3,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Readable } from 'node:stream';
-import type { FileAdapter } from '@/features/documents/stored-files/file-adapter.ts';
+import type { FileAdapter } from '@/features/documents/services/file-adapter.ts';
 
 // Keeps the files under a directory. A key is relative to it and always written with `/`
 export function createDiskFileAdapter(directory: string): FileAdapter {

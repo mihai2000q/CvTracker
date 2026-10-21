@@ -8,10 +8,10 @@ import {
   GHOSTED_NOTE,
   IN_PROGRESS_STATUSES,
 } from '@/features/job-applications/constants/job-application-statuses.ts';
-import { type GhostedUndo } from '@/features/job-applications/lifecycle/ghosted-undo.ts';
+import { type GhostedUndo } from '@/features/job-applications/schemas/ghosted-undo-schema.ts';
 import type { Transaction } from '@database/db.ts';
-import { startsAfter } from '@/features/job-applications/lifecycle/upcoming.ts';
-import { recordStatusChange } from '@/features/job-applications/lifecycle/record-status-change.ts';
+import { startsAfter } from '@/features/job-applications/services/upcoming.ts';
+import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { MODEL_APPLICATION_STATUSES } from '@/features/job-applications/types/enums/model-application-status.ts';
 import type { StaleJobApplication } from '@/features/job-applications/types/job-application.ts';

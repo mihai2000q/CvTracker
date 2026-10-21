@@ -13,7 +13,7 @@ import {
   GetUpcomingInterviewsQueryInput,
   getUpcomingInterviewsQuerySchema,
 } from '@/features/dashboard/schemas/get-upcoming-interviews-schema.ts';
-import { startsAfter } from '@/features/job-applications/lifecycle/upcoming.ts';
+import { startsAfter } from '@/features/job-applications/services/upcoming.ts';
 import type { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 import type { UpcomingInterview } from '@/features/dashboard/types/upcoming-interview.ts';
 

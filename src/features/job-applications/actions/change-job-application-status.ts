@@ -6,7 +6,7 @@ import { cacheTags } from '@/lib/cache-tags.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
 import { type StatusChangeEffect } from '@/features/job-applications/constants/job-application-statuses.ts';
-import { moveToStatus } from '@/features/job-applications/lifecycle/move-to-status.ts';
+import { moveToStatus } from '@/features/job-applications/services/move-to-status.ts';
 import {
   changeJobApplicationStatusSchema,
   ChangeJobApplicationStatusInput,

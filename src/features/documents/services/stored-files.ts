@@ -2,8 +2,8 @@ import 'server-only';
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { requireEnv } from '@/lib/env.ts';
-import { createDiskFileAdapter } from '@/features/documents/stored-files/disk-file-adapter.ts';
-import type { FileAdapter } from '@/features/documents/stored-files/file-adapter.ts';
+import { createDiskFileAdapter } from '@/features/documents/services/disk-file-adapter.ts';
+import type { FileAdapter } from '@/features/documents/services/file-adapter.ts';
 
 // What `withStored` hands over: a stored file for each file that was given, and for one that
 // might not have been, one that might not be
