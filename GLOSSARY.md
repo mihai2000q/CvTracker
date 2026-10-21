@@ -17,7 +17,7 @@ A person at an organization, such as a recruiter or an interviewer. Belongs to t
 
 **Document**:
 A file in the user's library: either a CV or a cover letter. Reused across JobApplications.
-_Avoid_: File, resume
+_Avoid_: File, resume. "Resume" is only accepted as part of the label "CV / Resume", where it accompanies "CV"
 
 **Skill**:
 A tag for a technology or competency, attached to Documents and JobApplications.
