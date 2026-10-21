@@ -23,10 +23,9 @@ import {
   CreateJobApplicationForm,
   createJobApplicationSchema,
 } from '@/features/job-applications/schemas/create-job-application-schema.ts';
-import { useQueryClient } from '@tanstack/react-query';
+import { useInvalidateJobApplication } from '@/features/job-applications/hooks/use-invalidate-job-application.ts';
 import { format } from 'date-fns';
 import { useFormDialog } from '@/hooks/use-form-dialog.ts';
-import { queryKeys } from '@/lib/query-keys.ts';
 import OrganizationCountrySection from '@/features/job-applications/components/organization-country-section.tsx';
 import { OrganizationSummary } from '@/features/organizations/types/organization.ts';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';
@@ -51,7 +50,7 @@ interface Props {
 
 const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization }: Props) => {
   const initialCountry = organization?.countries[0] ?? null;
-  const queryClient = useQueryClient();
+  const invalidateJobApplication = useInvalidateJobApplication();
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<CreateJobApplicationForm>({
       action: createJobApplication,
@@ -62,18 +61,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
         ? { organizationName: organization.name, countryId: initialCountry?.id }
         : undefined,
       deps: { cvDocumentFile: ['cvDocumentId'] },
-      onSuccess: async (formData) => {
-        const isUploaded = (name: string) => {
-          const file = formData.get(name);
-          return file instanceof File && file.size > 0;
-        };
-        if (!formData.get('organizationId')) {
-          await queryClient.invalidateQueries({ queryKey: queryKeys.organizations });
-        }
-        if (isUploaded('cvDocumentFile') || isUploaded('coverLetterDocumentFile')) {
-          await queryClient.invalidateQueries({ queryKey: queryKeys.documents });
-        }
-      },
+      onSuccess: invalidateJobApplication,
     });
 
   // Tied to resetKey so a URL typed before a reset doesn't suggest a source in the fresh form

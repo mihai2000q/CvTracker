@@ -27,6 +27,7 @@ import { DocumentType } from '@/features/documents/types/enums/document-type.ts'
 import DocumentPicker from '@/features/job-applications/components/document-picker.tsx';
 import OrganizationCountrySection from '@/features/job-applications/components/organization-country-section.tsx';
 import SourceGroup from '@/features/job-applications/components/source/source-group.tsx';
+import { useInvalidateJobApplication } from '@/features/job-applications/hooks/use-invalidate-job-application.ts';
 import { updateJobApplication } from '@/features/job-applications/actions/update-job-application.ts';
 import {
   UpdateJobApplicationForm,
@@ -45,6 +46,7 @@ interface Props {
 const schema = updateJobApplicationSchema(() => format(new Date(), 'yyyy-MM-dd'));
 
 const EditJobApplicationDialog = ({ jobApplication, open, onOpenChange }: Props) => {
+  const invalidateJobApplication = useInvalidateJobApplication();
   const { dialogProps, contentProps, reset, resetKey, form, fields, isPending } =
     useFormDialog<UpdateJobApplicationForm>({
       action: updateJobApplication,
@@ -64,6 +66,7 @@ const EditJobApplicationDialog = ({ jobApplication, open, onOpenChange }: Props)
       deps: { cvDocumentFile: ['cvDocumentId'] },
       open,
       onOpenChange,
+      onSuccess: invalidateJobApplication,
     });
 
   return (
