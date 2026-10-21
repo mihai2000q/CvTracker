@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 import { DayPicker, getDefaultClassNames, type DayButton, type Locale } from 'react-day-picker';
 
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button.tsx';
 import { RiArrowLeftSLine, RiArrowRightSLine, RiArrowDownSLine } from '@remixicon/react';
 
 function Calendar({

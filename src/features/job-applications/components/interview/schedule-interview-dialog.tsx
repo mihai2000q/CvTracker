@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { getInputProps } from '@conform-to/react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import {
   Dialog,
   DialogClose,
@@ -11,7 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog.tsx';
 import { FieldGroup } from '@/components/ui/field.tsx';
 import FormField from '@/components/form/form-field.tsx';
 import DateInput from '@/components/form/date-input.tsx';

@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import {
   Card,
   CardContent,
@@ -8,8 +8,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+} from '@/components/ui/card.tsx';
+import { Input } from '@/components/ui/input.tsx';
 import { startTransition, useActionState } from 'react';
 import { Marker, MarkerContent } from '@/components/ui/marker.tsx';
 import Link from 'next/link';

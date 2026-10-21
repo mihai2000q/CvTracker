@@ -1,6 +1,6 @@
 import React from 'react';
 import AppSidebar from '@/components/layout/app-sidebar.tsx';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import { SidebarProvider } from '@/components/ui/sidebar.tsx';
 import AppTopbar from '@/components/layout/app-topbar.tsx';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

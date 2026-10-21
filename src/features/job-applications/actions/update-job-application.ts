@@ -2,11 +2,11 @@
 
 import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
-import { db, dbClient } from '@database/db';
-import { sized, uuid } from '@database/field-values';
-import { DocumentType as DbDocumentType } from '@database/enums';
-import { constraintViolationReply } from '@database/sql-error';
-import { getUserId, verifySession } from '@/lib/auth/session';
+import { db, dbClient } from '@database/db.ts';
+import { sized, uuid } from '@database/field-values.ts';
+import { DocumentType as DbDocumentType } from '@database/enums.ts';
+import { constraintViolationReply } from '@database/sql-error.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { getTimeZone } from '@/lib/get-time-zone.ts';

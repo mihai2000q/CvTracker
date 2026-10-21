@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { cn } from 'cn';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils.ts';
+import { ScrollArea } from '@/components/ui/scroll-area.tsx';
 
 function Table({ className, ...props }: React.ComponentProps<'table'>) {
   return (

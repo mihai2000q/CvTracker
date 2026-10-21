@@ -1,7 +1,7 @@
 import 'server-only';
 import { all, or } from '@prisma/orm-postgres/orm-client';
 import { db } from '@database/db.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';

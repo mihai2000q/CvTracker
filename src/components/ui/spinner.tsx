@@ -1,5 +1,5 @@
 import { RiLoader4Line } from '@remixicon/react';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 
 function Spinner({ className, ...props }: React.ComponentProps<typeof RiLoader4Line>) {
   return (

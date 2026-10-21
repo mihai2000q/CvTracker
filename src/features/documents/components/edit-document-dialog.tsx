@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react';
 import { getInputProps } from '@conform-to/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { RiCloseLine, RiFileTextLine, RiUploadLine } from '@remixicon/react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import {
   Attachment,
   AttachmentAction,
@@ -22,12 +22,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog.tsx';
 import { FieldDescription, FieldGroup } from '@/components/ui/field.tsx';
 import FormField from '@/components/form/form-field.tsx';
 import FieldControl from '@/components/form/field-control.tsx';
 import FileSize from '@/components/file-size.tsx';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input.tsx';
 import { Separator } from '@/components/ui/separator.tsx';
 import { Textarea } from '@/components/ui/textarea.tsx';
 import { ScrollArea } from '@/components/ui/scroll-area.tsx';

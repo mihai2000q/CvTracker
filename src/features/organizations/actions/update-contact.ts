@@ -1,9 +1,9 @@
 'use server';
 
 import { updateTag } from 'next/cache';
-import { db } from '@database/db';
-import { sized, uuid } from '@database/field-values';
-import { getUserId, verifySession } from '@/lib/auth/session';
+import { db } from '@database/db.ts';
+import { sized, uuid } from '@database/field-values.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { updateContactSchema } from '@/features/organizations/schemas/update-contact-schema.ts';

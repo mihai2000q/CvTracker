@@ -2,11 +2,11 @@
 
 import { redirect } from 'next/navigation';
 import type { SubmissionResult } from '@conform-to/react';
-import { db } from '@database/db';
-import { sized } from '@database/field-values';
-import { createAuthToken } from '@/lib/auth/jwt';
-import { UNKNOWN_USER_PASSWORD_HASH, verifyPassword } from '@/lib/auth/password';
-import { createSession } from '@/lib/auth/session';
+import { db } from '@database/db.ts';
+import { sized } from '@database/field-values.ts';
+import { createAuthToken } from '@/lib/auth/jwt.ts';
+import { UNKNOWN_USER_PASSWORD_HASH, verifyPassword } from '@/lib/auth/password.ts';
+import { createSession } from '@/lib/auth/session.ts';
 import { signInSchema } from '@/features/auth/sign-in/schemas/sign-in-schema.ts';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 

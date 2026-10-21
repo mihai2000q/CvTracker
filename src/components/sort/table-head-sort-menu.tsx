@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { RiArrowDownSLine, RiArrowUpLine } from '@remixicon/react';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 import { TableHead } from '@/components/ui/table.tsx';
 import {
   DropdownMenu,

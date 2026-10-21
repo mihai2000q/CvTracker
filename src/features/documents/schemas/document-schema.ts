@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { zEmptyToUndefined } from '@/lib/zod/fields.ts';
-import { DocumentType } from '@/features/documents/types/enums/document-type';
+import { DocumentType } from '@/features/documents/types/enums/document-type.ts';
 
 export const documentSchema = z.object({
   type: z.enum(DocumentType, 'Document type is required'),

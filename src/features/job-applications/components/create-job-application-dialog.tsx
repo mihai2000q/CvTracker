@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import {
   Dialog,
   DialogClose,
@@ -10,10 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from '@/components/ui/dialog.tsx';
 import { FieldGroup } from '@/components/ui/field.tsx';
 import FormField from '@/components/form/form-field.tsx';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui/input.tsx';
 import React, { useState } from 'react';
 import { detectSourceFromUrl } from '@/features/job-applications/constants/job-sources.ts';
 import { getInputProps } from '@conform-to/react';

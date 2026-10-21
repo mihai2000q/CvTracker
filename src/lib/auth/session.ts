@@ -1,9 +1,9 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { JWTPayload } from 'jose';
-import { db } from '@database/db';
-import { uuid } from '@database/field-values';
-import { verifyAuthToken } from '@/lib/auth/jwt';
+import { db } from '@database/db.ts';
+import { uuid } from '@database/field-values.ts';
+import { verifyAuthToken } from '@/lib/auth/jwt.ts';
 import { User } from '@/types/user.ts';
 import { cache } from 'react';
 

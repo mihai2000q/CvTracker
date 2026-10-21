@@ -3,7 +3,7 @@ import { not } from '@prisma/orm-postgres/orm-client';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
 import { fuzzy } from '@database/filter.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
 type OrganizationAccessor = ModelAccessor<Contract, 'Organization', 'public'>;

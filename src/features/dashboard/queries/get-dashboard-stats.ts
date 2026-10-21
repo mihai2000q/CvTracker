@@ -2,7 +2,7 @@ import 'server-only';
 import { parseISO } from 'date-fns';
 import { Temporal } from 'temporal-polyfill';
 import { db } from '@database/db.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';

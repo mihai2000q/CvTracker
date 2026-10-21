@@ -2,7 +2,7 @@
 
 import { type ComponentProps, type DragEvent, useState } from 'react';
 import { RiUploadCloud2Line } from '@remixicon/react';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 
 interface Props extends Omit<ComponentProps<'div'>, 'onDrop'> {
   // Same format as the `<input accept>` attribute; used to colour the drag state.

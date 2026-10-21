@@ -1,9 +1,9 @@
 import 'server-only';
 import path from 'node:path';
 import { z } from 'zod';
-import { db } from '@database/db';
-import { uuid } from '@database/field-values';
-import { verifySession } from '@/lib/auth/session';
+import { db } from '@database/db.ts';
+import { uuid } from '@database/field-values.ts';
+import { verifySession } from '@/lib/auth/session.ts';
 import { readDocument } from '@/features/documents/services/read-document.ts';
 
 const CONTENT_TYPES: Record<string, string> = {

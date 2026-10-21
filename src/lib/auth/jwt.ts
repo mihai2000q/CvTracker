@@ -1,5 +1,5 @@
 import { errors, type JWTPayload, jwtVerify, SignJWT } from 'jose';
-import { requireEnv } from '@/lib/env';
+import { requireEnv } from '@/lib/env.ts';
 import { User } from '@/types/user.ts';
 
 const secret = new TextEncoder().encode(requireEnv('JWT_SECRET'));

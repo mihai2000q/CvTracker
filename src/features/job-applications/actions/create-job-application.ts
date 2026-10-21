@@ -1,10 +1,10 @@
 'use server';
 
-import { db } from '@database/db';
-import { sized, uuid } from '@database/field-values';
-import { constraintViolationReply } from '@database/sql-error';
-import { ApplicationStatus, DocumentType as DbDocumentType } from '@database/enums';
-import { getUserId, verifySession } from '@/lib/auth/session';
+import { db } from '@database/db.ts';
+import { sized, uuid } from '@database/field-values.ts';
+import { constraintViolationReply } from '@database/sql-error.ts';
+import { ApplicationStatus, DocumentType as DbDocumentType } from '@database/enums.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';

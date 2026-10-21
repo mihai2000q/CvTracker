@@ -2,13 +2,13 @@
 
 import { redirect } from 'next/navigation';
 import type { SubmissionResult } from '@conform-to/react';
-import { db } from '@database/db';
-import { sized } from '@database/field-values';
-import { isUniqueConstraintError } from '@database/sql-error';
-import { createAuthToken } from '@/lib/auth/jwt';
-import { hashPassword } from '@/lib/auth/password';
-import { createSession } from '@/lib/auth/session';
-import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
+import { db } from '@database/db.ts';
+import { sized } from '@database/field-values.ts';
+import { isUniqueConstraintError } from '@database/sql-error.ts';
+import { createAuthToken } from '@/lib/auth/jwt.ts';
+import { hashPassword } from '@/lib/auth/password.ts';
+import { createSession } from '@/lib/auth/session.ts';
+import { signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema.ts';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 
 export async function signUp(

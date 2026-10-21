@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 import React from 'react';
 
 interface SegmentedControlItem {

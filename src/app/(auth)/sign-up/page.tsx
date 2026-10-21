@@ -3,7 +3,7 @@
 import React, { startTransition, useActionState } from 'react';
 import Link from 'next/link';
 import { getInputProps, useForm } from '@conform-to/react';
-import { zodValidator } from '@/components/form/zod-validator';
+import { zodValidator } from '@/components/form/zod-validator.ts';
 import {
   Card,
   CardContent,
@@ -15,10 +15,10 @@ import {
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Marker, MarkerContent } from '@/components/ui/marker.tsx';
-import { FieldError, FieldGroup } from '@/components/ui/field';
-import FormField from '@/components/form/form-field';
-import { signUp } from '@/features/auth/sign-up/actions/sign-up';
-import { SignUpForm, signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema';
+import { FieldError, FieldGroup } from '@/components/ui/field.tsx';
+import FormField from '@/components/form/form-field.tsx';
+import { signUp } from '@/features/auth/sign-up/actions/sign-up.ts';
+import { SignUpForm, signUpSchema } from '@/features/auth/sign-up/schemas/sign-up-schema.ts';
 
 const SignUp = () => {
   const [lastResult, formAction, isPending] = useActionState(signUp, undefined);

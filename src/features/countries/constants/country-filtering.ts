@@ -2,7 +2,7 @@ import { all } from '@prisma/orm-postgres/orm-client';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
 import { fuzzy } from '@database/filter.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 
 export const COUNTRY_SCOPES = ['applied', 'all'] as const;
 export type CountryScope = (typeof COUNTRY_SCOPES)[number];

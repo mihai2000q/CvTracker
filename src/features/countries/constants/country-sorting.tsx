@@ -4,7 +4,7 @@ import {
   RiSortAlphabetAsc,
   RiSortAlphabetDesc,
 } from '@remixicon/react';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import type { ModelAccessor } from '@prisma/orm-postgres/orm-client';
 import type { Contract } from '@database/contract.d';
 import type { Sorters, Tiebreakers } from '@database/sort.ts';

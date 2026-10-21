@@ -3,8 +3,8 @@
 import { queryKeys } from '@/lib/query-keys.ts';
 import React, { useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useDebouncedValue } from '@/hooks/use-debounced-value';
-import { useHasLoadedOnce } from '@/hooks/use-has-loaded-once';
+import { useDebouncedValue } from '@/hooks/use-debounced-value.ts';
+import { useHasLoadedOnce } from '@/hooks/use-has-loaded-once.ts';
 import {
   Combobox,
   ComboboxChip,

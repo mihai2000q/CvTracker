@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono, Roboto } from 'next/font/google';
 import './globals.css';
 import 'flag-icons/css/flag-icons.min.css';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils.ts';
 import Providers from '@/app/providers.tsx';
 
 const roboto = Roboto({ subsets: ['latin'], variable: '--font-sans' });

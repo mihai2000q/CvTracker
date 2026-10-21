@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import JobApplicationStatusIndicator from '@/features/job-applications/components/status/job-application-status-indicator.tsx';
 import { cn } from '@/lib/utils.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';

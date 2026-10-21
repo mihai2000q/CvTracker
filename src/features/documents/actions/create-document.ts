@@ -1,10 +1,10 @@
 'use server';
 
 import { updateTag } from 'next/cache';
-import { db } from '@database/db';
-import { sized, uuid } from '@database/field-values';
-import { constraintViolationReply } from '@database/sql-error';
-import { getUserId, verifySession } from '@/lib/auth/session';
+import { db } from '@database/db.ts';
+import { sized, uuid } from '@database/field-values.ts';
+import { constraintViolationReply } from '@database/sql-error.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
 import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
 import { storeDocument } from '@/features/documents/services/store-document.ts';

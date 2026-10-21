@@ -1,7 +1,7 @@
 import 'server-only';
 import { db } from '@database/db.ts';
-import { DocumentType as DbDocumentType } from '@database/enums';
-import { uuid } from '@database/field-values';
+import { DocumentType as DbDocumentType } from '@database/enums.ts';
+import { uuid } from '@database/field-values.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';

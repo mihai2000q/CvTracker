@@ -2,15 +2,15 @@
 
 import * as React from 'react';
 import { Combobox as ComboboxPrimitive } from '@base-ui/react';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button.tsx';
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
   InputGroupInput,
-} from '@/components/ui/input-group';
+} from '@/components/ui/input-group.tsx';
 import { RiArrowDownSLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 const Combobox = ComboboxPrimitive.Root;

@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from 'cn';
+import { cn } from '@/lib/utils.ts';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button.tsx';
+import { Input } from '@/components/ui/input.tsx';
+import { Textarea } from '@/components/ui/textarea.tsx';
 
 // 'ghost' has no border or background until it is hovered, for a control that sits in a page
 // instead of a form

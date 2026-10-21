@@ -5,7 +5,7 @@ import {
   toOrganizationSummary,
 } from '@/features/organizations/types/organization.ts';
 import { db } from '@database/db.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';

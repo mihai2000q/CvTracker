@@ -1,10 +1,10 @@
 'use server';
 
 import { updateTag } from 'next/cache';
-import { db, dbClient } from '@database/db';
-import { sized, uuid } from '@database/field-values';
-import { isForeignKeyConstraintError } from '@database/sql-error';
-import { getUserId, verifySession } from '@/lib/auth/session';
+import { db, dbClient } from '@database/db.ts';
+import { sized, uuid } from '@database/field-values.ts';
+import { isForeignKeyConstraintError } from '@database/sql-error.ts';
+import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { updateOrganizationSchema } from '@/features/organizations/schemas/update-organization-schema.ts';

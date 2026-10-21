@@ -1,6 +1,6 @@
 import 'server-only';
 import { db } from '@database/db.ts';
-import { uuid } from '@database/field-values';
+import { uuid } from '@database/field-values.ts';
 import { InterviewOutcome as DbInterviewOutcome } from '@database/enums.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheLife, cacheTag } from 'next/cache';
