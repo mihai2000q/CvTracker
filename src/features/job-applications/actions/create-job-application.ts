@@ -1,8 +1,9 @@
 'use server';
 
 import { Temporal } from 'temporal-polyfill';
-import { dbClient } from '@database/db.ts';
+import { dbClient, type Database } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
+import { ApplicationStatus } from '@database/enums.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
@@ -15,7 +16,6 @@ import { cacheTags } from '@/lib/cache-tags.ts';
 import { storedFiles } from '@/features/documents/services/stored-files.ts';
 import { normalizeSource } from '@/features/job-applications/constants/job-sources.ts';
 import { checkDocumentTypes } from '@/features/job-applications/services/check-document-types.ts';
-import { initialStatusHistory } from '@/features/job-applications/services/initial-status.ts';
 import {
   filesOf,
   resolveJobApplicationParts,
@@ -85,3 +85,17 @@ export async function createJobApplication(
   if (created.createdDocuments) updateTag(cacheTags.documents(userId));
   return submission.reply({ resetForm: true });
 }
+
+type JobApplicationInput = Parameters<Database['JobApplication']['create']>[0];
+type StatusHistoryRelation = Extract<
+  NonNullable<JobApplicationInput['statusHistory']>,
+  (...args: never[]) => unknown
+>;
+
+// The first entry of the status history of an application that is being created, which starts as
+// Applied. It goes in the same write as the application, so the two never part
+const initialStatusHistory: StatusHistoryRelation = (statusHistory) =>
+  statusHistory.create({
+    status: ApplicationStatus.members.Applied,
+    changedAt: new Date().toISOString(),
+  });

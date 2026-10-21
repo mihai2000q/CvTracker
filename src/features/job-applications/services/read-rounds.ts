@@ -5,8 +5,6 @@ import type { Transaction } from '@database/db.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 
-// The interview rounds of an application as the rules of the lifecycle see them
-
 export interface RoundState {
   id: string;
   roundType: RoundType;
