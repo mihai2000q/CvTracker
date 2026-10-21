@@ -6,7 +6,7 @@ import Link from 'next/link';
 import PastDate from '@/components/date/past-date.tsx';
 import OrganizationAvatar from '@/features/organizations/components/organization/organization-avatar.tsx';
 import JobApplicationStatusBadge from '@/features/job-applications/components/status/job-application-status-badge.tsx';
-import InfiniteScrollList from '@/features/dashboard/components/infinite-scroll-list.tsx';
+import InfiniteScrollList from '@/components/list/infinite-scroll-list.tsx';
 import { queryKeys } from '@/lib/query-keys.ts';
 import type { CursorPage } from '@/lib/pagination.ts';
 import type { RecentActivityItem } from '@/features/dashboard/types/recent-activity.ts';

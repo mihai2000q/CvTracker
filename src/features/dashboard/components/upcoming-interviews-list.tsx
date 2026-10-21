@@ -5,7 +5,7 @@ import { RiEarthFill } from '@remixicon/react';
 import Link from 'next/link';
 import FutureDateTime from '@/components/date/future-date-time.tsx';
 import OrganizationAvatar from '@/features/organizations/components/organization/organization-avatar.tsx';
-import InfiniteScrollList from '@/features/dashboard/components/infinite-scroll-list.tsx';
+import InfiniteScrollList from '@/components/list/infinite-scroll-list.tsx';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { queryKeys } from '@/lib/query-keys.ts';
 import type { CursorPage } from '@/lib/pagination.ts';
