@@ -1,6 +1,5 @@
 'use server';
 
-import { z } from 'zod';
 import { updateTag } from 'next/cache';
 import { db, dbClient } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
@@ -15,12 +14,11 @@ import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-t
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 import { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
+import {
+  setInterviewOutcomeSchema,
+  SetInterviewOutcomeInput,
+} from '@/features/job-applications/schemas/set-interview-outcome-schema.ts';
 import { InterviewOutcomeEffect } from '@/features/job-applications/types/interview-outcome-effect.ts';
-
-const setOutcomeSchema = z.object({
-  interviewRoundId: z.uuid('Interview round is invalid'),
-  outcome: z.enum(InterviewOutcome, 'Outcome is invalid'),
-});
 
 const DB_OUTCOMES = {
   [InterviewOutcome.Scheduled]: DbInterviewOutcome.members.Scheduled,
@@ -32,15 +30,15 @@ const DB_OUTCOMES = {
 // A failed round rejects the application still in progress, unless another round is yet to
 // take place: then it only says so, for the user to decide
 export async function setInterviewOutcome(
-  interviewRoundId: string,
-  outcome: InterviewOutcome
+  input: SetInterviewOutcomeInput
 ): Promise<Result<InterviewOutcomeEffect>> {
   const userId = getUserId(await verifySession());
 
-  const parsed = zodValidate({ interviewRoundId, outcome }, setOutcomeSchema);
+  const parsed = zodValidate(input, setInterviewOutcomeSchema);
   if (!parsed.success) {
     return parsed;
   }
+  const { interviewRoundId, outcome } = parsed.data;
 
   const round = await db.InterviewRound.first({ id: uuid(interviewRoundId) });
   if (!round) return { success: false, errors: { id: ['Interview round not found'] } };

@@ -76,7 +76,7 @@ const InterviewRoundItem = ({ round, organizationId, jobApplicationId }: Props) 
 
   function handleOutcome(outcome: InterviewOutcome) {
     if (outcome === round.outcome) return;
-    run(() => setInterviewOutcome(round.id, outcome), {
+    run(() => setInterviewOutcome({ interviewRoundId: round.id, outcome }), {
       onSuccess: (effect) => {
         const description = `${roundName}: ${INTERVIEW_OUTCOME_LABELS[outcome]}`;
         if (effect?.rejected) {
