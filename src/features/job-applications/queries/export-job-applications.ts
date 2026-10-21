@@ -1,10 +1,11 @@
 import 'server-only';
 import ExcelJS from 'exceljs';
-import { format as formatDate } from 'date-fns';
 import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { toCsv } from '@/lib/csv.ts';
+import { getTimeZone } from '@/lib/get-time-zone.ts';
+import { todayIn } from '@/lib/time-zone.ts';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { INTERVIEW_OUTCOME_LABELS } from '@/features/job-applications/constants/interview-outcomes.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
@@ -96,7 +97,8 @@ async function getExportData() {
     ];
   });
 
-  return { applicationRows, filenameDate: formatDate(now, 'yyyy-MM-dd') };
+  // The day in the user's time zone, not the server's
+  return { applicationRows, filenameDate: todayIn(await getTimeZone()) };
 }
 
 export async function exportJobApplicationsCsv(): Promise<ExportedFile> {

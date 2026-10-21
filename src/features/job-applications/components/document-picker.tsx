@@ -60,6 +60,8 @@ const DocumentPicker = ({
         accept={accept}
         ref={inputRef}
         type="file"
+        // The label of the field is the one of the document selector, so this one names itself
+        aria-label={`Upload a new ${documentType === DocumentType.CV ? 'CV' : 'cover letter'}`}
         className="sr-only"
         onChange={(event) => {
           setFile(event.currentTarget.files?.[0] ?? null);

@@ -18,13 +18,14 @@ interface Props {
 }
 
 const AppPagination = ({ page, totalCount, hrefForPage, pageSize = DEFAULT_PAGE_SIZE }: Props) => {
+  const totalPages = Math.ceil(totalCount / pageSize);
+
   // guard when page is not within range
-  const lastPage = Math.max(1, Math.ceil(totalCount / pageSize));
+  const lastPage = Math.max(1, totalPages);
   if (page > lastPage) {
     redirect(hrefForPage(lastPage));
   }
 
-  const totalPages = Math.ceil(totalCount / pageSize);
   if (totalPages <= 1) return null;
 
   return (

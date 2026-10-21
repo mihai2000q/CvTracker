@@ -11,10 +11,10 @@ interface Options<T> {
   onError?: () => void;
 }
 
-// A list that grows by a page at a time, in state that is local to it
 const notifyLoadFailed = () =>
   toast.add({ type: 'error', title: 'Could not load more', description: 'Please try again' });
 
+// A list that grows by a page at a time, in state that is local to it
 export function usePagedItems<T>({
   initialItems,
   totalCount,

@@ -41,7 +41,8 @@ export async function setInterviewOutcome(
   const { interviewRoundId, outcome } = parsed.data;
 
   const round = await db.InterviewRound.first({ id: uuid(interviewRoundId) });
-  if (!round) return { success: false, errors: { id: ['Interview round not found'] } };
+  if (!round)
+    return { success: false, errors: { interviewRoundId: ['Interview round not found'] } };
   const jobApplication = await db.JobApplication.first({ id: round.jobApplicationId });
 
   const effect: InterviewOutcomeEffect = { rejected: false, suggestRejection: false };

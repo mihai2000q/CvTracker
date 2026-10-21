@@ -40,7 +40,7 @@ export async function changeJobApplicationStatus(
 
   const jobApplication = await db.JobApplication.first({ id: uuid(jobApplicationId) });
   if (!jobApplication) {
-    return { success: false, errors: { id: ['Job application not found'] } };
+    return { success: false, errors: { jobApplicationId: ['Job application not found'] } };
   }
   // Nothing moved, so nothing to record
   if (jobApplication.currentStatus === status) {
