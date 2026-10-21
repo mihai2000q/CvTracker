@@ -37,7 +37,7 @@ const AppSidebarUserMenu = ({ children }: Props) => {
             render={
               <SidebarMenuButton
                 size="lg"
-                className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                className="data-popup-open:bg-sidebar-accent data-popup-open:text-sidebar-accent-foreground"
               />
             }
           >
@@ -45,7 +45,7 @@ const AppSidebarUserMenu = ({ children }: Props) => {
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width)"
+            className="w-(--anchor-width)"
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
