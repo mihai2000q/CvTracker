@@ -13,8 +13,9 @@ no profile image, no roles/permissions.
   never returned by any query)
 - `created_at`, `updated_at`
 
-There is no seeded user — the first account, like every account, is created
-by calling signup. See [04-data-access.md](./04-data-access.md#authentication)
+There is no seeded user in the required setup — the first account, like every
+account, is created by calling signup. The optional sample data
+(`npm run db:seed:sample`) adds one example user for development. See [04-data-access.md](./04-data-access.md#authentication)
 for the signup/sign-in/session flow.
 
 ### Country
@@ -171,8 +172,9 @@ InterviewRound with Siemens next Tuesday" is a queryable fact, not buried in a n
 Many-to-many between JobApplication and Skill — which skills/tags were
 relevant to (or emphasized in) a given application. Like
 `OrganizationCountry` and `DocumentHasSkill`, it has no actions of its
-own: the full set of skills is replaced in one write when the application is
-created or updated.
+own: the set of skills is written in one go when the application is created.
+Replacing the full set when it is updated is intended but not implemented yet
+(see [04-data-access.md](./04-data-access.md#limitations)).
 
 When an application is created, the skills of the selected CV (and cover
 letter, if any) are **copied** into the form as a pre-fill; the user can
@@ -185,8 +187,9 @@ changes to a document's skills never alter existing applications.
 ### DocumentHasSkill (join table)
 Many-to-many between Document and Skill — which skills a CV or cover letter
 emphasizes. Used to pre-fill an application's skills when the document is
-selected. Managed as part of creating/updating the document (the full set is
-replaced in one write), not through its own actions.
+selected. Set as part of creating the document, not through its own actions.
+Replacing the full set when the document is updated is intended but not
+implemented yet.
 
 - `document_id` → Document
 - `skill_id` → Skill
@@ -318,8 +321,9 @@ field; earlier drafts of this document proposed both.
 10. `Skill.name` uniqueness is scoped to `(user_id, name)`, not global —
     each user can have their own "React" skill row, independent of any
     other user's.
-11. `User` accounts are created only via signup — there is no seed data for
-    the `user` table (unlike `Country`). The current user for any request is
+11. `User` accounts are created only via signup — the required seed data has
+    nothing for the `user` table (unlike `Country`); only the optional sample
+    data adds an example user. The current user for any request is
     resolved from a signed JWT (see
     [04-data-access.md](./04-data-access.md#authentication)), never passed
     directly by the client and never trusted from anywhere but that
@@ -334,5 +338,6 @@ field; earlier drafts of this document proposed both.
     updating an `Organization` with a list of country ids sets its complete
     set of operating countries, replacing whatever was there before — there
     is no incremental add/remove operation for it (`JobApplicationHasSkill` and
-    `DocumentHasSkill` follow the same rule: the full `skillIds` set is sent
-    with every create or update).
+    `DocumentHasSkill` are meant to follow the same rule, with the full
+    `skillIds` set sent on every write, but today it is only accepted when
+    creating: the update actions don't take it).

@@ -35,8 +35,9 @@ CvTracker exists to answer these questions reliably.
 - Support real **signup and sign-in**: a `User` account is created via
   signup (hashed password), authenticated via sign-in, and identified on
   every subsequent request via a signed JWT held in an HTTP-only cookie.
-  No accounts are pre-seeded — the first user is created through the
-  signup flow like any other.
+  No accounts are pre-seeded by the required setup — the first user is created
+  through the signup flow like any other (the optional sample data adds an
+  example user for development).
 
 ## Non-goals (for this phase)
 
@@ -64,7 +65,7 @@ CvTracker exists to answer these questions reliably.
 | File storage        | Local filesystem, mounted as a Docker volume       |
 | Deployment          | Docker Compose, local-only                         |
 | Auth                | Signup + sign-in, stateless signed JWT in an HTTP-only cookie |
-| Users               | Modeled in the data (`User`, `user_id` on owned entities); created via signup, no seeding |
+| Users               | Modeled in the data (`User`, `user_id` on owned entities); created via signup, none seeded (except the optional sample user) |
 
 ## Document map
 

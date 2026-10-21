@@ -3,7 +3,7 @@ import { sized, type Sized } from '../field-values.ts';
 
 // Full ISO 3166-1 alpha-2 list (249 entries). Codes are hardcoded (stable —
 // rarely changes); names are generated once via Node's built-in
-// Intl.DisplayNames (see docs/03-architecture.md), not hand-typed or
+// Intl.DisplayNames (see docs/02-database-schema.md), not hand-typed or
 // scraped from a third-party source. A handful of CLDR's short-form names
 // were overridden for clarity (e.g. 'Congo - Kinshasa' ->
 // 'Democratic Republic of the Congo'), and '&' was normalized to 'and'

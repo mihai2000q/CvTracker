@@ -21,9 +21,13 @@ reaches the server through three mechanisms (details and the full list in
 Code is organized by feature (`src/features/` has `auth`, `countries`,
 `dashboard`, `documents`, `job-applications` and `organizations`), each with
 its own `queries/`, `actions/`, `schemas/` (zod), `types/`, `constants/`,
-`services/` and `components/` as needed. Shared code is in `src/lib/`, shared UI
-in `src/components/`, and everything database-related (Prisma contract,
-migrations, seeds, query helpers) in `database/`.
+`services/` and `components/` as needed. Shared code is in `src/lib/`, shared
+types in `src/types/`, shared UI in `src/components/`, and everything
+database-related (Prisma contract, migrations, seeds, query helpers) in
+`database/`. Shared code does not depend on a feature, with one exception:
+`src/components/layout/` is the app shell (sidebar, top bar, user menu), which
+puts the features together, so it imports their count queries, the sign-out
+action and the create and export controls.
 
 ## Logical layers
 
@@ -131,7 +135,10 @@ a genuine bug signal rather than a normal, recoverable auth failure.
 `src/proxy.ts` is the single gate for every route, running before any
 rendering starts: it redirects an unauthenticated visitor to `/sign-in`,
 and redirects an authenticated one away from `/sign-in`/`/sign-up` to
-`/dashboard`. `(root)/layout.tsx` and `(auth)/layout.tsx` contain no auth
+`/dashboard`. A request to an `/api` route without a valid session gets a
+JSON `401` instead of a redirect, since a `fetch` would follow the redirect and
+get HTML back. Only the static assets, `/favicon.ico` and `/icon.svg` skip it,
+and `/api/session/clear`, which must work without a session, passes through. `(root)/layout.tsx` and `(auth)/layout.tsx` contain no auth
 logic of their own — by the time either renders, proxy has already decided
 the visitor belongs there.
 

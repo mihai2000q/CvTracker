@@ -96,6 +96,7 @@ topology (services, volumes, ports) this maps to.
 | `npm run migrations:down -- <migration-dir>^` | *Plan* a rollback migration (does not apply it — see [`docs/03-architecture.md`](./docs/03-architecture.md)) |
 | `npm run db:seed` | Seed required reference data (countries) |
 | `npm run db:seed:sample` | Seed optional dev fixtures (an example user with data) — never required |
+| `npm run db:clear:sample` | Remove the sample data, so it can be seeded again |
 | `npm run db:setup` | `migrations:up` + `db:seed` — the one command for "give me a working database" |
 
 ## Documentation

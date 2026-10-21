@@ -34,7 +34,10 @@ name is job-applications.
   [03-architecture.md](./03-architecture.md#authentication-flow)). None of them
   accept a `userId` from the caller: the current user always comes from the
   verified session (domain model rule 11). An unauthenticated caller is
-  redirected to `/sign-in`, there is no `401`.
+  redirected to `/sign-in`. The one exception is a request to an `/api`
+  route without a valid session: `src/proxy.ts` answers it with a JSON `401`
+  before the handler runs, since a `fetch` would follow a redirect and get the
+  sign-in page back.
 - **Ownership.** Queries filter by `userId` in the `where` clause, so another
   user's row is simply not found (`null`, or a "not found" error). Actions
   mostly don't: authorization is out of scope, see [Known gaps](#known-gaps).
@@ -171,8 +174,8 @@ since an application holds it specifically as a CV or as a cover letter.
 
 | Action | Purpose |
 |---|---|
-| `createJobApplication` | Creates the application **and its first status-history row** ("applied"). Can create the organization and upload the CV and cover letter in the same submission |
-| `updateJobApplication` | Updates title, URL, source, notes, documents and country. Not the status |
+| `createJobApplication` | Creates the application **and its first status-history row** ("applied"). Can create the organization and upload the CV and cover letter in the same submission. A chosen CV must be a CV-type document and a chosen cover letter a cover-letter-type one (domain rule 1a) |
+| `updateJobApplication` | Updates title, URL, source, notes, documents and country, with the same document type check as create. Not the status |
 | `deleteJobApplication` | Deletes it; its history and InterviewRounds go with it, the organization's contacts stay |
 | `changeJobApplicationStatus` | Appends a status-history entry and updates `currentStatus`, in one transaction. Moving to `withdrawn` or `no_response` cancels the InterviewRounds still to come, `offer` and `rejected` settle them; the result reports what was affected |
 | `markGhostedJobApplications` / `undoGhostedJobApplications` | Moves every stale application to Ghosted (`no_response`) and cancels its upcoming InterviewRounds; the result carries what the undo needs to put it all back |
@@ -184,9 +187,9 @@ since an application holds it specifically as a CV or as a cover letter.
 Status changes are their own action and not part of `updateJobApplication`,
 because creating a history entry is the operation, not overwriting a field.
 
-Skill tags follow the same full-replace rule as `countryIds`: `skillIds` is
-sent when creating or updating an application or a document and replaces the
-set in one write (see [Limitations](#limitations)).
+Skill tags are meant to follow the same full-replace rule as `countryIds`, but
+for now `skillIds` is only accepted when creating an application or a document:
+the update actions don't take it (see [Limitations](#limitations)).
 
 ## Route handlers
 
@@ -210,10 +213,11 @@ a Server Component can't serve them:
 
 Two things are different from pages and actions:
 
-- `src/proxy.ts` excludes `api/` from its matcher, so these handlers are
-  **not** gated or refreshed by it. Each one is protected by the
-  `verifySession()` inside the query it calls (the session-clear route needs
-  none).
+- `src/proxy.ts` matches `api/` too: a request without a valid session gets a
+  JSON `401` (`{ error: 'Unauthorized' }`) instead of a redirect, and an
+  expired token is refreshed as for any other route. The session-clear route is
+  the exception, as it has to be reachable without a session. Each handler
+  still relies on the `verifySession()` inside the query it calls.
 - Errors use `{ errors }` (a field map), except export, which uses
   `{ error: "message" }` for an unknown format.
 
@@ -224,10 +228,11 @@ The client calls them through `src/lib/http/fetch-json.ts` with TanStack Query
 
 - **Skills have no management of their own.** There is no query and no action
   to list, create, rename or delete a skill. Skills exist in the schema, and
-  `skillIds` is accepted when creating or updating a document or an application,
-  but nothing in the app creates a `Skill` row yet, so the tags can only be
-  populated from the sample data. Domain rule 6 (tagging with a skill that
-  doesn't exist creates it) is not implemented.
+  `skillIds` is accepted when creating a document or an application (not when
+  updating one: replacing the set on update is planned), but nothing in the app
+  creates a `Skill` row yet, so the tags can only be populated from the sample
+  data. Domain rule 6 (tagging with a skill that doesn't exist creates it) is
+  not implemented.
 - **No account features beyond sign-up, sign-in and sign-out.** No password
   reset, email verification, profile update or account deletion.
 - **No server-side revocation.** The session is a stateless JWT; sign-out only

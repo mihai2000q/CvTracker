@@ -21,8 +21,9 @@ Prisma; the tables below show them as `uuid`, and every `*_id` foreign key is
 ### `user`
 
 Minimal on purpose — no profile image, no roles. Rows are created only by
-the signup action; there is no seed data for this table (contrast with
-`country` below, which is seeded).
+the signup action; the required seed data has nothing for this table (contrast
+with `country` below, which is seeded). Only the optional sample data adds an
+example user.
 
 | Column         | Type          | Constraints                  |
 |----------------|---------------|-------------------------------|
@@ -266,9 +267,6 @@ future Node/ICU version resolves a name differently.
   timeline, InterviewRounds, and tags. A contact is owned by its
   organization instead (`contact.organization_id`: `ON DELETE CASCADE`), so it
   outlives any one application.
-- `document_has_skill.*`: `ON DELETE CASCADE` — same as the other join
-  tables; deleting a skill also removes its tags from documents and
-  applications.
 - `document_has_skill.*`: `ON DELETE CASCADE` — same as the other join
   tables; deleting a skill also removes its tags from documents and
   applications.
