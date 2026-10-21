@@ -8,6 +8,7 @@ import { getTimeZone } from '@/lib/get-time-zone.ts';
 import { todayIn } from '@/lib/time-zone.ts';
 import { JOB_APPLICATION_STATUSES } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { INTERVIEW_OUTCOME_LABELS } from '@/features/job-applications/constants/interview-outcomes.ts';
+import { isUpcoming } from '@/features/job-applications/lifecycle/upcoming.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
@@ -69,9 +70,7 @@ async function getExportData() {
   const now = new Date();
   const applicationRows: Cell[][] = models.map((model) => {
     // The rounds come ordered by date, so the first scheduled one still ahead is the next
-    const nextRound = model.interviewRounds.find(
-      (round) => round.outcome === InterviewOutcome.Scheduled && new Date(round.scheduledAt) >= now
-    );
+    const nextRound = model.interviewRounds.find((round) => isUpcoming(round, now));
     const lastRound = model.interviewRounds.at(-1);
 
     return [

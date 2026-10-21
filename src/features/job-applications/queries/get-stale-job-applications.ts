@@ -3,7 +3,7 @@ import { db } from '@database/db.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { cacheLife, cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
-import { findStaleJobApplications } from '@/features/job-applications/services/find-stale-job-applications.ts';
+import { findStaleJobApplications } from '@/features/job-applications/lifecycle/ghosting.ts';
 import type { StaleJobApplication } from '@/features/job-applications/types/job-application.ts';
 
 export async function getStaleJobApplications(): Promise<StaleJobApplication[]> {

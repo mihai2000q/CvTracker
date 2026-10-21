@@ -9,7 +9,8 @@ import { Separator } from '@/components/ui/separator.tsx';
 import InterviewOutcomeBadge from '@/features/job-applications/components/interview/interview-outcome-badge.tsx';
 import { ROUND_TYPE_LABELS } from '@/features/job-applications/constants/round-types.ts';
 import { InterviewOutcome } from '@/features/job-applications/types/enums/interview-outcome.ts';
-import { InterviewRound, isUpcoming } from '@/features/job-applications/types/interview-round.ts';
+import { isUpcoming } from '@/features/job-applications/lifecycle/upcoming.ts';
+import { InterviewRound } from '@/features/job-applications/types/interview-round.ts';
 
 // The year is only worth saying when it isn't this one
 const formatDate = (date: Date) =>

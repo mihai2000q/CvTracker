@@ -15,4 +15,8 @@ const dbClient = postgres<Contract>({
 // that isn't a model query (e.g. `dbClient.close()` in a one-off script).
 export const db = dbClient.orm.public;
 export type Database = typeof db;
+// What `dbClient.transaction` hands its callback, with the models reached the way `db` has them
+export type Transaction = Parameters<
+  Parameters<typeof dbClient.transaction>[0]
+>[0]['orm']['public'];
 export { dbClient };

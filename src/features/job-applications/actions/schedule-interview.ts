@@ -1,18 +1,16 @@
 'use server';
 
-import { db, dbClient } from '@database/db.ts';
+import { db, dbClient, type Database } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { isForeignKeyConstraintError } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import type { SubmissionResult } from '@conform-to/react';
-import { STATUSES_BEFORE_INTERVIEW } from '@/features/job-applications/constants/job-application-statuses.ts';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { updateTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { scheduleInterviewSchema } from '@/features/job-applications/schemas/schedule-interview-schema.ts';
 import { ContactForm } from '@/features/organizations/schemas/contact-schema.ts';
-import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
-import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
+import { moveToInterviewOnScheduling } from '@/features/job-applications/lifecycle/schedule-round.ts';
 import { MODEL_ROUND_TYPES } from '@/features/job-applications/types/enums/model-round-type.ts';
 
 export async function scheduleInterview(_state: SubmissionResult | undefined, formData: FormData) {
@@ -51,9 +49,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
           ]),
       });
 
-      const moveToInterview = STATUSES_BEFORE_INTERVIEW.includes(jobApplication.currentStatus);
-      if (!moveToInterview) return;
-      await recordStatusChange(tx, [jobApplicationId], JobApplicationStatus.Interview);
+      await moveToInterviewOnScheduling(tx, jobApplicationId, jobApplication.currentStatus);
     });
   } catch (error) {
     if (isForeignKeyConstraintError(error)) {
@@ -67,7 +63,7 @@ export async function scheduleInterview(_state: SubmissionResult | undefined, fo
   return submission.reply({ resetForm: true });
 }
 
-type JoinInput = Parameters<typeof db.InterviewRoundHasContact.create>[0];
+type JoinInput = Parameters<Database['InterviewRoundHasContact']['create']>[0];
 type NewContactRelation = Extract<NonNullable<JoinInput['contact']>, (...args: never[]) => unknown>;
 
 function createNewContact(

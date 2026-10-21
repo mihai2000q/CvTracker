@@ -19,7 +19,7 @@ import PastDate from '@/components/date/past-date.tsx';
 import { useResultTransition } from '@/hooks/use-result-transition.ts';
 import { markGhostedJobApplications } from '@/features/job-applications/actions/mark-ghosted-job-applications.ts';
 import { undoGhostedJobApplications } from '@/features/job-applications/actions/undo-ghosted-job-applications.ts';
-import type { GhostedUndo } from '@/features/job-applications/schemas/undo-ghosted-job-applications-schema.ts';
+import type { GhostedUndo } from '@/features/job-applications/lifecycle/ghosted-undo.ts';
 import {
   GHOSTED_AFTER_MONTHS,
   JOB_APPLICATION_STATUSES,

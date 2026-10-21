@@ -1,9 +1,10 @@
 'use server';
 
-import { db } from '@database/db.ts';
+import { db, type Database } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
-import { ApplicationStatus, DocumentType as DbDocumentType } from '@database/enums.ts';
+import { DocumentType as DbDocumentType } from '@database/enums.ts';
+import { initialStatusHistory } from '@/features/job-applications/lifecycle/initial-status.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createJobApplicationSchema } from '@/features/job-applications/schemas/create-job-application-schema.ts';
 import type { SubmissionResult } from '@conform-to/react';
@@ -72,11 +73,7 @@ export async function createJobApplication(
       notes,
       userId: uuid(userId),
       skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-      statusHistory: (statusHistory) =>
-        statusHistory.create({
-          status: ApplicationStatus.members.Applied,
-          changedAt: new Date().toISOString(),
-        }),
+      statusHistory: initialStatusHistory,
       ...(organizationId
         ? { organizationId: uuid(organizationId) }
         : { organization: createNewOrganization(organizationName, countryId, userId) }),
@@ -103,8 +100,8 @@ export async function createJobApplication(
   return submission.reply({ resetForm: true });
 }
 
-type DocumentInput = Parameters<typeof db.Document.create>[0];
-type JobApplicationInput = Parameters<typeof db.JobApplication.create>[0];
+type DocumentInput = Parameters<Database['Document']['create']>[0];
+type JobApplicationInput = Parameters<Database['JobApplication']['create']>[0];
 type NewRelation<Key extends 'organization' | 'cvDocument' | 'coverLetterDocument'> = Extract<
   NonNullable<JobApplicationInput[Key]>,
   (...args: never[]) => unknown

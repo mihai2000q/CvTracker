@@ -2,7 +2,7 @@
 
 import { Temporal } from 'temporal-polyfill';
 import { updateTag } from 'next/cache';
-import { db, dbClient } from '@database/db.ts';
+import { db, dbClient, type Database } from '@database/db.ts';
 import { sized, uuid } from '@database/field-values.ts';
 import { DocumentType as DbDocumentType } from '@database/enums.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
@@ -118,7 +118,7 @@ export async function updateJobApplication(
   return submission.reply({ resetForm: true });
 }
 
-type DocumentInput = Parameters<typeof db.Document.create>[0];
+type DocumentInput = Parameters<Database['Document']['create']>[0];
 
 function newDocument(
   type: (typeof DbDocumentType.members)[keyof typeof DbDocumentType.members],

@@ -13,6 +13,7 @@ import {
   GetUpcomingInterviewsQueryInput,
   getUpcomingInterviewsQuerySchema,
 } from '@/features/dashboard/schemas/get-upcoming-interviews-schema.ts';
+import { startsAfter } from '@/features/job-applications/lifecycle/upcoming.ts';
 import type { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 import type { UpcomingInterview } from '@/features/dashboard/types/upcoming-interview.ts';
 
@@ -39,7 +40,7 @@ async function getUpcomingInterviewsQuery(
   cacheLife('minutes');
 
   let dbQuery = db.InterviewRound.where({ outcome: DbInterviewOutcome.members.Scheduled })
-    .where((round) => round.scheduledAt.gt(new Date().toISOString()))
+    .where(startsAfter(new Date()))
     .where((round) => round.jobApplication.some((ja) => ja.userId.eq(uuid(userId))))
     .include('jobApplication', (ja) =>
       ja

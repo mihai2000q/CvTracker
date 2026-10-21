@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
 
-export const undoGhostedJobApplicationsSchema = z.object({
+export const ghostedUndoSchema = z.object({
   applications: z.array(
     z.object({
       id: z.uuid(),
@@ -13,4 +13,4 @@ export const undoGhostedJobApplicationsSchema = z.object({
 });
 
 // What it takes to put the applications back where they were
-export type GhostedUndo = z.input<typeof undoGhostedJobApplicationsSchema>;
+export type GhostedUndo = z.input<typeof ghostedUndoSchema>;

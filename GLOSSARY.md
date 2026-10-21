@@ -56,6 +56,9 @@ _Avoid_: Outcome, result
 **Upcoming**:
 An InterviewRound that is Scheduled and still in the future.
 
+**ApplicationLifecycle**:
+The module that keeps a JobApplication's Status, its Status history and the outcomes of its InterviewRounds consistent: every change to one goes through it, so the others follow (rule 8 in `docs/01-domain-model.md`). Lives in `src/features/job-applications/lifecycle/`.
+
 ## Relationships
 
 - An **Organization** has many **JobApplications** and many **Contacts**.
