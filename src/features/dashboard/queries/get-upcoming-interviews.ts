@@ -3,7 +3,7 @@ import { db } from '@database/db.ts';
 import { uuid } from '@database/field-values';
 import { InterviewOutcome as DbInterviewOutcome } from '@database/enums.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
-import { cacheTag } from 'next/cache';
+import { cacheLife, cacheTag } from 'next/cache';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
@@ -16,8 +16,6 @@ import {
 import type { RoundType } from '@/features/job-applications/types/enums/round-type.ts';
 import type { UpcomingInterview } from '@/features/dashboard/types/upcoming-interview.ts';
 
-const NOW_BUCKET_MS = 60_000;
-
 export async function getUpcomingInterviews(
   query: GetUpcomingInterviewsQueryInput
 ): Promise<Result<CursorPage<UpcomingInterview>>> {
@@ -27,22 +25,21 @@ export async function getUpcomingInterviews(
     return parsed;
   }
 
-  // "Now" is part of the cache key, so the cached "upcoming" filter is at most one bucket stale.
-  const now = new Date(Math.floor(Date.now() / NOW_BUCKET_MS) * NOW_BUCKET_MS).toISOString();
-
-  return getUpcomingInterviewsQuery(userId, now, parsed.data);
+  return getUpcomingInterviewsQuery(userId, parsed.data);
 }
 
 async function getUpcomingInterviewsQuery(
   userId: string,
-  now: string,
   { cursor, limit }: GetUpcomingInterviewsQuery
 ): Promise<Result<CursorPage<UpcomingInterview>>> {
   'use cache';
   cacheTag(cacheTags.jobApplications(userId));
+  // What is upcoming depends on the time, not only on writes: the list is good for a minute, and
+  // "now" is the moment it is made, so it is not part of the cache key
+  cacheLife('minutes');
 
   let dbQuery = db.InterviewRound.where({ outcome: DbInterviewOutcome.members.Scheduled })
-    .where((round) => round.scheduledAt.gt(now))
+    .where((round) => round.scheduledAt.gt(new Date().toISOString()))
     .where((round) => round.jobApplication.some((ja) => ja.userId.eq(uuid(userId))))
     .include('jobApplication', (ja) =>
       ja
