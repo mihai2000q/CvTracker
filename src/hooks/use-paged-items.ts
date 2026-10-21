@@ -32,6 +32,8 @@ export function usePagedItems<T>({
   const items = [...initialItems, ...state.more];
 
   const loadMore = () => {
+    // A page is on its way: asking again would fetch the same one and append it twice
+    if (isPending) return;
     startTransition(async () => {
       try {
         const next = await loadPage(state.page + 1);
