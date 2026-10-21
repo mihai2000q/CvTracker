@@ -13,6 +13,7 @@ import {
 import DocumentActions from '@/features/documents/components/document-actions.tsx';
 import { Card } from '@/components/ui/card.tsx';
 import FileSize from '@/components/file-size.tsx';
+import LocalDateTime from '@/components/date/local-date-time.tsx';
 import DocumentThumbnail from '@/features/documents/components/document-thumbnail.tsx';
 import DocumentTypeBadge from '@/features/documents/components/document-type-badge.tsx';
 import DocumentJobApplicationsSection from '@/features/documents/components/document-job-applications-section.tsx';
@@ -81,7 +82,9 @@ const DocumentPage = async ({ params }: PageProps<'/documents/[id]'>) => {
             <div className={'text-muted-foreground flex items-center gap-1.5 text-xs'}>
               <FileSize bytes={document.size} />
               <span aria-hidden>•</span>
-              <span>Uploaded {new Date(document.uploadedAt).toLocaleDateString()}</span>
+              <span>
+                Uploaded <LocalDateTime date={document.uploadedAt} pattern={'dd MMM, yyyy'} />
+              </span>
             </div>
           </div>
 
