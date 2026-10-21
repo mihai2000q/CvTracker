@@ -6,7 +6,7 @@ import { uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { updateTag } from 'next/cache';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
-import { removeStoredDocument } from '@/features/documents/services/store-document.ts';
+import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
 import { Result } from '@/types/result.ts';
 
@@ -27,7 +27,7 @@ export async function deleteDocument(documentId: string): Promise<Result<undefin
   }
   if (!deleted) return { success: false, errors: { id: ['Document not found'] } };
 
-  await removeStoredDocument(deleted.filePath).catch(() => {});
+  await storedFiles.remove(deleted.filePath);
 
   updateTag(cacheTags.documents(getUserId(session)));
   return { success: true, data: undefined };

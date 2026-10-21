@@ -7,10 +7,7 @@ import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { updateDocumentSchema } from '@/features/documents/schemas/update-document-schema.ts';
 import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
-import {
-  removeStoredDocument,
-  storeDocument,
-} from '@/features/documents/services/store-document.ts';
+import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
@@ -41,27 +38,30 @@ export async function updateDocument(_state: SubmissionResult | undefined, formD
     });
   }
 
-  const storedFile = file ? await storeDocument(userId, file) : undefined;
-
   try {
-    await db.Document.where({ id: uuid(id) }).update({
-      type: MODEL_DOCUMENT_TYPES[type],
-      name: sized<150>(name),
-      notes: notes ?? null,
-      ...(storedFile && {
-        originalFilename: sized<255>(storedFile.originalFilename),
-        filePath: storedFile.filePath,
-        size: storedFile.size,
-      }),
-    });
+    // A new file replaces the one the row keeps, which goes once the row points at the new one
+    await storedFiles.withStored(
+      userId,
+      { file },
+      async ({ file: storedFile }) => {
+        await db.Document.where({ id: uuid(id) }).update({
+          type: MODEL_DOCUMENT_TYPES[type],
+          name: sized<150>(name),
+          notes: notes ?? null,
+          ...(storedFile && {
+            originalFilename: sized<255>(storedFile.originalFilename),
+            filePath: storedFile.filePath,
+            size: storedFile.size,
+          }),
+        });
+      },
+      { replacing: [existing.filePath] }
+    );
   } catch (error) {
-    await storedFile?.discard();
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;
   }
-
-  if (storedFile) await removeStoredDocument(existing.filePath).catch(() => {});
 
   updateTag(cacheTags.documents(userId));
   updateTag(cacheTags.jobApplications(userId));

@@ -5,6 +5,12 @@ import { requireEnv } from '@/lib/env.ts';
 import { createDiskFileAdapter } from '@/features/documents/stored-files/disk-file-adapter.ts';
 import type { FileAdapter } from '@/features/documents/stored-files/file-adapter.ts';
 
+// What `withStored` hands over: a stored file for each file that was given, and for one that
+// might not have been, one that might not be
+export type StoredFiles<Files> = {
+  [Name in keyof Files]: Files[Name] extends File ? StoredFile : StoredFile | undefined;
+};
+
 export interface StoredFile {
   // The key the row keeps in `file_path`
   filePath: string;
@@ -49,24 +55,24 @@ export function createStoredFiles(adapter: FileAdapter) {
   // Stores the files given, and hands them to `write`, which writes the rows that point at them.
   // When `write` throws no file is left behind. When it goes through, the files that these
   // replace (`replacing`) are removed, as nothing points at them anymore
-  async function withStored<Name extends string, Result>(
+  async function withStored<Files extends Record<string, File | undefined>, Result>(
     userId: string,
-    files: Partial<Record<Name, File>>,
-    write: (stored: Partial<Record<Name, StoredFile>>) => Promise<Result>,
+    files: Files,
+    write: (stored: StoredFiles<Files>) => Promise<Result>,
     { replacing = [] }: { replacing?: string[] } = {}
   ): Promise<Result> {
-    const stored: Partial<Record<Name, StoredFile>> = {};
+    const stored: Record<string, StoredFile> = {};
     const written: StoredFile[] = [];
     let result: Result;
 
     try {
-      for (const [name, file] of Object.entries<File | undefined>(files)) {
+      for (const [name, file] of Object.entries(files)) {
         if (!file) continue;
         const storedFile = await store(userId, file);
-        stored[name as Name] = storedFile;
+        stored[name] = storedFile;
         written.push(storedFile);
       }
-      result = await write(stored);
+      result = await write(stored as StoredFiles<Files>);
     } catch (error) {
       await Promise.all(written.map(({ filePath }) => remove(filePath)));
       throw error;

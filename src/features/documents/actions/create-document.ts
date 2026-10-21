@@ -7,7 +7,7 @@ import { constraintViolationReply } from '@database/sql-error.ts';
 import { getUserId, verifySession } from '@/lib/auth/session.ts';
 import { createDocumentSchema } from '@/features/documents/schemas/create-document-schema.ts';
 import { MODEL_DOCUMENT_TYPES } from '@/features/documents/types/enums/model-document-type.ts';
-import { storeDocument } from '@/features/documents/services/store-document.ts';
+import { storedFiles } from '@/features/documents/stored-files/stored-files.ts';
 import type { SubmissionResult } from '@conform-to/react';
 import { zodValidateForm } from '@/lib/zod/parse.ts';
 import { cacheTags } from '@/lib/cache-tags.ts';
@@ -23,21 +23,20 @@ export async function createDocument(_state: SubmissionResult | undefined, formD
 
   const { type, name, file, notes, skillIds } = submission.value;
 
-  const { discard, ...storedFile } = await storeDocument(userId, file);
-
   try {
-    await db.Document.create({
-      type: MODEL_DOCUMENT_TYPES[type],
-      name: sized<150>(name),
-      originalFilename: sized<255>(storedFile.originalFilename),
-      filePath: storedFile.filePath,
-      size: storedFile.size,
-      notes,
-      skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
-      userId: uuid(userId),
+    await storedFiles.withStored(userId, { file }, async ({ file: storedFile }) => {
+      await db.Document.create({
+        type: MODEL_DOCUMENT_TYPES[type],
+        name: sized<150>(name),
+        originalFilename: sized<255>(storedFile.originalFilename),
+        filePath: storedFile.filePath,
+        size: storedFile.size,
+        notes,
+        skills: (skills) => skills.create(skillIds.map((skillId) => ({ skillId: uuid(skillId) }))),
+        userId: uuid(userId),
+      });
     });
   } catch (error) {
-    await discard();
     const reply = constraintViolationReply(error);
     if (reply) return submission.reply(reply);
     throw error;
