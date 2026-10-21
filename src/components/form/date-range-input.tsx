@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { endOfYear, format, parseISO, startOfYear, subDays, subMonths } from 'date-fns';
+import { endOfYear, format, parseISO, startOfYear, subDays, subMonths, subYears } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { RiArrowDownSLine, RiCalendarLine, RiCloseLine } from '@remixicon/react';
 import { Button } from '@/components/ui/button.tsx';
@@ -20,7 +20,7 @@ const PRESETS: { label: string; range: () => DateRange }[] = [
   {
     label: 'Last year',
     range: () => {
-      const lastYear = subMonths(new Date(), 12);
+      const lastYear = subYears(new Date(), 1);
       return { from: startOfYear(lastYear), to: endOfYear(lastYear) };
     },
   },
