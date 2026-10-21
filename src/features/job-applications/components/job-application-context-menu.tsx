@@ -53,7 +53,7 @@ const JobApplicationContextMenu = ({ jobApplication, children }: Props) => {
 
   function handleStatusChange(status: JobApplicationStatus) {
     if (status === jobApplication.currentStatus) return;
-    run(() => changeJobApplicationStatus(jobApplication.id, status), {
+    run(() => changeJobApplicationStatus({ jobApplicationId: jobApplication.id, status }), {
       onSuccess: (data) =>
         toast.add({
           type: 'success',

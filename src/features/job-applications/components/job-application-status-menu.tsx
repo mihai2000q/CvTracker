@@ -31,7 +31,7 @@ const JobApplicationStatusMenu = ({ jobApplicationId, status }: Props) => {
 
   function handleChange(next: JobApplicationStatus) {
     if (next === status) return;
-    run(() => changeJobApplicationStatus(jobApplicationId, next), {
+    run(() => changeJobApplicationStatus({ jobApplicationId, status: next }), {
       onSuccess: (data) =>
         toast.add({
           type: 'success',

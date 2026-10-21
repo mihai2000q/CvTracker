@@ -1,6 +1,5 @@
 'use server';
 
-import { z } from 'zod';
 import { updateTag } from 'next/cache';
 import { db, dbClient } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
@@ -18,29 +17,26 @@ import {
   settleRoundsOnOffer,
   settleRoundsOnRejection,
 } from '@/features/job-applications/services/cancel-upcoming-rounds.ts';
+import {
+  changeJobApplicationStatusSchema,
+  ChangeJobApplicationStatusInput,
+} from '@/features/job-applications/schemas/change-job-application-status-schema.ts';
 import { recordStatusChange } from '@/features/job-applications/services/record-status-change.ts';
 import { JobApplicationStatus } from '@/features/job-applications/types/enums/job-application-status.ts';
-
-const changeStatusSchema = z.object({
-  jobApplicationId: z.uuid('Job application is invalid'),
-  status: z.enum(JobApplicationStatus, 'Status is invalid'),
-  note: z.string().trim().max(500).optional(),
-});
 
 // Moves an application to a status and records the move, and why when it says, in its history.
 // A status that ends the application cancels the interview rounds still to come, and the
 // result says how many
 export async function changeJobApplicationStatus(
-  jobApplicationId: string,
-  status: JobApplicationStatus,
-  note?: string
+  input: ChangeJobApplicationStatusInput
 ): Promise<Result<StatusChangeEffect>> {
   const userId = getUserId(await verifySession());
 
-  const parsed = zodValidate({ jobApplicationId, status, note }, changeStatusSchema);
+  const parsed = zodValidate(input, changeJobApplicationStatusSchema);
   if (!parsed.success) {
     return parsed;
   }
+  const { jobApplicationId, status, note } = parsed.data;
 
   const jobApplication = await db.JobApplication.first({ id: uuid(jobApplicationId) });
   if (!jobApplication) {

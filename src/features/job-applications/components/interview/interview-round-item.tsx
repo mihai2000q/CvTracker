@@ -60,11 +60,11 @@ const InterviewRoundItem = ({ round, organizationId, jobApplicationId }: Props) 
 
   // The round failed and another is still to come: it is up to the user
   async function rejectAfterFailedRound() {
-    const result = await changeJobApplicationStatus(
+    const result = await changeJobApplicationStatus({
       jobApplicationId,
-      JobApplicationStatus.Rejected,
-      `${roundName} round failed`
-    );
+      status: JobApplicationStatus.Rejected,
+      note: `${roundName} round failed`,
+    });
     toast.add({
       type: result.success ? 'success' : 'error',
       title: result.success ? 'Status changed' : 'Something went wrong',
