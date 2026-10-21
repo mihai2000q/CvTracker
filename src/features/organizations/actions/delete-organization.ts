@@ -1,7 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { db } from '@database/db.ts';
+import { dbClient } from '@database/db.ts';
 import { uuid } from '@database/field-values.ts';
 import { constraintViolationReply } from '@database/sql-error.ts';
 import { updateTag } from 'next/cache';
@@ -21,10 +21,16 @@ export async function deleteOrganization(organizationId: string): Promise<Result
   let deleted;
   let deletedJobApplications;
   try {
-    deletedJobApplications = await db.JobApplication.where({
-      organizationId: uuid(organizationId),
-    }).deleteAll();
-    deleted = await db.Organization.where({ id: uuid(organizationId) }).delete();
+    // One transaction, so the applications are not lost when the organization can't be deleted
+    ({ deleted, deletedJobApplications } = await dbClient.transaction(async ({ orm }) => {
+      const tx = orm.public;
+
+      const deletedJobApplications = await tx.JobApplication.where({
+        organizationId: uuid(organizationId),
+      }).deleteAll();
+      const deleted = await tx.Organization.where({ id: uuid(organizationId) }).delete();
+      return { deleted, deletedJobApplications };
+    }));
   } catch (error) {
     const reply = constraintViolationReply(error);
     if (reply) return { success: false, errors: reply };
@@ -34,6 +40,7 @@ export async function deleteOrganization(organizationId: string): Promise<Result
 
   const userId = getUserId(session);
   updateTag(cacheTags.organizations(userId));
+  updateTag(cacheTags.contacts(organizationId));
   if (deletedJobApplications.length > 0) {
     updateTag(cacheTags.jobApplications(userId));
   }
