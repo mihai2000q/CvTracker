@@ -191,7 +191,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
             <div className={'flex gap-2 pt-2'}>
               <DialogClose onClick={reset} render={<Button variant="outline">Cancel</Button>} />
               <Button type="submit" loading={isPending}>
-                Save changes
+                Save Changes
               </Button>
             </div>
           </DialogFooter>
