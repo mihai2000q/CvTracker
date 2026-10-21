@@ -65,7 +65,7 @@ const ScheduleInterviewDialog = ({ jobApplication, open, onOpenChange }: Props) 
             ? 'Interview scheduled! Status moved to Interview'
             : 'Interview scheduled',
           description:
-            `${ROUND_TYPE_LABELS[formData.get('roundType') as RoundType]}` +
+            `${ROUND_TYPE_LABELS[formData.get('roundType') as RoundType]} ` +
             `for ${jobApplication.title} at ${jobApplication.organization.name}`,
         });
 
