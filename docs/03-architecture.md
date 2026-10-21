@@ -21,7 +21,7 @@ reaches the server through three mechanisms (details and the full list in
 Code is organized by feature (`src/features/` has `auth`, `countries`,
 `dashboard`, `documents`, `job-applications` and `organizations`), each with
 its own `queries/`, `actions/`, `schemas/` (zod), `types/`, `constants/`,
-`services/` and `components/` as needed. Shared code is in `src/lib/`, shared
+`services/`, `hooks/` and `components/` as needed. Shared code is in `src/lib/`, shared
 types in `src/types/`, shared UI in `src/components/`, and everything
 database-related (Prisma contract, migrations, seeds, query helpers) in
 `database/`. Shared code does not depend on a feature, with one exception:
