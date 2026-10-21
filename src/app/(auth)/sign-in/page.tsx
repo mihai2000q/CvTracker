@@ -61,12 +61,6 @@ const SignIn = () => {
                   <FieldLabel htmlFor={fields.password.id} hideIndicator>
                     Password
                   </FieldLabel>
-                  <a
-                    href="#"
-                    className="text-muted-foreground ml-auto inline-block text-xs underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </a>
                 </div>
                 <Input
                   {...getInputProps(fields.password, { type: 'password' })}
