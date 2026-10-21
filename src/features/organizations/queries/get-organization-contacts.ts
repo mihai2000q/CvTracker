@@ -9,9 +9,7 @@ import { zodValidate } from '@/lib/zod/parse.ts';
 import { Result } from '@/types/result.ts';
 import { Contact } from '@/features/organizations/types/contact.ts';
 
-export async function getOrganizationContacts(
-  organizationId: string
-): Promise<Result<Contact[]>> {
+export async function getOrganizationContacts(organizationId: string): Promise<Result<Contact[]>> {
   const userId = getUserId(await verifySession());
   const parsed = zodValidate(organizationId, z.uuid());
   if (!parsed.success) {

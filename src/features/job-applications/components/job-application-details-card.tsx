@@ -39,7 +39,7 @@ const JobApplicationDetailsCard = ({
             <JobApplicationSourceIcon
               source={jobApplication.source}
               colored
-              className={'size-3.5 mb-1'}
+              className={'mb-1 size-3.5'}
             />
             <span className={'truncate'}>{jobApplication.source}</span>
           </>

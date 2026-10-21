@@ -11,7 +11,8 @@ export async function GET(
   }
 
   // ?inline=1 lets the browser display the file (e.g. a PDF) instead of downloading it
-  const disposition = new URL(request.url).searchParams.get('inline') === '1' ? 'inline' : 'attachment';
+  const disposition =
+    new URL(request.url).searchParams.get('inline') === '1' ? 'inline' : 'attachment';
 
   return new Response(document.stream, {
     headers: {

@@ -115,9 +115,7 @@ const CreateJobApplicationDialog = ({ children, open, onOpenChange, organization
                     </InputGroupAddon>
                     <InputGroupInput
                       {...getInputProps(fields.postingUrl, { type: 'text' })}
-                      onChange={(event) =>
-                        setPostingUrl({ url: event.target.value, resetKey })
-                      }
+                      onChange={(event) => setPostingUrl({ url: event.target.value, resetKey })}
                       placeholder="https://"
                     />
                   </InputGroup>

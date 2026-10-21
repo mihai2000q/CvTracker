@@ -16,7 +16,7 @@ const OrganizationCountryBadge = ({
       href={`/countries/${country.id}`}
       prefetch={false}
       className={cn(
-        'pointer-events-auto inline-flex items-center gap-1.5 rounded-sm border bg-muted/50 px-2 py-1 text-[0.6875rem]',
+        'bg-muted/50 pointer-events-auto inline-flex items-center gap-1.5 rounded-sm border px-2 py-1 text-[0.6875rem]',
         'hover:bg-muted leading-none transition-colors',
         className
       )}

@@ -13,7 +13,7 @@ const OrganizationWebsiteUrl = ({ link }: { link: string }) => {
   return (
     <div
       className={
-        'flex max-w-[50%] min-w-0 items-center gap-1 text-[0.6875rem] font-medium text-muted-foreground'
+        'text-muted-foreground flex max-w-[50%] min-w-0 items-center gap-1 text-[0.6875rem] font-medium'
       }
     >
       <RiLink className={'size-3 shrink-0'} />

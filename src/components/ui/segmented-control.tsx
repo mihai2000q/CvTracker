@@ -43,13 +43,7 @@ function SegmentedControl({ items, variant = 'primary', className, ...props }: P
         >
           {label}
           {count !== undefined && (
-            <span
-              className={cn(
-                'text-xs font-medium tabular-nums',
-              )}
-            >
-              {count}
-            </span>
+            <span className={cn('text-xs font-medium tabular-nums')}>{count}</span>
           )}
         </Link>
       ))}

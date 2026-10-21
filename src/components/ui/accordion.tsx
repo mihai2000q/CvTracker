@@ -44,7 +44,7 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
         <RiArrowDownSLine
           data-slot="accordion-trigger-icon"
           className={cn(
-            'transition-[color,rotate] pointer-events-none ml-auto shrink-0 duration-150',
+            'pointer-events-none ml-auto shrink-0 transition-[color,rotate] duration-150',
             'text-muted-foreground size-5 group-aria-expanded/accordion-trigger:rotate-180'
           )}
         />
