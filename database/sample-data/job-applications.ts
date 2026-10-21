@@ -1,3 +1,4 @@
+import { Temporal } from 'temporal-polyfill';
 import type { Database } from '../db.ts';
 import { sized, uuid } from '../field-values.ts';
 import { ApplicationStatus, InterviewOutcome, RoundType } from '../enums.ts';
