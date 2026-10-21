@@ -28,7 +28,7 @@ export async function createOrganization(_state: SubmissionResult | undefined, f
       notes,
       organizationCountries: (organizationCountries) =>
         organizationCountries.create(
-          countryIds.map((countryId) => ({ countryId: uuid(countryId) }))
+          [...new Set(countryIds)].map((countryId) => ({ countryId: uuid(countryId) }))
         ),
       userId: uuid(userId),
     });
