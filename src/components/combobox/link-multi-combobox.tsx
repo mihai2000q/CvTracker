@@ -27,6 +27,8 @@ interface Props {
   icon?: React.ReactNode;
   // For the dropdown, which is as wide as the box unless it says otherwise
   contentClassName?: string;
+  // Where the dropdown sits against the box when the two differ in width
+  contentAlign?: 'start' | 'center' | 'end';
   inputProps?: ComboboxInputProps;
 }
 
@@ -50,6 +52,7 @@ const LinkMultiCombobox = ({
   clearHref,
   icon,
   contentClassName,
+  contentAlign,
   inputProps,
 }: Props) => {
   const anchor = useComboboxAnchor();
@@ -78,7 +81,7 @@ const LinkMultiCombobox = ({
         ) : null}
       </ComboboxInput>
 
-      <ComboboxContent anchor={anchor} className={contentClassName}>
+      <ComboboxContent anchor={anchor} align={contentAlign} className={contentClassName}>
         <ScrollArea viewportProps={{ className: 'max-h-65' }}>
           <ComboboxList className="max-h-none overflow-visible">
             {(option: LinkOption) => (
